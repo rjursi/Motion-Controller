@@ -4,6 +4,7 @@ var fs = require('fs'); // 파일 읽기, 쓰기 등이 가능한 모듈
 const hostname = '0.0.0.0';
 const port = 3000;
 
+
 const https_options = {
 	key: fs.readFileSync('./https_key/key.pem'),
 	cert: fs.readFileSync('./https_key/cert.pem')
