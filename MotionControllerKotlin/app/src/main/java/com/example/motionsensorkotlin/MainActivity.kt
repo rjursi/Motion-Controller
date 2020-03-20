@@ -42,6 +42,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         accTestBtn.setOnTouchListener { _: View, event:MotionEvent ->
+
             when(event.action){
                 MotionEvent.ACTION_DOWN -> {
                     // 터치가 눌리면

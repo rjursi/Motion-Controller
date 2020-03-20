@@ -1,6 +1,7 @@
 # Not Commit List
 
-WebServer/https_key
 WebServer/node_modules
 
 
+MotionControllerKotlin/.idea
+MotionControllerKotlin/.gradle
