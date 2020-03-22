@@ -7,7 +7,7 @@ function ioEventHandler(server){
   var io = require('socket.io')(server);
   // 해당 서버롤 socket.io 가 지원되는 서버로 업그레이드 한다.
 
-  io.on('connection', ioConnected); // 처음 연결시 이벤트
+  io.on('connection', ioConnected); // 처음 연결시 부여할 이벤트를 생성한다.
 }
  
 function ioConnected(socket){

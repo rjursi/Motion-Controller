@@ -19,7 +19,8 @@ function onRequest(req, res){
 
 
 // 아래부터 소스 코드 시작
-ioHandler.ioEventHandler(server);
+
+ioHandler.ioEventHandler(server); // 객체 생성후 서버 객체 할당
 
 server.listen(port, hostname, () =>
   console.log(`Listening on host ${hostname} and port ${port}`)

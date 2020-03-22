@@ -25,6 +25,8 @@ class MainActivity : AppCompatActivity() {
 
     var accelerometerSensorListener : AccelerometerSensorListener = AccelerometerSensorListener()
     // 객체 생성 및 클래스 생성자를 통하여 초기화
+    var IoSocketConn : IoSocket = IoSocket()
+
 
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,6 +43,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        IoSocketConn.connectIoServer()
         accTestBtn.setOnTouchListener { _: View, event:MotionEvent ->
 
             when(event.action){
