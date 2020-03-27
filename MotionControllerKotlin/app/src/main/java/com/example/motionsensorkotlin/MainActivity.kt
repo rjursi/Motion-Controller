@@ -23,10 +23,10 @@ class MainActivity : AppCompatActivity() {
         // sensorManager 변수를 처음 사용할 때 getSystemService() 메서드로 SensorManager 객체를 얻음
     }
 
-    var accelerometerSensorListener : AccelerometerSensorListener = AccelerometerSensorListener()
-    // 객체 생성 및 클래스 생성자를 통하여 초기화
-    var IoSocketConn : IoSocket = IoSocket()
 
+    var IoSocketConn : IoSocket = IoSocket()
+    var accelerometerSensorListener : AccelerometerSensorListener = AccelerometerSensorListener(IoSocketConn)
+    // 객체 생성 및 클래스 생성자를 통하여 초기화
 
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,11 +44,18 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         IoSocketConn.connectIoServer()
+        // 서버 연결
+
+
         accTestBtn.setOnTouchListener { _: View, event:MotionEvent ->
 
             when(event.action){
                 MotionEvent.ACTION_DOWN -> {
                     // 터치가 눌리면
+
+
+
+                    // 가속도 센서 값을 보낼거라는 신호를 보냄
                     sensorManager.registerListener(accelerometerSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
                         SensorManager.SENSOR_DELAY_GAME)
 
