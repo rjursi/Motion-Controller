@@ -51,9 +51,6 @@ class MainActivity : AppCompatActivity() {
 
             when(event.action){
                 MotionEvent.ACTION_DOWN -> {
-                    // 터치가 눌리면
-
-
 
                     // 가속도 센서 값을 보낼거라는 신호를 보냄
                     sensorManager.registerListener(accelerometerSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
