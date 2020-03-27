@@ -49,6 +49,12 @@ io.on('connection', function (socket){
     
   })
 
+  socket.on('AccData', function(data){
+    console.log(`${data}`)
+  }) 
+  
+  
+
   socket.on('say', function(data){ // 클라이언트가 say 라는 이벤트  를 발생시키면 해당 콜백 함수를 작동시켜라
     console.log(`${nickname} : ${data}`)
 
