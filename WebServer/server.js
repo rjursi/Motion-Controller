@@ -1,35 +1,87 @@
-
-var app = require('express')();
-var server = require('http').Server(app);
-// express 를 사용한 서버를 구축 (express : node.js 웹 프레임워크)
-var ioHandler = require('./ioEvents.js');
-
-const hostname = '0.0.0.0';
-const port = 3000;
+var express = require('express');
+var app = express();
+var socketio = require('socket.io');
 
 
+var server = app.listen(3000, ()=>{
+  console.log('Listening at port number 3000...')
+});
+// express 웹서버 프레임워크로 3000 포트르 Listen
 
-function onRequest(req, res){
-  res.sendFile(__dirname + '/res/index.html');
-  // 성공적으로 연결이 되면 해당 html 파일로 연결을 해라
-  // 맨 처음으로 들어왔을때 클라이언트에게 보여줄 페이지를 여기서 설정
-
- 
-}
-
-
-// 아래부터 소스 코드 시작
-
-ioHandler.ioEventHandler(server); // 객체 생성후 서버 객체 할당
-
-server.listen(port, hostname, () =>
-  console.log(`Listening on host ${hostname} and port ${port}`)
-);
-
-app.get('/', onRequest);
-// 서버로부터 요청이 들어올 경우 아래 request 함수가 처리
+var io = socketio.listen(server);
+//express 서버를 socket.io 서버로 업그레이드
 
 
+var whoIsOn = [];
+// 서버에 누가 있는지를 저장하는 배열
 
 
+// 해당 사버는 어떤 클라이언트가 connection event 를 발생시키고 있는 것인지를 대기중
+
+
+// callback 으로 넘겨지는 socket 에는 현재 클라이언트와 연결되어있는 socket 관련 정보들이 다 들어가 있음
+
+io.on('connection', function (socket){
+  
+  var nickname = '';
+
+
+  // socket.on('login') : 클라이언트가 login 이벤트를 발생시키면
+  // 어떤 콜백 함수를 작동시킬 것인지를 설정하는 것
+
+  socket.on('login', function(data){
+    console.log(`${data} has entered room! --------`);
+    whoIsOn.push(data);
+    nickname = data;
+
+    
+    var whoIsOnJson = `${whoIsOn}`
+    
+    console.log(whoIsOnJson)
+
+
+
+    //io.emit과 socket.emit의 다른점은 io.는 서버에 연결된 모든 소켓에 보내는 것이고
+    //socket.emit은 현재 그 소켓에만 보내는 것
+
+    // io.emit('newUser',whoIsOnJson);
+    // emit 은 데이터를 보내는 것
+    
+  })
+
+  socket.on('say', function(data){ // 클라이언트가 say 라는 이벤트  를 발생시키면 해당 콜백 함수를 작동시켜라
+    console.log(`${nickname} : ${data}`)
+
+
+    socket.emit('myMsg',data);
+    socket.broadcast.emit('newMsg',data);
+
+    // socket.broadcast.emit 은 현재 소켓이외에 서버에 연결된 모든 소켓에 보내는 것
+
+  })
+
+  socket.on('disconnect', function(){
+    console.log(`${nickname} has left this chatroom ---------`)
+
+
+  })
+
+  socket.on('logout', function(){
+    
+    // Delete User in the whoIsOn Array
+
+    whoIsOn.splice(whoIsOn.indexOf(nickname), 1);
+
+    var data = {
+      whoIsOn: whoIsOn,
+      disconnected : nickname
+    }
+   
+    // jsonData
+
+
+    socket.emit('logout',data)
+  })
+
+});
 
