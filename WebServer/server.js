@@ -51,11 +51,13 @@ io.on('connection', function (socket){
 
   socket.on('AccData', function(data){
     
-    
     console.log(`x : ${data.x}, y : ${data.y}, z : ${data.z}`)
     
   }) 
   
+  socket.on('GyroData', function(data){
+    console.log(`gyro-x : ${data.xRoll}, y : ${data.yPitch}, z : ${data.zYaw}`)
+  })
 
   socket.on('say', function(data){ // 클라이언트가 say 라는 이벤트  를 발생시키면 해당 콜백 함수를 작동시켜라
 
@@ -87,7 +89,7 @@ io.on('connection', function (socket){
       disconnected : nickname
     }
    
-    // jsonData
+    // jsonData	
 
 
     socket.emit('logout',data)
