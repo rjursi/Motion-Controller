@@ -40,6 +40,10 @@ class IoSocket {
         mSocket.emit("AccData", data)
     }
 
+    fun sendGyroData(data : JSONObject){
+        mSocket.emit("GyroData", data)
+    }
+
     val onConnect: Emitter.Listener = Emitter.Listener {
         // login 이벤트를 서버쪽으로 같이 보낼 예정
 

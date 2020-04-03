@@ -12,8 +12,7 @@ import org.json.JSONObject
 class AccelerometerSensorListener(IoSocket : IoSocket) :  AppCompatActivity(), SensorEventListener{
 
     var IoSocket = IoSocket
-    var accDataArray = arrayOfNulls<Float>(3)
-    // 배열의 크기는 3이고 각 자리에는 0이 들어가 있음
+
 
 
 

@@ -27,6 +27,7 @@ class MainActivity : AppCompatActivity() {
     var IoSocketConn : IoSocket = IoSocket()
     var accelerometerSensorListener : AccelerometerSensorListener = AccelerometerSensorListener(IoSocketConn)
     // 객체 생성 및 클래스 생성자를 통하여 초기화
+    var gyroScopeSensorListener : GyroScopeSensorListener = GyroScopeSensorListener(IoSocketConn)
 
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,7 +52,7 @@ class MainActivity : AppCompatActivity() {
 
             when(event.action){
                 MotionEvent.ACTION_DOWN -> {
-
+                    /*
                     // 가속도 센서 값을 보낼거라는 신호를 보냄
                     sensorManager.registerListener(accelerometerSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
                         SensorManager.SENSOR_DELAY_GAME)
@@ -59,10 +60,20 @@ class MainActivity : AppCompatActivity() {
                     // 현재 액티비티에서 센서 값을 받도록 설정
                     // Sensor.TYPE_ACCELEROMETER - 가속도 센서 사용
                     // SensorManager.SENSOR_DELAY_GAME - 센서 값을 얼마나 자주 받을 것인지를 지정, 게임에 적합한 정도로 받음
+
+
+                     */
+
+
+                    // 자이로스코프 센서를 사용할 경우
+                    sensorManager.registerListener(gyroScopeSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE), SensorManager.SENSOR_DELAY_NORMAL)
+
                 }
 
                 MotionEvent.ACTION_UP -> {
-                    sensorManager.unregisterListener(accelerometerSensorListener)
+                     // sensorManager.unregisterListener(accelerometerSensorListener)
+
+                    sensorManager.unregisterListener(gyroScopeSensorListener)
                 }
 
             }
