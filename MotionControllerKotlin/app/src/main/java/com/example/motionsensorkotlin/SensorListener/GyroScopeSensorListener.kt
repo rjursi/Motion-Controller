@@ -1,10 +1,11 @@
-package com.example.motionsensorkotlin
+package com.example.motionsensorkotlin.SensorListener
 
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.example.motionsensorkotlin.IOSocket.IoSocket
 import org.json.JSONObject
 
 class GyroScopeSensorListener (IoSocket : IoSocket) :  AppCompatActivity(), SensorEventListener {

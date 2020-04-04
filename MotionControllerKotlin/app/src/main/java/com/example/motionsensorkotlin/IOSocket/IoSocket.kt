@@ -1,4 +1,4 @@
-package com.example.motionsensorkotlin
+package com.example.motionsensorkotlin.IOSocket
 
 import android.util.Log
 import android.widget.Toast
@@ -15,10 +15,11 @@ class IoSocket {
 
     var users: Array<String> = arrayOf()
 
+    lateinit var userId : String
 
-    fun connectIoServer(){
+    fun connectIoServer(uniqueID : String){
 
-        username = "testUser"
+        userId = uniqueID
 
         try{
             mSocket = IO.socket("https://jswebgame.run.goorm.io")
@@ -35,21 +36,26 @@ class IoSocket {
         // 위 연결이 성공적으로 연결이 되면 server 측에서 "connect" 이벤트를 발생
     }
 
+    val onConnect: Emitter.Listener = Emitter.Listener {
+        // login 이벤트를 서버쪽으로 같이 보낼 예정
 
+        mSocket.emit("login", userId)
+        Log.d("IOSocket", "Socket is Connected with $userId")
+    }
+
+
+    // 가속도 센서 데이터 보내는 함수
     fun sendAccData(data : JSONObject){
         mSocket.emit("AccData", data)
     }
+
+    // 자이로스코프 센서 데이터 보내는 함수
 
     fun sendGyroData(data : JSONObject){
         mSocket.emit("GyroData", data)
     }
 
-    val onConnect: Emitter.Listener = Emitter.Listener {
-        // login 이벤트를 서버쪽으로 같이 보낼 예정
 
-        mSocket.emit("login", username)
-        Log.d("IOSocket","Socket is Connected with ${username}")
-    }
 
 
 }
