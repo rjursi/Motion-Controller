@@ -1,19 +1,18 @@
-package com.example.motionsensorkotlin
+package com.example.motionsensorkotlin.SensorListener
 
 
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.example.motionsensorkotlin.IOSocket.IoSocket
 import org.json.JSONObject
 
 
 class AccelerometerSensorListener(IoSocket : IoSocket) :  AppCompatActivity(), SensorEventListener{
 
     var IoSocket = IoSocket
-    var accDataArray = arrayOfNulls<Float>(3)
-    // 배열의 크기는 3이고 각 자리에는 0이 들어가 있음
+
 
 
 

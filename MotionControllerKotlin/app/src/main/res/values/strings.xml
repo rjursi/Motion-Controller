@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">MotionSensorKotlin</string>
+    <string name="Intro">Intro</string>
 </resources>
