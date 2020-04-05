@@ -2,8 +2,9 @@
   "name": "webserver",
   "version": "1.0.0",
   "description": "JSWebGame Node Web Server",
-  "main": "main.js",
+  "main": "server.js",
   "dependencies": {
+    "ejs": "^3.0.2",
     "express": "^4.17.1",
     "http": "^0.0.0",
     "https": "^1.0.0",
