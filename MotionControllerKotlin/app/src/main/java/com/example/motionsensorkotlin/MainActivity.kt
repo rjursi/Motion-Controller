@@ -69,6 +69,10 @@ class MainActivity : AppCompatActivity() {
         // 서버 연결
         IoSocketConn.connectIoServer(uniqueID)
 
+        // 바로 센서가 동작하도록 설정, 센서 값은 보통 속도로 넘기도록 설정
+        sensorManager.registerListener(gyroScopeSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE), SensorManager.SENSOR_DELAY_NORMAL)
+
+        /*
         accTestBtn.setOnTouchListener { _: View, event:MotionEvent ->
 
             when(event.action){
@@ -101,11 +105,39 @@ class MainActivity : AppCompatActivity() {
 
             true
         }
-    }
 
+
+        */
+    }
+    
+    
+    // 어플리케이션을 잠시 내렸을 경우
     override fun onPause() {
         super.onPause()
 
-        sensorManager.unregisterListener(accelerometerSensorListener)
+        sensorManager.unregisterListener(gyroScopeSensorListener)
+        IoSocketConn.sendPauseMsg()
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        sensorManager.unregisterListener(gyroScopeSensorListener)
+        IoSocketConn.sendStopMsg()
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+
+        sensorManager.registerListener(gyroScopeSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE), SensorManager.SENSOR_DELAY_NORMAL)
+        IoSocketConn.sendRestartMsg()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        IoSocketConn.sendLogoutMsg();
+
+
     }
 }

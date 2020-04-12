@@ -39,23 +39,41 @@ class IoSocket {
     val onConnect: Emitter.Listener = Emitter.Listener {
         // login 이벤트를 서버쪽으로 같이 보낼 예정
 
-        mSocket.emit("login", userId)
+
+        // 로그인 한다는 이벤트를 보냄
+        mSocket.emit("ad_login", userId)
         Log.d("IOSocket", "Socket is Connected with $userId")
     }
 
 
     // 가속도 센서 데이터 보내는 함수
     fun sendAccData(data : JSONObject){
-        mSocket.emit("AccData", data)
+        mSocket.emit("ad_AccData", data)
     }
 
     // 자이로스코프 센서 데이터 보내는 함수
 
     fun sendGyroData(data : JSONObject){
-        mSocket.emit("GyroData", data)
+        mSocket.emit("ad_GyroData", data)
     }
 
 
+    fun sendLogoutMsg(){
+        mSocket.emit("ad_logout", userId)
+    }
 
 
+    fun sendPauseMsg(){
+        mSocket.emit("ad_pause", userId)
+    }
+
+
+    fun sendStopMsg(){
+        mSocket.emit("ad_stop", userId)
+    }
+
+
+    fun sendRestartMsg(){
+        mSocket.emit("ad_restart", userId)
+    }
 }
