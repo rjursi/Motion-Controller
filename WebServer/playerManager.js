@@ -40,7 +40,9 @@ playerManager.prototype.addPlayer = function(id){
 	
 	players.push( player );
 	
-	// console.log(players);
+	console.log(player.playerId + "entered on the game!");
+	
+	console.log("Now Server Players : " + players);
 	return player;
 };
 
@@ -55,7 +57,7 @@ playerManager.prototype.removePlayer = function(player){
 	}
 };
 
-// 하나의 플레이어의 각종 값을 바꾸는 함수
+// 지정한 하나의 플레이어의 각종 값을 바꾸는 함수
 playerManager.prototype.updatePlayerData = function(data){
 	var player = playerForId(data.playerId);
 	
@@ -72,6 +74,7 @@ playerManager.prototype.updatePlayerData = function(data){
 };
 
 
+// 지정한 하나의 플레이어 값을 반환하는 함수
 playerManager.prototype.playerForId = function(id){
 	var player;
 	

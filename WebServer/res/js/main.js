@@ -1,6 +1,11 @@
 // object는 일단 각종 요소(예를 들어 큐브) 등의 요소들이 들어가는 부분
 
 var scene, camera, renderer, container, objects = [];
+var player, playerId, moveSpeed, turnSpeed;
+
+var playerData;
+
+var otherPlayers = [], otherPlayersId = [];
 
 
 // THREE.js 에는 3가지가 필수로 필요한데 
@@ -10,7 +15,6 @@ var scene, camera, renderer, container, objects = [];
 
 // 초기 다양한 값 세팅하기 위한 함수
 init();
-
 // renderer 를 통하여 camera 와 함께 화면에 표시하는 함수
 animate();
 
@@ -31,7 +35,7 @@ function init(){
 	// 0.1, 1000 : 근거리 및 원거리 클리핑 평면
 	//   카메라에서 멀거나 가까운 값보다 가까운 거리에 있는 물체는 렌더링 되지 않음
 	//   값 비율을 조절할 것
-
+	
 
 	// renderer 생성
 	// WebGL 을 사용하는 렌더러 사용
@@ -81,13 +85,106 @@ function animate(){
 
 	// objects의 첫번째 배열은 현재 큐브가 들어가 있음
 	
+	
+	/*
 	objects[0].rotation.x += 0.1;
 	objects[0].rotation.y += 0.1; 
 	// 요러면 큐브가 돌고 돈다.
-
+	
+	*/
+	
+	
 	renderer.render(scene, camera);
 }
 	
 
+var createPlayer = function(data){
+	playerData = data;
+	
+	var cube_geometry = new THREE.BoxGeometry(data.sizeX, data.sizeY, data.SizeZ);
+	
+	var cube_material = new THREE.MeshBasicMaterial({color : 0x7777ff, wireframe : false});
+	
+	player = new THREE.Mesh(cube_geometry, cube_material);
+	
+	
+	player.rotation.set(0,0,0);
+	
+	player.position.x = data.x;
+	player.position.y = data.y;
+	player.position.z = data.z;
+	
+	playerId = data.playerId;
+	moveSpeed = data.speed;
+	turnSpeed = data.turnSpeed;
+	
+	objects.push(player);
+	scene.add(player);
+	
+	camera.lookAt(player.position);
+};
+
+// 특정 플레이어의 위치 값을 바꾸는 함수
+
+var updatePlayerPosition = function(data){
+	var somePlayer = playerForId(data.playerId);
+	
+	somePlayer.position.x = data.x;
+	somePlayer.position.y = data.y;
+	somePlayer.position.z = data.z;
+	
+	somePlayer.rotation.x = data.r_x;
+	somePlayer.rotation.y = data.r_y;
+	somePlayer.rotation.z = data.r_z;
+	
+	
+};
 
 
+var updatePlayerData = function(){
+	
+	playerData.x = player.position.x;
+	playerData.y = player.position.y;
+	playerData.z = player.position.z;
+	
+	
+	playerData.r_x = player.rotation.x;
+	playerData.r_y = player.rotation.y;
+	playerData.r_z = player.rotation.z;
+	
+	
+};
+
+
+var addOtherPlayer = function(data){
+    var cube_geometry = new THREE.BoxGeometry(data.sizeX, data.sizeY, data.sizeZ);
+    var cube_material = new THREE.MeshBasicMaterial({color: 0x7777ff, wireframe: false});
+    var otherPlayer = new THREE.Mesh(cube_geometry, cube_material);
+
+    otherPlayer.position.x = data.x;
+    otherPlayer.position.y = data.y;
+    otherPlayer.position.z = data.z;
+
+    otherPlayersId.push( data.playerId );
+    otherPlayers.push( otherPlayer );
+    objects.push( otherPlayer );
+    scene.add( otherPlayer );
+
+};
+
+var removeOtherPlayer = function(data){
+
+    scene.remove(playerForId(data.playerId));
+
+};
+
+var playerForId = function(id){
+    var index;
+    for (var i = 0; i < otherPlayersId.length; i++){
+        if (otherPlayersId[i] == id){
+            index = i;
+            break;
+        }
+    }
+    return otherPlayers[index];
+};
