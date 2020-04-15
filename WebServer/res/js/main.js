@@ -135,6 +135,14 @@ var removeMyPlayer = function(data){
 	
 }
 
+
+
+var updateMyDirection = function(data){
+	player.rotation.x = data.xRoll;
+	player.rotation.y = data.yPitch;
+	player.rotation.z = data.zYaw;
+	
+}
 // 특정 플레이어의 위치 값을 바꾸는 함수
 var updatePlayerPosition = function(data){
 	var somePlayer = playerForId(data.playerId);

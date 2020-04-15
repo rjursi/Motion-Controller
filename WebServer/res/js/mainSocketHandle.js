@@ -1,5 +1,9 @@
 var socket = io('/uiSide');
 
+socket.on('ui_updateMyDirection', function(data){
+	
+	updateMyDirection(data);
+});
 socket.on('ui_updatePosition', function(data){
     updatePlayerPosition(data);
 });

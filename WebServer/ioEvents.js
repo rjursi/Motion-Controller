@@ -61,7 +61,9 @@ ioEvents.prototype.ioEventHandler = function(playerManager){
 			}); 
 
 			socket_ctrl.on('ad_GyroData', function(data){
-				console.log(`gyro-x : ${data.xRoll}, y : ${data.yPitch}, z : ${data.zYaw}`)
+				console.log(`gyro-x : ${data.xRoll}, y : ${data.yPitch}, z : ${data.zYaw}`);
+				
+				socket_ui.emit('ui_updateMyDirection', data);
 			});
 
 
