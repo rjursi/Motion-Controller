@@ -1,5 +1,9 @@
-var socket = io();
+var socket = io('/uiSide');
 
+socket.on('ui_updateMyDirection', function(data){
+	
+	updateMyDirection(data);
+});
 socket.on('ui_updatePosition', function(data){
     updatePlayerPosition(data);
 });
@@ -10,6 +14,11 @@ socket.on('ui_createPlayer', function(data){
 socket.on('ui_addOtherPlayer', function(data){
     addOtherPlayer(data);
 });
+
+socket.on('ui_removeMyPlayer', function(data){
+    removeMyPlayer(data);
+});
+
 socket.on('ui_removeOtherPlayer', function(data){
     removeOtherPlayer(data);
 });

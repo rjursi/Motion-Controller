@@ -6,6 +6,9 @@ var socketio = require('socket.io');
 var ioEvents = require('./ioEvents');
 var playerManager = require('./playerManager');
 
+
+
+
 // 각종 페이지 요청 파일들을 안내해주는 모듈 router
 var router = require('./router')(app);
 

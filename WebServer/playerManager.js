@@ -34,15 +34,21 @@ function playerManager(){
 
 
 playerManager.prototype.addPlayer = function(id){
+
+	// 여기서 플레이어 관련 각종 정보가 담겨져있는 객체 생성
 	var player = new playerManager();
+	
 	
 	player.playerId = id;
 	
+	// 서버단 플레이어 목록에 객체 추가
 	players.push( player );
 	
 	console.log(player.playerId + "entered on the game!");
 	
-	console.log("Now Server Players : " + players);
+	console.log("Now Player Members");
+	console.log(players);
+	
 	return player;
 };
 
@@ -50,11 +56,15 @@ playerManager.prototype.removePlayer = function(player){
 	
 	var index = players.indexOf(player);
 	
+	console.log("index : " + index);
 	
 	// 배열에서 해당 플레이어를 찾으면 로그아웃 시점이므로 없애버림
 	if( index > -1){
 		players.splice(index, 1);
 	}
+	
+	console.log("PlayerManager : player removed");
+	console.log(players);
 };
 
 // 지정한 하나의 플레이어의 각종 값을 바꾸는 함수
