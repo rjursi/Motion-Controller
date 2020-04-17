@@ -134,9 +134,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        IoSocketConn.sendLogoutMsg();
+
+
         super.onDestroy()
 
-        IoSocketConn.sendLogoutMsg();
+
 
 
     }
