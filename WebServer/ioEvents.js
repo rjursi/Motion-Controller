@@ -1,8 +1,39 @@
 
 
+// 서버에서 생성한 각종 초대 코드들이 계속해서 모이는 곳
+var inviteCodes = [];
+
 // 클래스의 생성자
 function ioEvents(io){
 	this.io = io;
+}
+
+
+// 초대 코드 생성을 위한 6자리 랜덤 문자열 만들기
+function makeInviteString() {
+	var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
+	var string_length = 6;
+	var inviteCode = '';
+	
+	// 초기엔 중복 상태로 진입
+	var isDuplicate = 1;
+	
+	while(isDuplicate == 1){
+		
+		for (var i=0; i<string_length; i++) {
+			var rnum = Math.floor(Math.random() * chars.length);
+			inviteCode += chars.substring(rnum,rnum+1);
+		}	
+		
+		
+		// 배열에 대하여 중복 검사
+	    isDuplicate = inviteCodes.findIndex(x => x.value === inviteCode);
+	}	
+	
+	inviteCodes.push(inviteCode);
+	
+//document.randform.randomfield.value = randomstring;
+	return inviteCode;	
 }
 
 
@@ -16,14 +47,19 @@ ioEvents.prototype.ioEventHandler = function(playerManager){
 	// 웹사이트 io 커넥션 관리
     const uiSide = this.io.of('/uiSide');
     const controlSide = this.io.of('/controlSide');
+	var inviteCode = '';
 	var player, playerIdTemp;
 	
 	// 안드로이드 단 단말기를 통하여 클라이언트 안에서 연결되고 나면
 	uiSide.on('connection', function (socket_ui){
-		console.log('UI Side Connected');
+		// uiSide 부분이 먼저 연결되고 나서
+		console.log(`UI Side Connected. ${socket_ui.id}`);
 		
+		
+		// 그 다음 안드로이드 컨트롤 부분이 연결되는 구조
 		controlSide.on('connection', function(socket_ctrl){
-			console.log('Control Side Connected');
+			console.log(`Control Side Connected. ${socket_ctrl.id}`);
+			
 			
 			
 		  // socket.on('login') : 클라이언트가 login 이벤트를 발생시키면
@@ -33,7 +69,11 @@ ioEvents.prototype.ioEventHandler = function(playerManager){
 				// 안드로이드 단에서 보낸 고유 어플리케이션 Instance ID 값이 넘어옴
 				console.log(`${userId} 가 Android 통하여 접속 --------`);
 
-
+				inviteCode = makeInviteString()
+				console.log(inviteCode);
+				socket_ctrl.emit('server_inviteCode', inviteCode);
+				
+				
 				playerManager.addPlayer(userId);
 
 				player = playerManager.playerForId(userId);
