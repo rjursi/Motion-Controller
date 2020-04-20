@@ -1,20 +1,27 @@
 package com.example.motionsensorkotlin
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorManager
+import android.media.MediaPlayer
+import android.media.MediaRecorder
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import com.example.motionsensorkotlin.IOSocket.IoSocket
 import com.example.motionsensorkotlin.SensorListener.AccelerometerSensorListener
 import com.example.motionsensorkotlin.SensorListener.GyroScopeSensorListener
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.IOException
 
 
 class MainActivity : AppCompatActivity() {
@@ -46,6 +53,28 @@ class MainActivity : AppCompatActivity() {
 
 
 
+////////////////////////
+    private var mediaRecorder: MediaRecorder? = null
+    private var mediaPlayer: MediaPlayer? = null
+    private var fileName: String? = null
+
+    companion object {
+        private const val REQUEST_RECORD_AUDIO_PERMISSION = 200
+    }
+    /////////////////////////////
+
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        var permissionToRecordAccepted = false
+        when (requestCode) {
+            REQUEST_RECORD_AUDIO_PERMISSION -> permissionToRecordAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED
+        }
+        if (permissionToRecordAccepted == false) finish()
+    }
+
+
+
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         // ? : Null 일 수 있음을 지칭함
@@ -61,6 +90,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), REQUEST_RECORD_AUDIO_PERMISSION)
+
 
         // 앞 Intro Activity 에서 보낸 ID 값을 받음
         introIntent = intent
@@ -72,42 +104,29 @@ class MainActivity : AppCompatActivity() {
         // 바로 센서가 동작하도록 설정, 센서 값은 보통 속도로 넘기도록 설정
         sensorManager.registerListener(gyroScopeSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE), SensorManager.SENSOR_DELAY_NORMAL)
 
-        /*
-        accTestBtn.setOnTouchListener { _: View, event:MotionEvent ->
+        fileName = externalCacheDir!!.absolutePath + "/record.3gp"
 
-            when(event.action){
-                MotionEvent.ACTION_DOWN -> {
-                    /*
-                    // 가속도 센서 값을 보낼거라는 신호를 보냄
-                    sensorManager.registerListener(accelerometerSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-                        SensorManager.SENSOR_DELAY_GAME)
+        if (mediaRecorder == null)
+            startRecording()
+        else
+            stopRecording()
+        recordBtn!!.setOnClickListener {
+            if (mediaRecorder != null)
+                stopRecording()
+            else startRecording()
+        }
 
-                    // 현재 액티비티에서 센서 값을 받도록 설정
-                    // Sensor.TYPE_ACCELEROMETER - 가속도 센서 사용
-                    // SensorManager.SENSOR_DELAY_GAME - 센서 값을 얼마나 자주 받을 것인지를 지정, 게임에 적합한 정도로 받음
-
-
-                     */
-
-
-                    // 자이로스코프 센서를 사용할 경우
-                    sensorManager.registerListener(gyroScopeSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE), SensorManager.SENSOR_DELAY_NORMAL)
-
-                }
-
-                MotionEvent.ACTION_UP -> {
-                     // sensorManager.unregisterListener(accelerometerSensorListener)
-
-                    sensorManager.unregisterListener(gyroScopeSensorListener)
-                }
-
+        playBtn!!.setOnClickListener {
+            if (mediaPlayer == null) {
+                startPlaying()
             }
-
-            true
+            else
+                stopPlaying()
         }
 
 
-        */
+
+
     }
     
     
@@ -138,9 +157,69 @@ class MainActivity : AppCompatActivity() {
 
 
         super.onDestroy()
-
-
-
-
     }
+
+
+
+
+
+
+    private fun startRecording() {
+        statusText!!.text = "녹음중"
+        recordBtn!!.text = "녹음 중지"
+        mediaRecorder = MediaRecorder()
+        mediaRecorder!!.setAudioSource(MediaRecorder.AudioSource.MIC)
+        mediaRecorder!!.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+        mediaRecorder!!.setOutputFile(fileName)
+        mediaRecorder!!.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+        try {
+            mediaRecorder!!.prepare()
+        } catch (e: IOException) {
+            e.printStackTrace()
+            Toast.makeText(this, "녹음실패", Toast.LENGTH_SHORT).show()
+            statusText!!.text = "대기상태"
+            recordBtn!!.text = "녹음시작"
+            mediaRecorder = null
+        }
+        mediaRecorder!!.start()
+    }
+
+    private fun stopRecording() {
+        statusText!!.text = "대기상태"
+        recordBtn!!.text = "녹음시작"
+        if (mediaRecorder != null) {
+            mediaRecorder!!.stop()
+            mediaRecorder!!.release()
+            mediaRecorder = null
+        }
+    }
+
+    private fun startPlaying() {
+        statusText!!.text = "재생중"
+        playBtn!!.text = "재생중지"
+        mediaPlayer = MediaPlayer()
+        mediaPlayer!!.setOnCompletionListener { stopPlaying() }
+        try {
+            mediaPlayer!!.setDataSource(fileName)
+            mediaPlayer!!.prepare()
+            mediaPlayer!!.start()
+        } catch (e: IOException) {
+            e.printStackTrace()
+            Toast.makeText(this, "재생실패", Toast.LENGTH_SHORT).show()
+            statusText!!.text = "대기상태"
+            playBtn!!.text = "재생시작"
+            mediaPlayer = null
+        }
+    }
+
+    private fun stopPlaying() {
+        statusText!!.text = "대기상태"
+        playBtn!!.text = "재생시작"
+        if (mediaPlayer != null) {
+            mediaPlayer!!.release()
+            mediaPlayer = null
+        }
+    }
+
+
 }

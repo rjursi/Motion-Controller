@@ -74,9 +74,12 @@ class IoSocket {
     // 자이로스코프 센서 데이터 보내는 함수
 
     fun sendGyroData(data : JSONObject){
-        mSocket.emit("ad_GyroData", data)
+        mSocket.emit("ad_VoiceData",data)
     }
 
+    fun sendVoiceData(data : JSONObject){
+        mSocket.emit("ad_VoiceData", data)
+    }
 
     fun sendLogoutMsg(){
         mSocket.emit("ad_logout", userId)
