@@ -3,6 +3,7 @@ package com.example.motionsensorkotlin.IOSocket
 import android.telecom.Call
 import android.util.Log
 import android.widget.Toast
+import com.example.motionsensorkotlin.MainActivity
 import com.github.nkzawa.emitter.Emitter
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
@@ -60,10 +61,8 @@ class IoSocket {
 
         inviteCode = args[0] as String
 
-
-
         Log.e("Received InviteCode", inviteCode)
-
+        Log.e("Meesage : " , "Get InviteCode Success")
     }
 
     // 가속도 센서 데이터 보내는 함수
