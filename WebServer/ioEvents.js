@@ -11,7 +11,7 @@ function ioEvents(io){
 
 // 초대 코드 생성을 위한 6자리 랜덤 문자열 만들기
 function makeInviteString() {
-	var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
+	var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZ";
 	var string_length = 6;
 	var inviteCode = '';
 	
@@ -57,7 +57,7 @@ ioEvents.prototype.ioEventHandler = function(playerManager){
 		
 		
 		// 그 다음 안드로이드 컨트롤 부분이 연결되는 구조
-		controlSide.on('connection', function(socket_ctrl){
+		controlSide.on('connection', function(socket_ctrl){ 
 			console.log(`Control Side Connected. ${socket_ctrl.id}`);
 			
 			
@@ -76,7 +76,7 @@ ioEvents.prototype.ioEventHandler = function(playerManager){
 				
 				playerManager.addPlayer(userId);
 
-				player = playerManager.playerForId(userId);
+				player = playerManager.playerForId(userId);	
 
 
 				playerIdTemp = player.playerId;
