@@ -12,9 +12,11 @@ import android.media.MediaPlayer
 import android.media.MediaRecorder
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import com.example.motionsensorkotlin.IOSocket.IoSocket
@@ -24,7 +26,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.io.IOException
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), JoystickView.JoystickListener {
     // : - AppCompatActivity 클래스를 상속을 한다는 의미 (클래스 앞에 붙을 경우)
 
     private val sensorManager by lazy{
@@ -51,6 +53,38 @@ class MainActivity : AppCompatActivity() {
             IoSocketConn
         )
 
+    override fun onJoystickMoved(xPercent: Float, yPercent: Float, source: Int) {
+
+        when (source) {
+            R.id.joystickLeft ->
+            {
+                Log.d("Left Joystick", "X percent: $xPercent Y percent: $yPercent")
+
+                if ((yPercent < 0.3 && yPercent > -0.3) && (xPercent > 0.0 && xPercent < 1.0 ))
+                {
+                    tvLog.text = "Right"
+                }
+                if ((yPercent < 0.3 && yPercent > -0.3) && (xPercent < 0.0 && xPercent > -1.0 ))
+                {
+                    tvLog.text = "Left"
+                }
+                if ((yPercent > -1.0 && yPercent < 0.0) && (xPercent > -0.3 && xPercent < 0.3 ))
+                {
+                    tvLog.text = "Up"
+                }
+                if ((yPercent > 0.0 && yPercent < 1.0) && (xPercent > -0.3 && xPercent < 0.3 ))
+                {
+                    tvLog.text = "Down"
+                }
+                if (yPercent == 0F && xPercent == 0F)
+                {
+                    tvLog.text = ""
+                }
+            }
+        }
+    }
+
+    var texto: TextView? = null
 
 
 ////////////////////////
