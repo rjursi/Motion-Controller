@@ -4,15 +4,31 @@ var players = [];
 
 
 // 플레이어의 ID 및 위치, 회전 값 정보가 포함되어 있는 객체
-function playerManager(){
+function playerManager(id, position){
 	
-	this.playerId = players.length;
-		
-	// x,y,z 축 위치
-	this.x = 1;
-    this.y = 0;
-    this.z = 1;
+	this.playerId = id;
 	
+	
+	switch(position){
+		case "LEFT":
+		// x,y,z 축 위치
+			this.x = 1;
+			this.y = 0;
+			this.z = 1;	
+			
+			this.color = 0xffffff
+			
+			break;
+		case "RIGHT":
+			this.x = -10;
+			this.y = 0;
+			this.z = -10;	
+			
+			this.color = 0x82ffff
+			break;
+	}
+	
+	this.color = 0xffffff
 	// x,y,z 회전 각도
     this.r_x = 0;
     this.r_y = 0;
@@ -38,7 +54,7 @@ playerManager.prototype.addPlayer = function(id){
 	// 여기서 플레이어 관련 각종 정보가 담겨져있는 객체 생성
 	var player = new playerManager();
 	
-	
+	// 어플리케이션에서 넘어온 아이디를 사용하여 플레이어의 아이디를 지정
 	player.playerId = id;
 	
 	// 서버단 플레이어 목록에 객체 추가

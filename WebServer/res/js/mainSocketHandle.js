@@ -11,6 +11,7 @@ socket.on('ui_updatePosition', function(data){
 socket.on('ui_createPlayer', function(data){
     createPlayer(data);
 });
+
 socket.on('ui_addOtherPlayer', function(data){
     addOtherPlayer(data);
 });

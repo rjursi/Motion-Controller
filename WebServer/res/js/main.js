@@ -101,7 +101,7 @@ var createPlayer = function(data){
 	
 	var cube_geometry = new THREE.BoxGeometry(data.sizeX, data.sizeY, data.SizeZ);
 	
-	var cube_material = new THREE.MeshBasicMaterial({color : 0x7777ff, wireframe : false});
+	var cube_material = new THREE.MeshBasicMaterial({color : data.color , wireframe : false});
 	
 	// 여기서 해당 플레이어에 대한 각종 캐릭터 값을 만듬
 	player = new THREE.Mesh(cube_geometry, cube_material);
@@ -112,14 +112,14 @@ var createPlayer = function(data){
 	
 	player.rotation.set(0,0,0);
 	
-	player.position.x = data.x;
-	player.position.y = data.y;
-	player.position.z = data.z;
+	player.position.x = playerData.x;
+	player.position.y = playerData.y;
+	player.position.z = playerData.z;
 	
 	
-	playerId = data.playerId;
-	moveSpeed = data.speed;
-	turnSpeed = data.turnSpeed;
+	playerId = playerData.playerId;
+	moveSpeed = playerData.speed;
+	turnSpeed = playerData.turnSpeed;
 	
 	objects.push(player);
 	scene.add(player);
