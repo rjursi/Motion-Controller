@@ -23,10 +23,10 @@ class IntroActivity : AppCompatActivity() {
         uniqueID = introPart.getAppInstanceId()
 
         // 생성한 ID를 Toast 로 한번 출력
-        Toast.makeText(this, "ID" + uniqueID, Toast.LENGTH_LONG).show()
+        Toast.makeText(this, "ID : " + uniqueID, Toast.LENGTH_LONG).show()
 
         // 아래 잠시 대기하도록 하여 1초 있다가 MainActivity 로 전환이 되도록 설정
-        Handler().postDelayed({val intent = Intent(this, MainActivity::class.java)
+        Handler().postDelayed({val intent = Intent(this, ConnectControllerActivity::class.java)
 
             intent.putExtra(intent_uniqueID, uniqueID)
             startActivity(intent)

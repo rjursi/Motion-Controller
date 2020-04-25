@@ -2,7 +2,9 @@ package com.example.motionsensorkotlin
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
@@ -13,11 +15,13 @@ import android.media.MediaRecorder
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import com.example.motionsensorkotlin.IOSocket.IoSocket
 import com.example.motionsensorkotlin.SensorListener.AccelerometerSensorListener
@@ -37,10 +41,10 @@ class MainActivity : AppCompatActivity(), JoystickView.JoystickListener {
     }
 
     // 앞 인트로 Activity 에서 보낸 User ID 값을 받기 위한 인텐트 설정
-    lateinit var introIntent: Intent
+    lateinit var byConnIntent: Intent
 
 
-    lateinit var uniqueID : String
+    lateinit var gamesocketId : String
     var IoSocketConn : IoSocket =
         IoSocket()
     var accelerometerSensorListener : AccelerometerSensorListener =
@@ -87,7 +91,7 @@ class MainActivity : AppCompatActivity(), JoystickView.JoystickListener {
     var texto: TextView? = null
 
 
-////////////////////////
+    ////////////////////////
     private var mediaRecorder: MediaRecorder? = null
     private var mediaPlayer: MediaPlayer? = null
     private var fileName: String? = null
@@ -128,16 +132,23 @@ class MainActivity : AppCompatActivity(), JoystickView.JoystickListener {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), REQUEST_RECORD_AUDIO_PERMISSION)
 
 
-        // 앞 Intro Activity 에서 보낸 ID 값을 받음
-        introIntent = intent
-        uniqueID = introIntent.getStringExtra("intent_uniqueID")
+        // 앞 Intro Activity 에서 보낸 socket ID 값을 받음
+        byConnIntent = intent
+        gamesocketId = byConnIntent.getStringExtra("gamesocketId")
 
         // 서버 연결
-        IoSocketConn.connectIoServer(uniqueID)
+        IoSocketConn.connectIoServer(gamesocketId)
 
         // 바로 센서가 동작하도록 설정, 센서 값은 보통 속도로 넘기도록 설정
         sensorManager.registerListener(gyroScopeSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE), SensorManager.SENSOR_DELAY_NORMAL)
 
+
+
+        inputInviteCode.setOnClickListener {
+            showInputInviteCodePopUp()
+        }
+
+        /*
         fileName = externalCacheDir!!.absolutePath + "/record.3gp"
 
         if (mediaRecorder == null)
@@ -158,12 +169,11 @@ class MainActivity : AppCompatActivity(), JoystickView.JoystickListener {
                 stopPlaying()
         }
 
-
-
-
+        
+         */
     }
-    
-    
+
+
     // 어플리케이션을 잠시 내렸을 경우
     override fun onPause() {
         super.onPause()
@@ -196,7 +206,28 @@ class MainActivity : AppCompatActivity(), JoystickView.JoystickListener {
 
 
 
+    private fun showInputInviteCodePopUp(){
+        val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val view = inflater.inflate(R.layout.dialog_inputinvitecode, null);
 
+        var dialog_listener = object: DialogInterface.OnClickListener {
+            override fun onClick(dialog: DialogInterface?, which: Int) {
+                Log.d("EditText String", inputInviteCode.text.toString())
+                IoSocketConn.sendJoinToInviteCode(inputInviteCode.text.toString())
+            }
+        }
+
+        val alertDialog = AlertDialog.Builder(this)
+            .setTitle("초대 코드 입력")
+            .setPositiveButton("확인", dialog_listener)
+            .setNegativeButton("취소",null)
+            .create()
+
+        alertDialog.setView(view)
+        alertDialog.show()
+
+
+    }
 
     private fun startRecording() {
         statusText!!.text = "녹음중"

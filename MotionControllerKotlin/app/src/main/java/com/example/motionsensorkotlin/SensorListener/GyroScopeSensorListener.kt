@@ -58,6 +58,7 @@ class GyroScopeSensorListener (IoSocket : IoSocket) :  AppCompatActivity(), Sens
                 gyroDataJson.put("xRoll", roll*rad_to_dgr)
                 gyroDataJson.put("yPitch", pitch*rad_to_dgr)
                 gyroDataJson.put("zYaw", yaw*rad_to_dgr)
+                gyroDataJson.put("gamesocketId", IoSocket.gamesockId)
                 Log.d("MainActivity","onSensorChanged: x" + " ${roll*rad_to_dgr}, y: ${pitch*rad_to_dgr}, z : ${yaw*rad_to_dgr}")
                 IoSocket.sendGyroData(gyroDataJson)
 
