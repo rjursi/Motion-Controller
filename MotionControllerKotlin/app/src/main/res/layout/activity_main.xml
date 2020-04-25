@@ -24,6 +24,14 @@
         android:id="@+id/joystickLeft"
         app:layout_constraintTop_toBottomOf="@id/tvLog"
         />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/inputInviteCode"
+        android:text="초대 코드 입력"
+        app:layout_constraintLeft_toRightOf="@id/accTestBtn"
+        app:layout_constraintTop_toTopOf="@id/accTestBtn"
+        />
 
     <Button
         android:layout_width="100dp"

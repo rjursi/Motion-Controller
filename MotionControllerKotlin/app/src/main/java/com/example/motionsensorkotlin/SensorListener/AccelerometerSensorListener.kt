@@ -13,9 +13,6 @@ class AccelerometerSensorListener(IoSocket : IoSocket) :  AppCompatActivity(), S
 
     var IoSocket = IoSocket
 
-
-
-
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
         // 센서 정밀도가 변경되면 호출
 
@@ -39,7 +36,7 @@ class AccelerometerSensorListener(IoSocket : IoSocket) :  AppCompatActivity(), S
             accDataJson.put("x", event.values[0])
             accDataJson.put("y", event.values[1])
             accDataJson.put("z", event.values[2])
-
+            accDataJson.put("gamesocketId", IoSocket.gamesockId)
             // IoSocket.sendAccData(accDataArray)
             IoSocket.sendAccData(accDataJson)
 
