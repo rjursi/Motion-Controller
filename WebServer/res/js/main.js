@@ -10,9 +10,9 @@ var otherPlayersId = [];
 
 
 // 초기 다양한 값 세팅하기 위한 함수
-init();
+//init();
 // renderer 를 통하여 camera 와 함께 화면에 표시하는 함수
-animate();
+//animate();
 
 function init(){
 
@@ -97,6 +97,7 @@ function render(){
 
 var createPlayer = function(data){
 	// 서버 측 플레이어 정보 값이 여기로 넘어옴, 즉 플레이어 아이디가 playerData에 저장되어 있음
+	// 여기에 각 플레이어의 위치, 회전 값이 초기에 전달이 됨
 	playerData = data;
 	
 	var cube_geometry = new THREE.BoxGeometry(data.sizeX, data.sizeY, data.SizeZ);
@@ -126,7 +127,6 @@ var createPlayer = function(data){
 	
 	camera.lookAt(player.position);
 	
-
 	
 };
 
@@ -134,7 +134,6 @@ var removeMyPlayer = function(data){
 	scene.remove(player);
 	
 }
-
 
 
 var updateMyDirection = function(data){

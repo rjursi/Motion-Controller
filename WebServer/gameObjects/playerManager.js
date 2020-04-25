@@ -8,7 +8,6 @@ function playerManager(id, position){
 	
 	this.playerId = id;
 	
-	
 	switch(position){
 		case "LEFT":
 		// x,y,z 축 위치
