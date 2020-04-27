@@ -24,8 +24,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".ConnectControllerActivity">
+
         </activity>
         <activity android:name=".MainActivity">
+
         </activity>
     </application>
 

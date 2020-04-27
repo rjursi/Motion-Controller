@@ -143,13 +143,17 @@ class MainActivity : AppCompatActivity(), JoystickView.JoystickListener {
         IoSocketConn.connectIoServer(gamesocketId)
 
         // 바로 센서가 동작하도록 설정, 센서 값은 보통 속도로 넘기도록 설정
-        sensorManager.registerListener(gyroScopeSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE), SensorManager.SENSOR_DELAY_NORMAL)
+        accTestBtn.setOnClickListener {
+
+            sensorManager.registerListener(gyroScopeSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE), SensorManager.SENSOR_DELAY_NORMAL)
+        }
+
 
         inputInviteCode.setOnClickListener {
             showInputInviteCodePopUp()
         }
 
-
+        /*
         fileName = externalCacheDir!!.absolutePath + "/record.3gp"
 
         if (mediaRecorder == null)
@@ -170,6 +174,7 @@ class MainActivity : AppCompatActivity(), JoystickView.JoystickListener {
                 stopPlaying()
         }
 
+         */
         
 
     }
@@ -199,8 +204,6 @@ class MainActivity : AppCompatActivity(), JoystickView.JoystickListener {
 
     override fun onDestroy() {
         IoSocketConn.sendLogoutMsg();
-
-
         super.onDestroy()
     }
 

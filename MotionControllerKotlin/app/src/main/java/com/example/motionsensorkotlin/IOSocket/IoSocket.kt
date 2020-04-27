@@ -63,7 +63,13 @@ class IoSocket {
 
     fun sendJoinToInviteCode(inviteCode : String){
         Log.d("Send inviteCode", inviteCode)
-        mSocket.emit("ad_joinTothePlayer1Room", inviteCode)
+
+        var joinDataJson = JSONObject()
+        joinDataJson.put("inviteCode", inviteCode);
+        joinDataJson.put("gamesocketId", gamesockId);
+
+
+        mSocket.emit("ad_joinTothePlayer1Room", joinDataJson)
     }
 
     // 가속도 센서 데이터 보내는 함수
