@@ -1,6 +1,6 @@
 function LobbyManager(io){
   var LbMg = this;
-  LbMg.lobby = [];
+  LbMg.lobby = []; // 해당 로비에는 플레이어 웹 소켓이 계속 쌓이게 된다.
   LbMg.updating = false;
 
   LbMg.push = function(socket){
@@ -22,8 +22,11 @@ function LobbyManager(io){
     if(LbMg.dispatching) return;
     LbMg.dispatching = true;
 
+	  
+	// 플레이어 한명의 소켓을 가져옴
 	var playerSock = LbMg.lobby.splice(0,1);
 	
+	// roomManager를 통하여 하나의 방을 만드는 함수를 호출
 	RmMg.create(playerSock[0], inviteCode);
     
     LbMg.dispatching = false;

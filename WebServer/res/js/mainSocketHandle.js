@@ -41,9 +41,12 @@ var create_QR = function(){
 	QR_code = new QRCode("QR_code");
 	QR_code.makeCode(url);
 }
+
+// 플레이어가 웹 게임에 접속을 할 경우 QR코드를 띄울 수 있도록 함수를 호출
 var game_connected = function(){
 	create_QR();
 	
+	// 더 이상 사용을 안하므로 해당 리스너를 지움
 	io.removeListener('game_connected', game_connected);
 	
 }
@@ -54,7 +57,7 @@ io.on('ui_updateMyDirection', function(data){
 	updateMyDirection(data);
 });
 
-io.on('ui_updatePosition', function(data){
+io.on('ui_updatePlayerPosition', function(data){
     updatePlayerPosition(data);
 });
 
@@ -62,12 +65,14 @@ io.on('ui_createPlayer', function(data){
     createPlayer(data);
 });
 
+
+
 io.on('ui_addOtherPlayer', function(data){
     addOtherPlayer(data);
 });
 
-io.on('ui_removeMyPlayer', function(data){
-    removeMyPlayer(data);
+io.on('ui_removeMyPlayer', function(){
+    removeMyPlayer();
 });
 
 io.on('ui_removeOtherPlayer', function(data){

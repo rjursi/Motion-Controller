@@ -78,22 +78,31 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 				// 해당 컨트롤러 소켓이 저장됨
 				controller_sockets[socket.id] = {
 					socket : socket,
-					game_id: game_socket_id
+					game_id : game_socket_id
 				};
 
 				socket.emit("controller_connected", true);
-
+				
+				// 아래 작업할 소켓은 컨트롤러가 연결될 시 연결되는 소켓.
 				game_sockets[game_socket_id].controller_id = socket.id;
+				// 웹 게임 소켓에다가 컨트롤러가 연결이 되었다고 알림
 				game_sockets[game_socket_id].socket.emit("controller_connected", true);
 				
 				
+				
+				
+				
 				var inviteCode = '';
+				
 				// 로비에 해당 유저를 추가하는 과정
 				lobbyMgr.push(game_sockets[game_socket_id].socket);
 				
 				inviteCode = makeInviteString();
+				
+				// 초대 코드 중복을 방지하기 위하여 초대 코드 목록을 저장
 				inviteCodes.push(inviteCode);
 				
+				// 방을 만드는 함수
 				lobbyMgr.dispatch(roomMgr, inviteCode);
 				
 			}
@@ -109,6 +118,7 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 			// 만약에 웹 상에서의 게임 소켓일 경우
 			if(game_sockets[socket.id]){
 				
+				game_sockets[socket.id].socket.emit("ui_removeMyPlayer")
 				console.log("Game disconnected");
 				
 				if(controller_sockets[game_sockets[socket.id].controller_id]){
@@ -149,30 +159,37 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 
 		}); 
 
+		
+		/*
 		socket.on('ad_GyroData', function(data){
 			console.log(`gyro-x : ${data.xRoll}, y : ${data.yPitch}, z : ${data.zYaw}`);
 			
+			var game_socket = game_sockets[controller_sockets[socket.id].game_id].socket;
 			
-			//socket_ui.emit('ui_updateMyDirection', data);
-			
-			roomMgr.updatePlayerData(socket, data);
+			// 해당 roomManager 에게 해당 컨트롤러와 연결되어있는 웹 소켓과 자이로스코프 데이터를 보냄
+			roomMgr.updatePlayerGyroData(game_socket, data);
 		});	
 
-
+		*/
+		
+		/*
 		socket.on('ad_pause', function(gamesocketId){
 
 			// 안드로이드 단에서 어플이 잠깐 멈췃을 경우 (pause) 멈췃다고 메시지 날리기
 			 console.log(`${gamesocketId} request pause.... ---------`)
 
 		});
-
+		
+		*/
 
 		  // 로그아웃 시에도 다음곽 같이 아이디를 받아와서 배열에서 없어지도록 처리	
+		
+		/*
 		socket.on('ad_logout', function(gamesocketId){
 			console.log(player);
 
 			// 안드로이드 단에서 어플리 종료되었을 경우 위에서 logout 신호를 받아서 접속한 플레이어중 없어지도록 처리
-			socket_ui.emit('ui_removeMyPlayer', player);
+			socket_ui.emit('ui_removeMyPlayer');
 
 			//
 			// socket_ui.emit('ui_removeOtherPlayer', player);
@@ -182,8 +199,11 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 
 
 		});
+		
+		*/
 
-
+		
+		/*
 		socket.on('ad_stop', function(gamesocketId){
 
 		// 안드로이드 단에서 어플리 종료되었을 경우 위에서 logout 신호를 받아서 접속한 플레이어중 없어지도록 처리
@@ -192,21 +212,27 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 
 		});
 
-
-		socket.on('ad_joinTothePlayer1Room', function(inviteCode){
+		*/
+		
+		
+		// 안드로이드 단에서 날라올 메시지에 대한 소켓 이벤트
+		socket.on('ad_joinTothePlayer1Room', function(joinDataJson){
 			var isDuplicate = 1;
 			// 위 초대코드 배열에서 해당 초대 코드가 존재 하는지 먼저 검색을 실시
+			
+			var inviteCode = joinDataJson.inviteCode;
+			var gamesocketId = joinDataJson.gamesocketId;
 			isDuplicate = inviteCodes.findIndex(x => x.value === inviteCode);
 
 			if(isDuplicate == -1){
 				// 만약에 해당 초대 코드가 존재하지 않는다면
 
-				socket_ctrl.emit("ad_invalidInviteCode", "이 초대코드는 유효하지 않습니다.");
+				socket.emit("ad_invalidInviteCode", "이 초대코드는 유효하지 않습니다.");
 			}
 			else{
 				// 해당 초대 코드가 존재할 시 해당 방으로 진입
 				
-				lobbyMgr.join(roomMgr, inviteCode, player2Sock);
+				lobbyMgr.join(roomMgr, inviteCode, gamesocketId);
 
 
 			}

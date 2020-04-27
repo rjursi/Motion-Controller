@@ -2,10 +2,10 @@
 var players = [];
 
 
-
 // 플레이어의 ID 및 위치, 회전 값 정보가 포함되어 있는 객체
 function playerManager(id, position){
 	
+	// 플레이어의 id로 웹 게임 소켓을 받음
 	this.playerId = id;
 	
 	switch(position){
@@ -43,11 +43,15 @@ function playerManager(id, position){
 	
 	// 플레이어가 돌아갈 때 스피드
     this.turnSpeed = 0.03;
+	
+	
+	// 플레이어 배열에 해당 객체 값이 들어감
+	players.push(this);
 }
 
 
 
-
+/*
 playerManager.prototype.addPlayer = function(id){
 
 	// 여기서 플레이어 관련 각종 정보가 담겨져있는 객체 생성
@@ -67,6 +71,9 @@ playerManager.prototype.addPlayer = function(id){
 	return player;
 };
 
+*/
+
+/*
 playerManager.prototype.removePlayer = function(player){
 	
 	var index = players.indexOf(player);
@@ -81,6 +88,8 @@ playerManager.prototype.removePlayer = function(player){
 	console.log("PlayerManager : player removed");
 	console.log(players);
 };
+
+*/
 
 // 지정한 하나의 플레이어의 각종 값을 바꾸는 함수
 playerManager.prototype.updatePlayerData = function(data){
@@ -98,6 +107,17 @@ playerManager.prototype.updatePlayerData = function(data){
 	
 };
 
+playerManager.prototype.updatePlayerGyroData = function(playerSock, gyroData){
+	
+	var player = playerForId(playerSock.id);
+	
+	
+	player.r_x = gyroData.r_x;
+	player.r_y = gyroData.r_y;
+	player.r_z = gyroData.r_z;
+	
+	return player;
+}
 
 // 지정한 하나의 플레이어 값을 반환하는 함수
 playerManager.prototype.playerForId = function(id){
@@ -107,6 +127,8 @@ playerManager.prototype.playerForId = function(id){
 		if(players[i].playerId === id){
 			
 			
+			
+			// 해당 플레이어 객체를 반환
 			player = players[i];
 			break;
 		}

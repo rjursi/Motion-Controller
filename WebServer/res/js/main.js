@@ -112,7 +112,6 @@ var createPlayer = function(data){
 	console.log(player);
 	
 	player.rotation.set(0,0,0);
-	
 	player.position.x = playerData.x;
 	player.position.y = playerData.y;
 	player.position.z = playerData.z;
@@ -130,7 +129,7 @@ var createPlayer = function(data){
 	
 };
 
-var removeMyPlayer = function(data){
+var removeMyPlayer = function(){
 	scene.remove(player);
 	
 }
@@ -142,6 +141,8 @@ var updateMyDirection = function(data){
 	player.rotation.z = data.zYaw;
 	
 }
+
+
 // 특정 플레이어의 위치 값을 바꾸는 함수
 var updatePlayerPosition = function(data){
 	var somePlayer = playerForId(data.playerId);
