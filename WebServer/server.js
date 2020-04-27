@@ -2,11 +2,12 @@ var express = require('express');
 var app = express();
 
 
+var lobbyManager = require('./gameObjects/LobbyManager');
+var roomManager = require('./gameObjects/RoomManager');
+var playerManager = require('./gameObjects/playerManager');
+
 var socketio = require('socket.io');
 var ioEvents = require('./ioEvents');
-var playerManager = require('./playerManager');
-
-
 
 
 // 각종 페이지 요청 파일들을 안내해주는 모듈 router
@@ -26,7 +27,9 @@ var io = socketio.listen(server);
 
 
 // 플레이어 목록을 관리하는 객체 생성
-var userManager = new playerManager();
+var playerMgr = new playerManager();
+var lobbyMgr = new lobbyManager(io);
+var roomMgr = new roomManager(io);
 
 // io 소켓 통신을 관리하는 객체 생성
 var Handler = new ioEvents(io);
@@ -35,5 +38,5 @@ var Handler = new ioEvents(io);
 
 // 다음에 각종 이벤트를 컨트롤하도록 함수를 호출
 // 플레이어 컨트롤도 ioEventHandler 함수에서 연결되고나서 이루어 지므로 여기서도 객체를 전송
-Handler.ioEventHandler(userManager);
+Handler.ioEventHandler(playerMgr, lobbyMgr, roomMgr);
 

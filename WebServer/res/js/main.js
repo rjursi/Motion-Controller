@@ -10,9 +10,9 @@ var otherPlayersId = [];
 
 
 // 초기 다양한 값 세팅하기 위한 함수
-init();
+//init();
 // renderer 를 통하여 camera 와 함께 화면에 표시하는 함수
-animate();
+//animate();
 
 function init(){
 
@@ -97,11 +97,12 @@ function render(){
 
 var createPlayer = function(data){
 	// 서버 측 플레이어 정보 값이 여기로 넘어옴, 즉 플레이어 아이디가 playerData에 저장되어 있음
+	// 여기에 각 플레이어의 위치, 회전 값이 초기에 전달이 됨
 	playerData = data;
 	
 	var cube_geometry = new THREE.BoxGeometry(data.sizeX, data.sizeY, data.SizeZ);
 	
-	var cube_material = new THREE.MeshBasicMaterial({color : 0x7777ff, wireframe : false});
+	var cube_material = new THREE.MeshBasicMaterial({color : data.color , wireframe : false});
 	
 	// 여기서 해당 플레이어에 대한 각종 캐릭터 값을 만듬
 	player = new THREE.Mesh(cube_geometry, cube_material);
@@ -111,30 +112,27 @@ var createPlayer = function(data){
 	console.log(player);
 	
 	player.rotation.set(0,0,0);
+	player.position.x = playerData.x;
+	player.position.y = playerData.y;
+	player.position.z = playerData.z;
 	
-	player.position.x = data.x;
-	player.position.y = data.y;
-	player.position.z = data.z;
 	
-	
-	playerId = data.playerId;
-	moveSpeed = data.speed;
-	turnSpeed = data.turnSpeed;
+	playerId = playerData.playerId;
+	moveSpeed = playerData.speed;
+	turnSpeed = playerData.turnSpeed;
 	
 	objects.push(player);
 	scene.add(player);
 	
 	camera.lookAt(player.position);
 	
-
 	
 };
 
-var removeMyPlayer = function(data){
+var removeMyPlayer = function(){
 	scene.remove(player);
 	
 }
-
 
 
 var updateMyDirection = function(data){
@@ -143,6 +141,8 @@ var updateMyDirection = function(data){
 	player.rotation.z = data.zYaw;
 	
 }
+
+
 // 특정 플레이어의 위치 값을 바꾸는 함수
 var updatePlayerPosition = function(data){
 	var somePlayer = playerForId(data.playerId);
