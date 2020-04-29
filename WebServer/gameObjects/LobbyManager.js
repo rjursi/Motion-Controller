@@ -3,21 +3,6 @@ function LobbyManager(io){
   LbMg.lobby = []; // 해당 로비에는 플레이어 웹 소켓이 계속 쌓이게 된다.
   LbMg.updating = false;
 
-  LbMg.push = function(socket){
-	  // 로비에 플레이어 한명을 추가
-    LbMg.lobby.push(socket);
-  };
-	
-  LbMg.kick = function(socket){
-    var index = LbMg.lobby.indexOf(socket);
-    if(index >= 0) LbMg.lobby.splice(index,1);
-  };
-	
-  LbMg.clean = function(){
-    var sockets = LbMg.lobby;
-    LbMg.lobby = sockets.filter(function(socket){ return socket !== null; });
-  };
-	
   LbMg.dispatch = function(RmMg, inviteCode){
     if(LbMg.dispatching) return;
     LbMg.dispatching = true;
@@ -30,10 +15,34 @@ function LobbyManager(io){
 	RmMg.create(playerSock[0], inviteCode);
     
     LbMg.dispatching = false;
+  };	
+	
+  LbMg.push = function(socket){
+	  // 로비에 플레이어 한명을 추가
+    LbMg.lobby.push(socket);
   };
 	
+	
+	
+  // 초대 코드를 받을 경우 그때부터 특정 방에 들어가도록 구현	
   LbMg.join = function(RmMg, inviteCode, player2Sock){
 	  RmMg.join(inviteCode, player2Sock);
+  };	
+	
+	
+
+  LbMg.kick = function(socket){
+    var index = LbMg.lobby.indexOf(socket);
+    if(index >= 0) LbMg.lobby.splice(index,1);
   };
+	
+  LbMg.clean = function(){
+    var sockets = LbMg.lobby;
+    LbMg.lobby = sockets.filter(function(socket){ return socket !== null; });
+  };
+	
+  
+	
+  
 }
 module.exports = LobbyManager;

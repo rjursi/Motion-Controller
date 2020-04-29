@@ -1,9 +1,12 @@
+var BaseObject = require("./BaseObject.js");
+
 // 모든 플레이어 목록을 저장
 var players = [];
 
-
 // 플레이어의 ID 및 위치, 회전 값 정보가 포함되어 있는 객체
 function playerManager(id, position){
+	
+	BaseObject.call(this); // 위치 클래스 상속
 	
 	// 플레이어의 id로 웹 게임 소켓을 받음
 	this.playerId = id;
@@ -11,32 +14,35 @@ function playerManager(id, position){
 	switch(position){
 		case "LEFT":
 		// x,y,z 축 위치
-			this.x = 1;
-			this.y = 0;
-			this.z = 1;	
+			this.objStatus.x = 5;
+			this.objStatus.y = 0;
+			this.objStatus.z = 0;	
 			
-			this.color = 0xffffff
+			this.color = 0xffffff;
 			
 			break;
 		case "RIGHT":
-			this.x = -10;
-			this.y = 0;
-			this.z = -10;	
+			this.objStatus.x = -5;
+			this.objStatus.y = 0;
+			this.objStatus.z = 0;	
 			
-			this.color = 0x82ffff
+			this.color = 0x825fff;
 			break;
 	}
 	
-	this.color = 0xffffff
+	
 	// x,y,z 회전 각도
-    this.r_x = 0;
-    this.r_y = 0;
-    this.r_z = 0;
+    this.objStatus.r_x = 0;
+    this.objStatus.r_y = 0;
+    this.objStatus.r_z = 0;
 	
 	// 플레이어가 만들어 질때 사이즈
-    this.sizeX = 1;
-    this.sizeY = 1;
-    this.sizeZ = 1;
+	
+    this.objStatus.sizeX = 5;
+    this.objStatus.sizeY = 5;
+    this.objStatus.sizeZ = 5;
+	
+	
 	
 	// 플레이어가 움직이는 스피드
     this.speed = 0.1;
@@ -109,13 +115,16 @@ playerManager.prototype.updatePlayerData = function(data){
 
 playerManager.prototype.updatePlayerGyroData = function(playerSock, gyroData){
 	
-	var player = playerForId(playerSock.id);
+	// 해당 플레이어의 데이터 객체를 가져옴
 	
+	var player = this.playerForId(playerSock.id);
 	
-	player.r_x = gyroData.r_x;
-	player.r_y = gyroData.r_y;
-	player.r_z = gyroData.r_z;
-	
+	console.log(gyroData);
+	// 해당 플레이어의 객체를 찾음
+	player.objStatus.r_x = gyroData.xRoll;
+	player.objStatus.r_y = gyroData.yPitch;
+	player.objStatus.r_z = gyroData.zYaw;
+
 	return player;
 }
 

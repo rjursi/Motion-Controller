@@ -28,6 +28,13 @@ io.on('connect', function(){
 	});
 });
 
+io.on('updateUI', function(objStatuses){
+	
+	// 각종 UI 오브젝트의 상태를 보내서 업데이트
+	updateUI(objStatuses);
+	
+});
+
 var create_QR = function(){
 	var QR_code;
 	var url = "https://jswebgame.run.goorm.io?id=" + io.id;
@@ -61,9 +68,13 @@ io.on('ui_updatePlayerPosition', function(data){
     updatePlayerPosition(data);
 });
 
-io.on('ui_createPlayer', function(data){
-    createPlayer(data);
+io.on('ui_createPlayer', function(initPlayerObjArr){
+	console.log(initPlayerObjArr);
+	
+    createPlayer(initPlayerObjArr);
 });
+
+
 
 
 
