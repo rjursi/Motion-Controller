@@ -27,6 +27,7 @@ import com.example.motionsensorkotlin.IOSocket.IoSocket
 import com.example.motionsensorkotlin.SensorListener.AccelerometerSensorListener
 import com.example.motionsensorkotlin.SensorListener.GyroScopeSensorListener
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.dialog_inputinvitecode.view.*
 import java.io.IOException
 
 
@@ -45,8 +46,7 @@ class MainActivity : AppCompatActivity(), JoystickView.JoystickListener {
 
 
     lateinit var gamesocketId : String
-    var IoSocketConn : IoSocket =
-        IoSocket()
+    var IoSocketConn : IoSocket = IoSocket(this)
     var accelerometerSensorListener : AccelerometerSensorListener =
         AccelerometerSensorListener(
             IoSocketConn
@@ -144,8 +144,7 @@ class MainActivity : AppCompatActivity(), JoystickView.JoystickListener {
 
         // 바로 센서가 동작하도록 설정, 센서 값은 보통 속도로 넘기도록 설정
         accTestBtn.setOnClickListener {
-
-            sensorManager.registerListener(gyroScopeSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE), SensorManager.SENSOR_DELAY_NORMAL)
+            sensorManager.registerListener(gyroScopeSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE), SensorManager.SENSOR_DELAY_GAME)
         }
 
 
@@ -216,8 +215,9 @@ class MainActivity : AppCompatActivity(), JoystickView.JoystickListener {
 
         var dialog_listener = object: DialogInterface.OnClickListener {
             override fun onClick(dialog: DialogInterface?, which: Int) {
-                Log.d("EditText String", inputInviteCode.text.toString())
-                IoSocketConn.sendJoinToInviteCode(inputInviteCode.text.toString())
+                Log.d("EditText String", view.inputInviteCode.text.toString())
+                IoSocketConn.sendJoinToInviteCode(view.inputInviteCode.text.toString())
+
             }
         }
 

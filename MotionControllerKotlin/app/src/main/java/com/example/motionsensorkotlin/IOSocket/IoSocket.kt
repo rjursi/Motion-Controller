@@ -1,5 +1,6 @@
 package com.example.motionsensorkotlin.IOSocket
 
+import android.content.Context
 import android.telecom.Call
 import android.util.Log
 import android.widget.Toast
@@ -11,14 +12,13 @@ import org.json.JSONObject
 import java.net.URISyntaxException
 
 
-class IoSocket {
+class  IoSocket (mainContext : Context){
     lateinit var mSocket: Socket
     lateinit var username: String
     lateinit var gamesockId: String
     var users: Array<String> = arrayOf()
-
-
     lateinit var inviteCode : String
+    private var mainContext : Context = mainContext
 
     fun connectIoServer(gamesockId : String){
         this.gamesockId = gamesockId
@@ -37,7 +37,17 @@ class IoSocket {
 
         mSocket.on(Socket.EVENT_CONNECT, onConnect)
         // 위 연결이 성공적으로 연결이 되면 server 측에서 "connect" 이벤트를 발생
+
+        mSocket.on("ad_invalidInviteCode", onInvalidInviteCode)
     }
+
+    var onInvalidInviteCode : Emitter.Listener = Emitter.Listener { args ->
+        val serverErrorMsg = args[0] as String
+
+        Log.d("serverErrorMsg : ", serverErrorMsg)
+    }
+
+
 
     val onConnect: Emitter.Listener = Emitter.Listener {
         // login 이벤트를 서버쪽으로 같이 보낼 예정
@@ -53,12 +63,13 @@ class IoSocket {
     }
 
 
+    // 서버에서 만들고 보낸 초대 코드를 안드로이드 안에서도 사용이 가능하도록 처리
     private val onGetInviteCode : Emitter.Listener = Emitter.Listener{ args ->
 
         inviteCode = args[0] as String
 
         Log.d("Received InviteCode", inviteCode)
-        Log.d("Meesage : " , "Get InviteCode Success")
+        Log.d("Message : " , "Get InviteCode Success")
     }
 
     fun sendJoinToInviteCode(inviteCode : String){
@@ -67,7 +78,6 @@ class IoSocket {
         var joinDataJson = JSONObject()
         joinDataJson.put("inviteCode", inviteCode);
         joinDataJson.put("gamesocketId", gamesockId);
-
 
         mSocket.emit("ad_joinTothePlayer1Room", joinDataJson)
     }
