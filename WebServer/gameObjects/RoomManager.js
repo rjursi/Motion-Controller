@@ -1,14 +1,15 @@
 var playerManager = require("./playerManager.js");
 
-
-var INTERVAL = 10;
+// 업데이트하기 위한 주기 값
+var INTERVAL = 1050;
 
 var players = [];
 
 function RoomManager(io){
   var RmMg = this;
   RmMg.inviteCodeSockDict = {};
-  RmMg.rooms = {};
+	
+  RmMg.rooms = {}; // rooms 딕셔너리 아래 roomid와 그에 맞는 room 객체가 들어감
   RmMg.roomIndex = {};
 
 	
@@ -47,7 +48,7 @@ function RoomManager(io){
 	  
 	  console.log("roomManager : Player2 Joined");
 	  
-	  players.push(player1);
+	  players.push(player1); 
 	  players.push(player2);
 	  
 	  var room = new Room(joinRoomId, player1, player2);
@@ -62,8 +63,23 @@ function RoomManager(io){
 	  
 	  // UI 상에다가 플레이어를 만들어달라고 신호를 보냄
 	  
-	player1.emit('ui_createPlayer', room.objects[player1.id]);
-	player2.emit('ui_createPlayer', room.objects[player2.id]);  
+	  var initPlayerObjArr = [];
+	  
+	  initPlayerObjArr.push(room.objects[player1.id]);
+	  initPlayerObjArr.push(room.objects[player2.id]);
+	  
+	  console.log(initPlayerObjArr);
+	  io.to(joinRoomId).emit('ui_createPlayer', initPlayerObjArr);
+	  
+	  
+	  /*
+	player1.emit('ui_createPlayer1', room.objects[player1.id]);
+	player1.emit('ui_createPlayer2', room.objects[player2.id]);
+	  
+	player2.emit('ui_createPlayer2', room.objects[player2.id]);
+	player2.emit('ui_createPlayer1', room.objects[player1.id]);
+	*/
+	  
 	  // 만들어진 플레이어의 객체에 대한 데이터를 포함간 객체를 보냄
 	  
   }
@@ -78,32 +94,46 @@ function RoomManager(io){
   };
 	
 	
+  
   RmMg.updatePlayerGyroData = function(playerSock, gyroData){
   	
+	  
+	  // 해당 바꾸고자 하는 플레이어의 객체를 가져옴
 	var getPlayer = RmMg.rooms[RmMg.roomIndex[playerSock.id]].objects[playerSock.id];
 	
 	// 플레이어의 회전각 등 데이터 변경
-	var player = getPlayer.updatePlayerGyroData(gyroData);
-												   
-	playerSock.emit('ui_updateMyDirection', gyroData);
+	var updatedPlayerDataObj = getPlayer.updatePlayerGyroData(playerSock, gyroData);
+				
+	  
+	  
+	RmMg.rooms[RmMg.roomIndex[playerSock.id]].objects[playerSock.id] = updatedPlayerDataObj;  
+	//playerSock.emit('ui_updateMyDirection', gyroData);
 	  
   }	
-/*	
+  
+ 
+  	
+	
   RmMg.update = setInterval(function(){
     for(var roomId in RmMg.rooms){
+	// 하나의 룸을 가져옴
       var room = RmMg.rooms[roomId];
-      var statuses = [];
+      
+      // 각종 오브젝트들의 상태들을 저장한 배열을 지정
+	  var objStatuses = [];
       for(var object in room.objects){
         var obj = room.objects[object];
-		  
-		  // 아래 오브젝트에서 에러 터짐. 아래서부터 수정
-        obj.update();
-        statuses.push(obj.status);
+		    
+		// 각 객체들의 상태 값들이 저장되어있는 객체를 보냄  
+        objStatuses.push(obj);
       }
-      io.to(room.id).emit('update',statuses);
+		// 해당 room (두 플레이어의 소켓이 들어있는)
+		// 에 업데이트 하라고 신호를 보냄
+      io.to(room.id).emit('updateUI',objStatuses);
     }
   },INTERVAL);
-*/
+  
+  
 }
 
 
@@ -120,4 +150,6 @@ function Room(id, socket0, socket1) {
 	
 	// 방에 들어갈 때부터 플레이어의 객체가 만들어짐
   
+	
+	// 방에서 공통으로 만들어질 맵 객체를 만들 예정
 }

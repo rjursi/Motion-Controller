@@ -19,14 +19,14 @@ function makeInviteString() {
 	
 	while(isDuplicate == 1){
 		
-		for (var i=0; i<string_length; i++) {
+		for (var i = 0; i<string_length; i++) {
 			var rnum = Math.floor(Math.random() * chars.length);
 			inviteCode += chars.substring(rnum,rnum+1);
 		}	
 		
 		
 		// 배열에 대하여 중복 검사
-	    isDuplicate = inviteCodes.findIndex(x => x.value === inviteCode);
+	    isDuplicate = inviteCodes.indexOf(inviteCode);
 		// 중복이 아니면 , 즉 -1이 되면 해당 반복문을 빠져나옴
 		
 	}	
@@ -88,10 +88,8 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 				// 웹 게임 소켓에다가 컨트롤러가 연결이 되었다고 알림
 				game_sockets[game_socket_id].socket.emit("controller_connected", true);
 				
-				
-				
-				
-				
+			
+				// 아래에서 초대코드를 만들고 초대 코드를 보내는 과정이 필요함	
 				var inviteCode = '';
 				
 				// 로비에 해당 유저를 추가하는 과정
@@ -99,8 +97,7 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 				
 				inviteCode = makeInviteString();
 				
-				// 초대 코드 중복을 방지하기 위하여 초대 코드 목록을 저장
-				inviteCodes.push(inviteCode);
+				socket.emit("server_inviteCode", inviteCode);
 				
 				// 방을 만드는 함수
 				lobbyMgr.dispatch(roomMgr, inviteCode);
@@ -159,20 +156,22 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 
 		}); 
 
-		
-		/*
 		socket.on('ad_GyroData', function(data){
-			console.log(`gyro-x : ${data.xRoll}, y : ${data.yPitch}, z : ${data.zYaw}`);
 			
-			var game_socket = game_sockets[controller_sockets[socket.id].game_id].socket;
+			// 컨트롤러 소켓 값이 저장되어 있을 경우
+			if(controller_sockets[socket.id]){
+				console.log(`gyro-x : ${data.xRoll}, y : ${data.yPitch}, z : ${data.zYaw}`);
 			
-			// 해당 roomManager 에게 해당 컨트롤러와 연결되어있는 웹 소켓과 자이로스코프 데이터를 보냄
-			roomMgr.updatePlayerGyroData(game_socket, data);
-		});	
+				// 컨트롤하고자 하는 웹 소켓을 안드로이드 소켓을 이용하여 
 
-		*/
-		
-		/*
+				var game_socket = game_sockets[controller_sockets[socket.id].game_id].socket;
+
+				// 해당 roomManager 에게 해당 컨트롤러와 연결되어있는 웹 소켓과 자이로스코프 데이터를 보냄
+				roomMgr.updatePlayerGyroData(game_socket, data);
+			}
+			
+		});	
+				
 		socket.on('ad_pause', function(gamesocketId){
 
 			// 안드로이드 단에서 어플이 잠깐 멈췃을 경우 (pause) 멈췃다고 메시지 날리기
@@ -180,16 +179,18 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 
 		});
 		
-		*/
+		
 
 		  // 로그아웃 시에도 다음곽 같이 아이디를 받아와서 배열에서 없어지도록 처리	
+		
 		
 		/*
 		socket.on('ad_logout', function(gamesocketId){
 			console.log(player);
-
+			
+			var game_socket = game_sockets[gamesocketId].socket;
 			// 안드로이드 단에서 어플리 종료되었을 경우 위에서 logout 신호를 받아서 접속한 플레이어중 없어지도록 처리
-			socket_ui.emit('ui_removeMyPlayer');
+			game_socket.emit('ui_removeMyPlayer');
 
 			//
 			// socket_ui.emit('ui_removeOtherPlayer', player);
@@ -199,8 +200,9 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 
 
 		});
-		
 		*/
+		
+		
 
 		
 		/*
@@ -221,19 +223,26 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 			// 위 초대코드 배열에서 해당 초대 코드가 존재 하는지 먼저 검색을 실시
 			
 			var inviteCode = joinDataJson.inviteCode;
+			
+			console.log(`log : inviteCode - ${inviteCode}`);
+			
 			var gamesocketId = joinDataJson.gamesocketId;
-			isDuplicate = inviteCodes.findIndex(x => x.value === inviteCode);
-
+			var player2Sock = game_sockets[gamesocketId].socket;
+			console.log(inviteCodes);
+			
+			isDuplicate = inviteCodes.indexOf(inviteCode);
+			
+			console.log(isDuplicate);
 			if(isDuplicate == -1){
 				// 만약에 해당 초대 코드가 존재하지 않는다면
 
 				socket.emit("ad_invalidInviteCode", "이 초대코드는 유효하지 않습니다.");
+				console.log("존재하지 않는 초대 코드");
 			}
 			else{
 				// 해당 초대 코드가 존재할 시 해당 방으로 진입
 				
-				lobbyMgr.join(roomMgr, inviteCode, gamesocketId);
-
+				lobbyMgr.join(roomMgr, inviteCode, player2Sock);
 
 			}
 
