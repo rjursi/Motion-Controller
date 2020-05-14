@@ -43,12 +43,11 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 	
 	// 해당 사버는 어떤 클라이언트가 connection event 를 발생시키고 있는 것인지를 대기중
 	// callback 으로 넘겨지는 socket 에는 현재 클라이언트와 연결되어있는 socket 관련 정보들이 다 들어가 있음
-	
-	
+		
 	// 웹사이트 io 커넥션 관리
-    
-	
+
 	var player, playerIdTemp;
+	
 	// 웹 상에서 붙을시 저장할 딕셔너리 변수와 컨트롤러 단에서 붙을시 저장할 딕셔너리 변수를 지정
 	var game_sockets = {}, controller_sockets = {};
 	
@@ -92,14 +91,14 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 				// 아래에서 초대코드를 만들고 초대 코드를 보내는 과정이 필요함	
 				var inviteCode = '';
 				
-				// 로비에 해당 유저를 추가하는 과정
+				// 로비에 해당 유저를 추가하는 과정, 웹페이지 소켓을 전송
 				lobbyMgr.push(game_sockets[game_socket_id].socket);
 				
 				inviteCode = makeInviteString();
 				
 				socket.emit("server_inviteCode", inviteCode);
 				
-				// 방을 만드는 함수
+				// 유저 한명 당 방을 만드는 함수
 				lobbyMgr.dispatch(roomMgr, inviteCode);
 				
 			}
@@ -166,7 +165,7 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 
 				var game_socket = game_sockets[controller_sockets[socket.id].game_id].socket;
 
-				// 해당 roomManager 에게 해당 컨트롤러와 연결되어있는 웹 소켓과 자이로스코프 데이터를 보냄
+				// 해당 roomManager 에게 해당 컨트롤러와 연결되어있는 웹 소켓과 자이로스코프 데이터를 보냄 
 				roomMgr.updatePlayerGyroData(game_socket, data);
 			}
 			
@@ -205,19 +204,19 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 		
 
 		
-		/*
+		
 		socket.on('ad_stop', function(gamesocketId){
 
-		// 안드로이드 단에서 어플리 종료되었을 경우 위에서 logout 신호를 받아서 접속한 플레이어중 없어지도록 처리
+		// 안드로이드 단에서 화면에서 사라질 경우(거의 pause 상태랑 같이 이어짐) 
 
 			console.log(`${gamesocketId} stopped.... ---------`)
 
 		});
 
-		*/
 		
 		
-		// 안드로이드 단에서 날라올 메시지에 대한 소켓 이벤트
+		
+		// 안드로이드 단에서 날라올 메시지에 대한 소켓 이벤트 - 안드로이드 단에서 초대 코드를 넣었을때
 		socket.on('ad_joinTothePlayer1Room', function(joinDataJson){
 			var isDuplicate = 1;
 			// 위 초대코드 배열에서 해당 초대 코드가 존재 하는지 먼저 검색을 실시
@@ -227,7 +226,7 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 			console.log(`log : inviteCode - ${inviteCode}`);
 			
 			var gamesocketId = joinDataJson.gamesocketId;
-			var player2Sock = game_sockets[gamesocketId].socket;
+			var player2Sock_web = game_sockets[gamesocketId].socket;
 			console.log(inviteCodes);
 			
 			isDuplicate = inviteCodes.indexOf(inviteCode);
@@ -240,9 +239,9 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 				console.log("존재하지 않는 초대 코드");
 			}
 			else{
-				// 해당 초대 코드가 존재할 시 해당 방으로 진입
 				
-				lobbyMgr.join(roomMgr, inviteCode, player2Sock);
+				// 해당 초대 코드가 존재할 시 해당 방으로 진입
+				lobbyMgr.join(roomMgr, inviteCode, player2Sock_web);
 
 			}
 

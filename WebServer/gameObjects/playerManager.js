@@ -113,20 +113,25 @@ playerManager.prototype.updatePlayerData = function(data){
 	
 };
 
-playerManager.prototype.updatePlayerGyroData = function(playerSock, gyroData){
+
+// 지정한 웹 플레이어 소켓을 가져옴
+playerManager.prototype.updatePlayerGyroData = function(playerSock_web, gyroData){
 	
 	// 해당 플레이어의 데이터 객체를 가져옴
-	
-	var player = this.playerForId(playerSock.id);
-	
-	console.log(gyroData);
+	var player = this.playerForId(playerSock_web.id);
+
 	// 해당 플레이어의 객체를 찾음
+	
+	// 해당 객체의 회전각 데이터 값 수정
 	player.objStatus.r_x = gyroData.xRoll;
 	player.objStatus.r_y = gyroData.yPitch;
 	player.objStatus.r_z = gyroData.zYaw;
 
+	// 데이터 값이 수정된 해당 플레이어 정보 데이터 반환
 	return player;
 }
+
+
 
 // 지정한 하나의 플레이어 값을 반환하는 함수
 playerManager.prototype.playerForId = function(id){
@@ -135,8 +140,7 @@ playerManager.prototype.playerForId = function(id){
 	for(var i = 0; i < players.length; i++){
 		if(players[i].playerId === id){
 			
-			
-			
+		
 			// 해당 플레이어 객체를 반환
 			player = players[i];
 			break;

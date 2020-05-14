@@ -1,7 +1,7 @@
 var playerManager = require("./playerManager.js");
 
 // 업데이트하기 위한 주기 값
-var INTERVAL = 1050;
+var INTERVAL = 10;
 
 var players = [];
 
@@ -33,54 +33,43 @@ function RoomManager(io){
   };
 	
 	
-  RmMg.join = function(inviteCode, player2Sock){
+  RmMg.join = function(inviteCode, player2Sock_web){
 	  // 초대 받은 방에 들어갈 초대 코드를 받아옴
 	  var joinRoomId = inviteCode;
 	  
 	  // 초대 받은 방에 들어감
-	  player2Sock.join(joinRoomId);
+	  player2Sock_web.join(joinRoomId);
 	  
 	  // 초대코드를 생성한 방장
-	  var player1 = RmMg.inviteCodeSockDict[joinRoomId];
+	  var player1Sock_web = RmMg.inviteCodeSockDict[joinRoomId];
 	  
-	  // 초대 코드를 받아 진입한 두번째 플레이어
-	  var player2 = player2Sock;
+	  
 	  
 	  console.log("roomManager : Player2 Joined");
 	  
-	  players.push(player1); 
-	  players.push(player2);
+	  players.push(player1Sock_web); 
+	  players.push(player1Sock_web);
 	  
-	  var room = new Room(joinRoomId, player1, player2);
+	  var room = new Room(joinRoomId, player1Sock_web, player2Sock_web);
 	  
 	  // 룸 목록중에 하나로 다음 room 객체를 넣음
 	  RmMg.rooms[joinRoomId] = room;
 	  
 	  // 플레이어별 초대 코드가 들어가있는 곳을 식별하기 위해 다음과 같이 저장
-      RmMg.roomIndex[player1.id] = joinRoomId;
-      RmMg.roomIndex[player2.id] = joinRoomId;
+      RmMg.roomIndex[player1Sock_web.id] = joinRoomId;
+      RmMg.roomIndex[player2Sock_web.id] = joinRoomId;
 	  
 	  
 	  // UI 상에다가 플레이어를 만들어달라고 신호를 보냄
 	  
 	  var initPlayerObjArr = [];
 	  
-	  initPlayerObjArr.push(room.objects[player1.id]);
-	  initPlayerObjArr.push(room.objects[player2.id]);
+	  initPlayerObjArr.push(room.objects[player1Sock_web.id]);
+	  initPlayerObjArr.push(room.objects[player2Sock_web.id]);
 	  
-	  console.log(initPlayerObjArr);
+	  // 해당 생성된 방에 캐릭터를 생성하라는 신호를 보냄
 	  io.to(joinRoomId).emit('ui_createPlayer', initPlayerObjArr);
-	  
-	  
-	  /*
-	player1.emit('ui_createPlayer1', room.objects[player1.id]);
-	player1.emit('ui_createPlayer2', room.objects[player2.id]);
-	  
-	player2.emit('ui_createPlayer2', room.objects[player2.id]);
-	player2.emit('ui_createPlayer1', room.objects[player1.id]);
-	*/
-	  
-	  // 만들어진 플레이어의 객체에 대한 데이터를 포함간 객체를 보냄
+	 
 	  
   }
   
@@ -99,15 +88,16 @@ function RoomManager(io){
   	
 	  
 	  // 해당 바꾸고자 하는 플레이어의 객체를 가져옴
+	  // playerManager 객체를 가져옴
 	var getPlayer = RmMg.rooms[RmMg.roomIndex[playerSock.id]].objects[playerSock.id];
 	
-	// 플레이어의 회전각 등 데이터 변경
+	// 플레이어의 회전각 등 데이터 변경 - playerManager 객체에서 데이터 수정 -> 수정된 데이터 반환
 	var updatedPlayerDataObj = getPlayer.updatePlayerGyroData(playerSock, gyroData);
 				
 	  
-	  
+	// 해당 방의 지정한 플레이어 소켓에 플레이어 데이터 값을 업데이트
 	RmMg.rooms[RmMg.roomIndex[playerSock.id]].objects[playerSock.id] = updatedPlayerDataObj;  
-	//playerSock.emit('ui_updateMyDirection', gyroData);
+	
 	  
   }	
   
@@ -132,7 +122,7 @@ function RoomManager(io){
       io.to(room.id).emit('updateUI',objStatuses);
     }
   },INTERVAL);
-  
+  // 0.01 초 간격으로 해당 플레이어의 데이터를 업데이트
   
 }
 

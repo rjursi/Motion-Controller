@@ -120,8 +120,10 @@ function render(){
 	renderer.render(scene, camera);
 }
 	
+// 해당 객체 정보를 가져와서 플레이어를 테스트로 생성하는 부분
 var createPlayer = function(initPlayerObjArr){
 	
+	// 플레이어 데이터 객체 목록 갯수 만큼 해당 반복문 실행
 	for(var i in initPlayerObjArr){
 		
 		console.log(initPlayerObjArr[i]);
@@ -137,7 +139,10 @@ var createPlayer = function(initPlayerObjArr){
 		console.log("createPlayer : playerInfo : ");
 		console.log(player_Obj);
 
+		
 		// player.rotation.set(0,0,0);
+		
+		// 각 플레이어의 정보를 가지고 player_obj 객체를 생성
 		player_Obj.position.x = initPlayerObjArr[i].objStatus.x;
 		player_Obj.position.y = initPlayerObjArr[i].objStatus.y;
 		player_Obj.position.z = initPlayerObjArr[i].objStatus.z;
@@ -152,6 +157,7 @@ var createPlayer = function(initPlayerObjArr){
 
 		// objects.push(player_Obj);
 
+		// 플레이어 객체 목록에 추가
 		playerUIObj.push(player_Obj);	
 		scene.add(player_Obj);
 		
@@ -235,11 +241,12 @@ var updateUI = function(objStatuses){
 	var player_2_status = objStatuses[1];
 	
 	
-	console.log(player_1_status);
+	// player_1 정보 업데이트
 	playerUIObj[0].rotation.x = player_1_status.objStatus.r_x;
 	playerUIObj[0].rotation.y = player_1_status.objStatus.r_y;
 	playerUIObj[0].rotation.z = player_1_status.objStatus.r_z;
 	
+	// player_2 정보 업데이트
 	playerUIObj[1].rotation.x = player_2_status.objStatus.r_x;
 	playerUIObj[1].rotation.y = player_2_status.objStatus.r_y;
 	playerUIObj[1].rotation.z = player_2_status.objStatus.r_z;
