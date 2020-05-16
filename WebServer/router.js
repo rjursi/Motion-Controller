@@ -4,7 +4,11 @@ module.exports = function(app)
         res.sendFile(__dirname + '/index.html');
 		
      });
-
+	
+	 app.get('/download', function(req, res){
+		 res.sendFile(__dirname + '/download.html');
+	 });
+	
      app.get('/node_modules/three/build/three.js',function(req,res){
         res.sendFile(__dirname + '/node_modules/three/build/three.js');
      });

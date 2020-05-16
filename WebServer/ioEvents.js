@@ -49,7 +49,8 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 	var player, playerIdTemp;
 	
 	// 웹 상에서 붙을시 저장할 딕셔너리 변수와 컨트롤러 단에서 붙을시 저장할 딕셔너리 변수를 지정
-	var game_sockets = {}, controller_sockets = {};
+	var game_sockets = {};
+	var controller_sockets = {};
 	
 	// 안드로이드 단 단말기를 통하여 클라이언트 안에서 연결되고 나면
 	this.io.sockets.on('connection', function (socket){
@@ -111,12 +112,15 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 		
 		socket.on('disconnect', function(){
 			
-			// 만약에 웹 상에서의 게임 소켓일 경우
+			// 만약에 웹 상에서의 게임 소켓이 끊어질 경우
 			if(game_sockets[socket.id]){
 				
-				game_sockets[socket.id].socket.emit("ui_removeMyPlayer")
+				// 플레이어가 웹사이트를 종료하였을시 이벤트를 설정
+				// game_sockets[socket.id].socket.emit("ui_removeMyPlayer")
 				console.log("Game disconnected");
 				
+				
+				// 해당 웹 소켓에 해당하는 컨트롤러가 존재 할 경우
 				if(controller_sockets[game_sockets[socket.id].controller_id]){
 					
 					// 관련된 컨트롤러 소켓이 연결이 끊어졌다고 알림
@@ -127,12 +131,12 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 				delete game_sockets[socket.id];
 			}
 			
-			// 만약에 컨트롤러 소켓이 끊어질 경우
+			// 컨트롤러 소켓 작업
 			if(controller_sockets[socket.id]){
 				
 				console.log("Controller disconnected");
-				
-				
+						
+	
 				// 만약에 컨트롤러 소켓이 게임에 연결이 되어있을 경우
 				if(game_sockets[controller_sockets[socket.id].game_id]){
 					
@@ -145,6 +149,8 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 				
 				delete controller_sockets[socket.id];
 			}
+			
+			
 		});
 		
 		
@@ -162,7 +168,6 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 				console.log(`gyro-x : ${data.xRoll}, y : ${data.yPitch}, z : ${data.zYaw}`);
 			
 				// 컨트롤하고자 하는 웹 소켓을 안드로이드 소켓을 이용하여 
-
 				var game_socket = game_sockets[controller_sockets[socket.id].game_id].socket;
 
 				// 해당 roomManager 에게 해당 컨트롤러와 연결되어있는 웹 소켓과 자이로스코프 데이터를 보냄 

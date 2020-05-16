@@ -2,28 +2,15 @@
 
 var scene, camera, renderer, container, objects = [];
 
-var player_1_Obj, player_1_playerId, player_1_moveSpeed, player_1_turnSpeed;
-var player_2_Obj, player_2_playerId, player_2_moveSpeed, player_2_turnSpeed;
-
-
-
+// 플레이어 객체가 들어가 있는 배열, 총 2개 밖에 안들어감
 var playerUIObj = [];
-/*
-var player_1_Elements = {};
-var player_2_Elements = {};
-*/
 
+// 맵 관련 오브젝트가 들어갈 예정
 var map_Elements = [];
 
-/*
-var otherPlayers = [];
-var otherPlayersId = [];
-*/
+// 맵 내 움직일 수 있는 오브젝트가 들어갈 배열
+var map_objects = [];
 
-// 초기 다양한 값 세팅하기 위한 함수
-//init();
-// renderer 를 통하여 camera 와 함께 화면에 표시하는 함수
-//animate();
 
 function init(){
 
@@ -63,21 +50,11 @@ function init(){
 
 	// 메쉬가 필요, 장면에 삽입하고 자유롭게 움직이도록 하는 것을 넣음 
 	var cube = new THREE.Mesh(geometry, material);
-
-	// 오브젝트 모음에 추가
-	objects.push(cube);
 	
+	// 맵 배열에 추가, 아마 하
+	map_Elements.push(cube);
 	
 	// 맵의 위치를 가늠해보기 위한 테스트
-	
-	/*
-	cube.position.x = 0;
-	cube.position.y = 1;
-	cube.position.z = 1;
-	
-	*/
-
-	
 	
 	
 	// 기본적으로 아래와 같이 호출하면 좌표(0,0,0) 에 추가됨
@@ -107,15 +84,7 @@ function animate(){
 }
 
 function render(){
-	
-	/*
-	if(player){
-		updateCameraPosition();
 		
-		camera.lookAt(player.position);
-	}
-	*/
-	
 	renderer.clear();
 	renderer.render(scene, camera);
 }
@@ -148,93 +117,14 @@ var createPlayer = function(initPlayerObjArr){
 		player_Obj.position.z = initPlayerObjArr[i].objStatus.z;
 
 		console.log(player_Obj.position);
-
-		/*		
-		player_1_playerId = playerObjData.playerId;
-		player_1_moveSpeed = playerObjData.speed;
-		player_1_turnSpeed = playerObjData.turnSpeed;
-		*/
-
-		// objects.push(player_Obj);
-
-		// 플레이어 객체 목록에 추가
+		
+		
 		playerUIObj.push(player_Obj);	
 		scene.add(player_Obj);
 		
 	}
 	
 }
-
-/*
-var createPlayer1 = function(data){
-	// 서버 측 플레이어 정보 값이 여기로 넘어옴, 즉 플레이어 아이디가 playerData에 저장되어 있음
-	// 여기에 각 플레이어의 위치, 회전 값이 초기에 전달이 됨
-	
-
-	var cube_geometry = new THREE.BoxGeometry(data.objStatus.sizeX, data.objStatus.sizeY, data.objStatus.SizeZ);
-	//var cube_geometry = new THREE.BoxGeometry();
-	var cube_material = new THREE.MeshBasicMaterial({color : data.color , wireframe : true});
-	
-	// 여기서 해당 플레이어에 대한 각종 캐릭터 값을 만듬
-	player_1_Obj = new THREE.Mesh(cube_geometry, cube_material);
-	
-	
-	console.log("createPlayer : playerInfo : ");
-	console.log(player_1_Obj);
-	
-	// player.rotation.set(0,0,0);
-	player_1_Obj.position.x = data.objStatus.x;
-	player_1_Obj.position.y = data.objStatus.y;
-	player_1_Obj.position.z = data.objStatus.z;
-	
-	console.log(player_1_Obj.position);
-	
-	player_1_playerId = data.playerId;
-	player_1_moveSpeed = data.speed;
-	player_1_turnSpeed = data.turnSpeed;
-	
-	objects.push(player_1_Obj);
-	scene.add(player_1_Obj);
-	
-	//camera.lookAt(player.position);
-	
-	
-};
-
-var createPlayer2 = function(data){
-	// 서버 측 플레이어 정보 값이 여기로 넘어옴, 즉 플레이어 아이디가 playerData에 저장되어 있음
-	// 여기에 각 플레이어의 위치, 회전 값이 초기에 전달이 됨
-	
-	
-	var cube_geometry = new THREE.BoxGeometry(data.sizeX, data.sizeY, data.SizeZ);
-	// var cube_geometry = new THREE.BoxGeometry();
-	var cube_material = new THREE.MeshBasicMaterial({color : data.color , wireframe : true});
-	
-	// 여기서 해당 플레이어에 대한 각종 캐릭터 값을 만듬
-	player_2_Obj = new THREE.Mesh(cube_geometry, cube_material);
-	
-	
-	console.log("createPlayer : playerInfo : ");
-	console.log(player_2_Obj);
-	
-	// player.rotation.set(0,0,0);
-	player_2_Obj.position.x = data.objStatus.x;
-	player_2_Obj.position.y = data.objStatus.y;
-	player_2_Obj.position.z = data.objStatus.z;
-	
-	console.log(player_2_Obj.position);
-	
-	player_2_playerId = data.playerId;
-	player_2_moveSpeed = data.speed;
-	player_2_turnSpeed = data.turnSpeed;
-	
-	objects.push(player_2_Obj);
-	scene.add(player_2_Obj);
-	
-	//camera.lookAt(player.position);
-		
-};
-*/
 
 var updateUI = function(objStatuses){
 	var player_1_status = objStatuses[0];
@@ -253,8 +143,12 @@ var updateUI = function(objStatuses){
 	
 }
 
-var removeMyPlayer = function(){
-	scene.remove(player);
+// scene 상에서 플레이어 모두를 지우기 위한 함수
+var removePlayers = function(){
+	
+	for(var obj in playerUIObj){
+		scene.remove(obj);
+	}
 	
 }
 
