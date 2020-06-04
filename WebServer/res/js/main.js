@@ -97,7 +97,7 @@ var createPlayer = function(initPlayerObjArr){
 		
 		console.log(initPlayerObjArr[i]);
 		var cube_geometry = new THREE.BoxGeometry(initPlayerObjArr[i].objStatus.sizeX, initPlayerObjArr[i].objStatus.sizeY, initPlayerObjArr[i].objStatus.SizeZ);
-		//var cube_geometry = new THREE.BoxGeometry();
+		
 		var cube_material = new THREE.MeshBasicMaterial({color :initPlayerObjArr[i].color , wireframe : true});
 
 		// 여기서 해당 플레이어에 대한 각종 캐릭터 값을 만듬
@@ -143,6 +143,22 @@ var updateUI = function(objStatuses){
 	
 }
 
+
+// 한쪽에서 Disconnect 되었을 때 처리하는 함수
+var DisconnectedUI = function(){
+	
+	
+	// 화면, 즉 scene 안에 있는 모든 오브젝트 들을 모두 지워버림
+	
+	while(scene.children.length > 0){ 
+    	scene.remove(scene.children[0]); 
+	}
+	
+	alert("플레이어 한쪽이 Disconnect 되어서 새로 게임 시작시 새로고침 해야합니다.");
+	
+}
+
+
 // scene 상에서 플레이어 모두를 지우기 위한 함수
 var removePlayers = function(){
 	
@@ -177,62 +193,10 @@ var updatePlayerPosition = function(data){
 };
 
 
-var updatePlayerData = function(){
-	
-	playerData.x = player.position.x;
-	playerData.y = player.position.y;
-	playerData.z = player.position.z;
-	
-	
-	playerData.r_x = player.rotation.x;
-	playerData.r_y = player.rotation.y;
-	playerData.r_z = player.rotation.z;
-	
-	
-};
 
 
 
-
-var addOtherPlayer = function(data){
-    var cube_geometry = new THREE.BoxGeometry(data.sizeX, data.sizeY, data.sizeZ);
-    var cube_material = new THREE.MeshBasicMaterial({color: 0x7777ff, wireframe: false});
-    var otherPlayer = new THREE.Mesh(cube_geometry, cube_material);
-
-    otherPlayer.position.x = data.x;
-    otherPlayer.position.y = data.y;
-    otherPlayer.position.z = data.z;
-
-    otherPlayersId.push( data.playerId );
-    otherPlayers.push( otherPlayer );
-    objects.push( otherPlayer );
-    scene.add( otherPlayer );
-
-};
-
-
-var removeOtherPlayer = function(data){
-
-	var removePlayerObj;
-	var index;
-	
-	console.log("Data On Remove : ");
-	console.log(data);
-	// 지울 객체를 가져옴
-	removePlayerObj = playerForId(data.playerId);
-	
-	console.log("removeOtherPlayer : index");
-	console.log(index);
-	
-	if(index > -1){
-		
-		scene.remove(removePlayerObj);
-		
-	}
-	
-};
-
-
+/*
 var updateCameraPosition = function(){
 
     camera.position.x = player.position.x + 6 * Math.sin( player.rotation.y );
@@ -240,7 +204,7 @@ var updateCameraPosition = function(){
     camera.position.z = player.position.z + 6 * Math.cos( player.rotation.y );
 
 };
-
+*/
 
 var playerForId = function(id){
     var index;

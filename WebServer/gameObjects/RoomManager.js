@@ -1,16 +1,16 @@
-var playerManager = require("./playerManager.js");
+ var playerManager = require("./playerManager.js");
 
 // 업데이트하기 위한 주기 값
 var INTERVAL = 10;
 
-var players = [];
+var players = []; // 플레이어 들의 웹 소켓들이 저장되어 있는 공간
 
 function RoomManager(io){
   var RmMg = this;
   RmMg.inviteCodeSockDict = {};
 	
   RmMg.rooms = {}; // rooms 딕셔너리 아래 roomid와 그에 맞는 room 객체가 들어감
-  RmMg.roomIndex = {};
+  RmMg.roomIndex = {}; // 플레이어 별 초대 코드가 들어가 있는 딕셔너리
 
 	
   // 하나의 방을 만드는 메소드
@@ -24,6 +24,8 @@ function RoomManager(io){
 	
 	// 해당 방에 대한 이름으로 room 을 생성
     playerSock.join(roomId);
+	  
+	// 플레이어가 생성이 될 때마다 지정한 초대 코드에 대한 플레이어의 소켓을 저장을 해 둠  
 	RmMg.inviteCodeSockDict[roomId] = playerSock;
 
 	// 해당 룸에 들어갔다는 신호를 보냄
@@ -43,16 +45,14 @@ function RoomManager(io){
 	  // 초대코드를 생성한 방장
 	  var player1Sock_web = RmMg.inviteCodeSockDict[joinRoomId];
 	  
-	  
-	  
 	  console.log("roomManager : Player2 Joined");
 	  
 	  players.push(player1Sock_web); 
-	  players.push(player1Sock_web);
+	  players.push(player2Sock_web);
 	  
 	  var room = new Room(joinRoomId, player1Sock_web, player2Sock_web);
 	  
-	  // 룸 목록중에 하나로 다음 room 객체를 넣음
+	  // room 목록중에 하나로 다음 room 객체를 넣음
 	  RmMg.rooms[joinRoomId] = room;
 	  
 	  // 플레이어별 초대 코드가 들어가있는 곳을 식별하기 위해 다음과 같이 저장
@@ -61,8 +61,8 @@ function RoomManager(io){
 	  
 	  
 	  // UI 상에다가 플레이어를 만들어달라고 신호를 보냄
-	  
 	  var initPlayerObjArr = [];
+	  
 	  
 	  initPlayerObjArr.push(room.objects[player1Sock_web.id]);
 	  initPlayerObjArr.push(room.objects[player2Sock_web.id]);
@@ -73,13 +73,37 @@ function RoomManager(io){
 	  
   }
   
-  RmMg.destroy = function(roomId, LbMg){
+  RmMg.returnRoomSockets = function(onePlayerSock_id){
+	  var roomId = RmMg.roomIndex[onePlayerSock_id];
+      var room = RmMg.rooms[roomId];
+	  
+	  
+	  return room.players;
+	  
+	  
+  }
+  
+  
+  RmMg.destroy = function(playerSock, LbMg){
+	 
+	var roomId = RmMg.roomIndex[playerSock.id];
     var room = RmMg.rooms[roomId];
+	  
+	  
+	// 해당 romm 에다가 모든 UI를 지우는 역할을 함  
+	io.to(room.id).emit('Disconnected_UI');
+	  
     room.players.forEach(function(socket){
-      LbMg.push(socket);
+	
+	  LbMg.kick(socket); // 로비에서도 해당 소켓을 끊어버림
+		
       delete RmMg.roomIndex[socket.id];
+		
     });
+	  
     delete RmMg.rooms[roomId];
+	console.log("roomManager : 지정한 룸이 지워졌습니다.");
+	
   };
 	
 	

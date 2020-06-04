@@ -29,8 +29,7 @@ function LobbyManager(io){
 	  RmMg.join(inviteCode, player2Sock_web);
   };	
 	
-	
-
+  // 로비 목록에서 해당 유저를 리스트에서 지우기 위한 것	
   LbMg.kick = function(socket){
     var index = LbMg.lobby.indexOf(socket);
     if(index >= 0) LbMg.lobby.splice(index,1);
@@ -40,8 +39,6 @@ function LobbyManager(io){
     var sockets = LbMg.lobby;
     LbMg.lobby = sockets.filter(function(socket){ return socket !== null; });
   };
-	
-  
 	
   
 }

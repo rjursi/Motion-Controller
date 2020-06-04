@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
 
-
+// 각종 게임 관련 작업 클래스 호출
 var lobbyManager = require('./gameObjects/LobbyManager');
 var roomManager = require('./gameObjects/RoomManager');
 var playerManager = require('./gameObjects/playerManager');

@@ -39,6 +39,7 @@ var create_QR = function(){
 	var QR_code;
 	var url = "https://jswebgame.run.goorm.io?id=" + io.id;
 	
+	console.log(io.id);
 	QR_code_element = document.createElement('div');
 	QR_code_element.id = "QR_code";
 	
@@ -51,6 +52,8 @@ var create_QR = function(){
 
 // 플레이어가 웹 게임에 접속을 할 경우 QR코드를 띄울 수 있도록 함수를 호출
 var game_connected = function(){
+	
+	// main.js 에 있는 함수
 	create_QR();
 	
 	// 더 이상 사용을 안하므로 해당 리스너를 지움
@@ -58,13 +61,18 @@ var game_connected = function(){
 	
 }
 
+io.on('Disconnected_UI', function(){
+	// main.js 에 있는 함수
+	DisconnectedUI();	  
+});
 
 io.on('ui_updateMyDirection', function(data){
-	
+	// main.js 에 있는 함수
 	updateMyDirection(data);
 });
 
 io.on('ui_updatePlayerPosition', function(data){
+	// main.js 에 있는 함수
     updatePlayerPosition(data);
 });
 
@@ -89,9 +97,7 @@ io.on('ui_removeMyPlayer', function(){
     removeMyPlayer();
 });
 
-io.on('ui_removeOtherPlayer', function(data){
-    removeOtherPlayer(data);
-});
+
 
 // server.js 측에서 보내는(ioEvents) socket.io 메시지와 
 // 자신 (main.js) 에서 보내는 socket.io 메시지를 공통으로 처리하는 부분

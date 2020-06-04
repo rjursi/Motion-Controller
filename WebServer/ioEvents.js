@@ -1,6 +1,7 @@
 
 // 서버에서 생성한 각종 초대 코드들이 계속해서 모이는 곳
 var inviteCodes = [];
+var inviteCodesPerUser = {};
 
 // 클래스의 생성자
 function ioEvents(io){
@@ -10,7 +11,7 @@ function ioEvents(io){
 
 // 초대 코드 생성을 위한 6자리 랜덤 문자열 만들기
 function makeInviteString() {
-	var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZ";
+	var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	var string_length = 6;
 	var inviteCode = '';
 	
@@ -54,9 +55,12 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 	
 	// 안드로이드 단 단말기를 통하여 클라이언트 안에서 연결되고 나면
 	this.io.sockets.on('connection', function (socket){
-		// uiSide 부분이 먼저 연결되고 나서
+		
+		var web_socketIdTemp = undefined;
+		var cont_socketIdTemp = undefined;
 		
 		socket.on('game_connect', function(){
+			web_socketIdTemp = socket.id;
 			console.log(`Web Client Connected. ${socket.id}`);
 		    // 유저 하나가 들어감
 			
@@ -65,6 +69,8 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 				controller_id : undefined
 			};
 			
+			//console.log(game_sockets[socket.id]);
+			
 			// 게임 서버에 연결이 되었다고 신호를 보냄
 			socket.emit('game_connected');
 		});	
@@ -72,8 +78,10 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 		// 그럼 안드로이드 단에도 웹 소켓을 보내야 됨, 데이터 값이 날라옴
 		// 아래에는 안드로이드 단에서 날라오는 소켓
 		socket.on('controller_connect', function(game_socket_id){
+			cont_socketIdTemp = socket.id;
 			if(game_sockets[game_socket_id]){
-				console.log("controller connected");
+				
+				console.log(`controller connected : ${game_socket_id}`);
 			
 				// 해당 컨트롤러 소켓이 저장됨
 				controller_sockets[socket.id] = {
@@ -85,6 +93,8 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 				
 				// 아래 작업할 소켓은 컨트롤러가 연결될 시 연결되는 소켓.
 				game_sockets[game_socket_id].controller_id = socket.id;
+				
+				console.log(game_sockets[game_socket_id].controller_id);
 				// 웹 게임 소켓에다가 컨트롤러가 연결이 되었다고 알림
 				game_sockets[game_socket_id].socket.emit("controller_connected", true);
 				
@@ -97,6 +107,10 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 				
 				inviteCode = makeInviteString();
 				
+				// 유저 당 초기에 만들어진 각자 초대코드를 저장하는 딕셔너리
+				inviteCodesPerUser[game_socket_id] = inviteCode;
+				
+				// 안드로이드 단에 보내는 자신의 초대 코드
 				socket.emit("server_inviteCode", inviteCode);
 				
 				// 유저 한명 당 방을 만드는 함수
@@ -110,44 +124,129 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 			}
 		});
 		
-		socket.on('disconnect', function(){
+		socket.on('disconnect',function() {
 			
-			// 만약에 웹 상에서의 게임 소켓이 끊어질 경우
-			if(game_sockets[socket.id]){
+			// 만약에 등록된 웹 소켓이 존재할 경우
+			if(game_sockets[web_socketIdTemp]){
 				
-				// 플레이어가 웹사이트를 종료하였을시 이벤트를 설정
-				// game_sockets[socket.id].socket.emit("ui_removeMyPlayer")
 				console.log("Game disconnected");
 				
-				
-				// 해당 웹 소켓에 해당하는 컨트롤러가 존재 할 경우
-				if(controller_sockets[game_sockets[socket.id].controller_id]){
-					
-					// 관련된 컨트롤러 소켓이 연결이 끊어졌다고 알림
-					controller_sockets[game_sockets[socket.id].controller_id].socket.emit("controller_connected", false);
-					controller_sockets[game_sockets[socket.id].controller_id].game_id = undefined;
+				if(roomMgr.roomIndex[web_socketIdTemp]){
+					console.log("websocket disconn : after room maked status");
+					// 만약 room 을 아직 생성하기 전일 경우에도 처리
+
+					// roomMgr 상에서 해당 방을 부셔버려야 함
+					// 여기 안에서 lobbyMgr 도 알아서 kick 함
+
+
+					// 안드로이드 컨트롤러에게 끊어졌다고 알림
+					var inRoomPlayerSockets = roomMgr.returnRoomSockets(web_socketIdTemp);
+
+					for(var socket in inRoomPlayerSockets){
+
+						var controllerSocket = controller_sockets[game_sockets[web_socketIdTemp].controller_id].socket;
+
+						// 각 안드로이드 컨트롤러 소켓에게 서버가 끊어졌다고 알림
+						controllerSocket.emit("server_Disconnected");
+
+					}
+
+
+					// 해당 소켓이 포함된 room 폭파
+					roomMgr.destory(web_socketIdTemp, lobbyMgr)
+
+					const inviteCodeIndex = inviteCodes.indexOf(inviteCodesPerUser(web_socketIdTemp));
+
+					if(inviteCodeIndex != -1){
+						inviteCodes.splice(inviteCodeIndex, 1);
+					}
+					console.log(inviteCodes);
+
+					delete inviteCodesPerUser[web_socketIdTemp];
+					console.log(inviteCodesPerUser);
 				}
 				
-				delete game_sockets[socket.id];
+					
+				// 해당 웹 소켓에 해당하는 컨트롤러가 존재 할 경우
+				if(controller_sockets[game_sockets[web_socketIdTemp].controller_id]){
+					
+					var controllerSocket = controller_sockets[game_sockets[web_socketIdTemp].controller_id].socket;
+
+					controllerSocket.emit("server_Disconnected");
+					// 관련된 컨트롤러 소켓이 연결이 끊어졌다고 알림
+					
+					// controller_sockets[game_sockets[web_socketIdTemp].controller_id].socket.emit("controller_connected", false);
+					// controller_sockets[game_sockets[web_socketIdTemp].controller_id].game_id = undefined;
+				}
+				
+				
+				
+				/*
+				delete controller_sockets[game_sockets[web_socketIdTemp].controller_id];
+				delete game_sockets[web_socketIdTemp];
+				*/
+
 			}
 			
-			// 컨트롤러 소켓 작업
-			if(controller_sockets[socket.id]){
-				
+			
+			// 만약에 사용중이던 컨트롤러 소켓이 존재 할 경우
+		
+			if(controller_sockets[cont_socketIdTemp]){
+				// console.log(controller_sockets[game_sockets[socket.id].controller_id]);
 				console.log("Controller disconnected");
-						
-	
-				// 만약에 컨트롤러 소켓이 게임에 연결이 되어있을 경우
-				if(game_sockets[controller_sockets[socket.id].game_id]){
-					
-					// 컨트롤러가 끊어졌다고 웹 게임 소켓에게 알림
-					game_sockets[controller_sockets[socket.id].game_id].socket.emit("controller_connected", false);
-					
-					// 컨트롤러 없어짐을 설정
-					game_sockets[controller_sockets[socket.id].game_id].controller_id = undefined;	
+				// console.log(game_sockets[cont_socketIdTemp]);
+				
+				var gamesocketId = controller_sockets[cont_socketIdTemp].game_id;
+				var game_socket = game_sockets[gamesocketId].socket;
+				
+				// 룸이 존재할 경우에만 룸을 폭파를 시켜야함
+				if(roomMgr.roomIndex[gamesocketId]){
+					console.log("controller socket disconn : after room maked");
+					var inRoomPlayerSockets = roomMgr.returnRoomSockets(game_socket);
+
+					for(var socket in inRoomPlayerSockets){
+
+						var controllerSocket = controller_sockets[cont_socketIdTemp].socket;
+
+						// 각 안드로이드 컨트롤러 소켓에게 서버가 끊어졌다고 알림
+						controllerSocket.emit("server_Disconnected");
+
+					}
+
+					// room 폭파
+					roomMgr.destory(game_socket, lobbyMgr)
+
+
+					const inviteCodeIndex = inviteCodes.indexOf(inviteCodesPerUser(gamesocketId));
+
+					if(inviteCodeIndex != -1){
+						inviteCodes.splice(inviteCodeIndex, 1);
+					}
+					console.log(inviteCodes);
+
+					delete inviteCodesPerUser[gamesocketId];
+					console.log(inviteCodesPerUser);
+				
+				}
+				else{
+					var controllerSocket = controller_sockets[cont_socketIdTemp].socket;
+
+					controllerSocket.emit("server_Disconnected");
 				}
 				
-				delete controller_sockets[socket.id];
+				
+				
+				// 만약에 컨트롤러 소켓이 게임에 연결이 되어있을 경우
+				if(game_sockets[controller_sockets[cont_socketIdTemp].game_id]){
+					
+					// 컨트롤러가 끊어졌다고 웹 게임 소켓에게 알림
+					game_sockets[controller_sockets[cont_socketIdTemp].game_id].socket.emit("controller_connected", false);
+					
+					// 컨트롤러 없어짐을 설정
+					game_sockets[controller_sockets[cont_socketIdTemp].game_id].controller_id = undefined;	
+				}
+				
+				delete controller_sockets[cont_socketIdTemp];
 			}
 			
 			
@@ -226,15 +325,15 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 			var isDuplicate = 1;
 			// 위 초대코드 배열에서 해당 초대 코드가 존재 하는지 먼저 검색을 실시
 			
-			var inviteCode = joinDataJson.inviteCode;
+			var joinInviteCode = joinDataJson.inviteCode;
 			
-			console.log(`log : inviteCode - ${inviteCode}`);
+			console.log(`log : inviteCode - ${joinInviteCode}`);
 			
 			var gamesocketId = joinDataJson.gamesocketId;
 			var player2Sock_web = game_sockets[gamesocketId].socket;
 			console.log(inviteCodes);
 			
-			isDuplicate = inviteCodes.indexOf(inviteCode);
+			isDuplicate = inviteCodes.indexOf(joinInviteCode);
 			
 			console.log(isDuplicate);
 			if(isDuplicate == -1){
@@ -245,8 +344,15 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 			}
 			else{
 				
+				// 후에 중복 체크를 위하여 총 초대 코드가 모여있는 배열에서 해당 플레이어의 초대 코드 값을 지움
+				const inviteCodeIndex = inviteCodes.indexOf(inviteCodesPerUser[gamesocketId]);
+				inviteCodes.splice(inviteCodeIndex, 1);
+								
+				// 초대 받아서 들어갈 경우 각 플레이어의 초대코드를 변경
+				inviteCodesPerUser[gamesocketId] = joinInviteCode;
+				
 				// 해당 초대 코드가 존재할 시 해당 방으로 진입
-				lobbyMgr.join(roomMgr, inviteCode, player2Sock_web);
+				lobbyMgr.join(roomMgr, joinInviteCode, player2Sock_web);
 
 			}
 
