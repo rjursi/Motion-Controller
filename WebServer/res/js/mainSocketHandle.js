@@ -40,14 +40,37 @@ var create_QR = function(){
 	var url = "https://jswebgame.run.goorm.io?id=" + io.id;
 	
 	console.log(io.id);
+	
+	info_element = document.createElement('div');
+	info_element.id = "app_info";
+	
+	title_element = document.createElement('h1');
+	title_element.innerHTML = "웹 브라우저와 연결";
+	
+	
 	QR_code_element = document.createElement('div');
 	QR_code_element.id = "QR_code";
 	
+	download_pageElement = document.createElement('div');
+	wantApk_title = document.createElement('h1');
+	wantApk_title.innerHTML = "아직 어플리케이션을 다운받지 않으셨나요?";
+	
+	downloadPageLink = document.createElement('a');
+	downloadPageLink.setAttribute('href', "https://jswebgame.run.goorm.io/download");
+	downloadPageLink.innerHTML = "어플리케이션 다운로드 페이지";
+	
+	
+	
 	// body 안에 추가함
-	document.body.appendChild(QR_code_element);
+	document.body.appendChild(info_element);
+	document.getElementById("app_info").appendChild(title_element);
+	document.getElementById("app_info").appendChild(QR_code_element);
+	document.getElementById("app_info").appendChild(wantApk_title);
+	document.getElementById("app_info").appendChild(downloadPageLink);
 	
 	QR_code = new QRCode("QR_code");
 	QR_code.makeCode(url);
+	
 }
 
 // 플레이어가 웹 게임에 접속을 할 경우 QR코드를 띄울 수 있도록 함수를 호출

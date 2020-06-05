@@ -131,6 +131,7 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 				
 				console.log("Game disconnected");
 				
+				// 해당 방이 존재할 경우
 				if(roomMgr.roomIndex[web_socketIdTemp]){
 					console.log("websocket disconn : after room maked status");
 					// 만약 room 을 아직 생성하기 전일 경우에도 처리
@@ -138,10 +139,11 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 					// roomMgr 상에서 해당 방을 부셔버려야 함
 					// 여기 안에서 lobbyMgr 도 알아서 kick 함
 
-
+					
 					// 안드로이드 컨트롤러에게 끊어졌다고 알림
 					var inRoomPlayerSockets = roomMgr.returnRoomSockets(web_socketIdTemp);
 
+					// 해당 룸에 속한 소켓들을 가져오는 역할을 함
 					for(var socket in inRoomPlayerSockets){
 
 						var controllerSocket = controller_sockets[game_sockets[web_socketIdTemp].controller_id].socket;
@@ -153,7 +155,7 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 
 
 					// 해당 소켓이 포함된 room 폭파
-					roomMgr.destory(web_socketIdTemp, lobbyMgr)
+					roomMgr.destroy(web_socketIdTemp, lobbyMgr)
 
 					const inviteCodeIndex = inviteCodes.indexOf(inviteCodesPerUser(web_socketIdTemp));
 
@@ -246,6 +248,8 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 					game_sockets[controller_sockets[cont_socketIdTemp].game_id].controller_id = undefined;	
 				}
 				
+				
+				delete game_sockets[controller_sockets[cont_socketIdTemp].game_id];
 				delete controller_sockets[cont_socketIdTemp];
 			}
 			
