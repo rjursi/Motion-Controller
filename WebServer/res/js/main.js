@@ -88,6 +88,11 @@ function render(){
 	renderer.clear();
 	renderer.render(scene, camera);
 }
+function finish_render(){
+	renderer.clear();
+	renderer = undefined;
+	document.body.removeChild(container);
+}
 	
 // 해당 객체 정보를 가져와서 플레이어를 테스트로 생성하는 부분
 var createPlayer = function(initPlayerObjArr){

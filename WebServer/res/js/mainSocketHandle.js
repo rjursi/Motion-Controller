@@ -13,13 +13,14 @@ io.on('connect', function(){
 			
 			// QRcode 숨기기
 			
-			QR_code_element.style.display = "none";
+			info_element.style.display = "none";
 			init();
 			animate();
 			
 		}else{
 			// QRcode 그대로 보이게
-			QR_code_element.style.display = "block"
+			info_element.style.display = "block"
+			finish_render();
 			
 			controller_state = {};
 			
