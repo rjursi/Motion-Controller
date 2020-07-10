@@ -278,6 +278,14 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 			}
 			
 		});	
+		
+		socket.on('ad_joystickData', function(direction_data){
+			if(controller_sockets[socket.id]){
+				console.log(`joystick Direction : ${direction_data}`);
+				
+				// var game_socket = game_sockets[controller_sockets[socket.id].game_id].socket;
+			}
+		});
 				
 		socket.on('ad_pause', function(gamesocketId){
 

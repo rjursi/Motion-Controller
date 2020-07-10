@@ -90,15 +90,6 @@ io.on('Disconnected_UI', function(){
 	DisconnectedUI();	  
 });
 
-io.on('ui_updateMyDirection', function(data){
-	// main.js 에 있는 함수
-	updateMyDirection(data);
-});
-
-io.on('ui_updatePlayerPosition', function(data){
-	// main.js 에 있는 함수
-    updatePlayerPosition(data);
-});
 
 
 // 서버로 부터 플레이어 캐릭터를 생성하라는 신호가 오면
@@ -107,18 +98,6 @@ io.on('ui_createPlayer', function(initPlayerObjArr){
 	
 	// UI 단에서 플레이어를 생성하는 함수를 실행, 해당 객체 값은 플레이어의 각종 위치, 크기 등 정보가 들어있는 값임
     createPlayer(initPlayerObjArr);
-});
-
-
-
-
-
-io.on('ui_addOtherPlayer', function(data){
-    addOtherPlayer(data);
-});
-
-io.on('ui_removeMyPlayer', function(){
-    removeMyPlayer();
 });
 
 

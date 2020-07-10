@@ -1,6 +1,11 @@
+const SERVER_URL = "https://jswebgame.run.goorm.io";
+
 // object는 일단 각종 요소(예를 들어 큐브) 등의 요소들이 들어가는 부분
 
-var scene, camera, renderer, container, objects = [];
+var scene, camera, renderer, container, light;
+
+// 오브젝트 로드를 위한 gltf loader 객체 변수 설정
+var gltfLoader, dracoLoader;
 
 // 플레이어 객체가 들어가 있는 배열, 총 2개 밖에 안들어감
 var playerUIObj = [];
@@ -9,18 +14,26 @@ var playerUIObj = [];
 var map_Elements = [];
 
 // 맵 내 움직일 수 있는 오브젝트가 들어갈 배열
-var map_objects = [];
+var map_objects = {};
 
-
+// 위 형식은 일반 배열이 아닌 딕셔너리, 아래와 같이 인덱스 문자열과 함께 삽입 하면 됨
+/*
+game_sockets[socket.id] = {
+				socket : socket,
+				controller_id : undefined
+			};
+*/
 function init(){
 
 	// 해당 3D 요소들이 위치할 공간
 	container = document.getElementById('container');
-	// console.log(container)
+	
 	
 	scene = new THREE.Scene(); 
-
-	// camera 생성, 일단은 PerspectiveCamera 로 설정
+	light = new THREE.HemisphereLight();
+	
+	scene.add(light)
+	// camera 생	성, 일단은 PerspectiveCamera 로 설정
 	camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 	// 75 : 시야, 75도
@@ -37,12 +50,15 @@ function init(){
 	// 앱을 렌더링할 크기를 설정해야함 - 여기서는 브라우저의 창 높이와 너비
 
 	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer.setClearColor(0xffffff);
 	// 여기 setSize 에서 앱의 크기를 유지하면서 더 낮은 해상도로 랜더링 할 경우에는 
 	// setSize의 세번째 인수 (updateStyle)로 false를 넣고 렌더링 사이즈를 넣으면 됨
 
 
 	// 큐브를 만들려면 BoxGeometry 가 필요하다.
 	// 큐브의 모든 점(정점)과 채우기(면) 을 포함하는 객체
+	
+	/*
 	var geometry = new THREE.BoxGeometry();
 
 	// 색상을 지정할 material, 즉 재질이 필요, 아래는 색깔만 입힘
@@ -61,9 +77,40 @@ function init(){
 	// 아래 메소드를 통하여 카메라와 큐브가 서로 내부에 있게 됨
 	
 	scene.add(cube);
+	
+	*/
+	
+	
+	gltfLoader = new THREE.GLTFLoader();
+	dracoLoader = new THREE.DRACOLoader();
+	console.log(dracoLoader);
+	dracoLoader.setDecoderPath( SERVER_URL + '/node_modules/three/examples/js/libs/draco/' );	
+	gltfLoader.setDRACOLoader( dracoLoader );
+	const test_man = SERVER_URL + "/res/js/modelingData/test_man.gltf";
+	
+	gltfLoader.load(test_man, function(gltfObj){
+		gltfObj.scene.scale.set( 0.1, 0.1, 0.1 );			   
+		gltfObj.scene.position.x = 0;				    //Position (x = right+ left-) 
+        gltfObj.scene.position.y = 0;				    //Position (y = up+, down-)
+		gltfObj.scene.position.z = 0;				    //Position (z = front +, back-)
+	
+		scene.add( gltfObj.scene );
+	},
+	function ( xhr ) {
 
+		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+	},
+	// called when loading has errors
+	function ( error ) {
+
+		console.log( 'An error happened' + error );
+
+	}			   
+	);
 	// 그래서 카메라를 약간 움직임
-	camera.position.z = 10;
+	
+	camera.position.z = 30;
 
 
 	// 이제 위의 값들을 렌더링할 렌더링 루프(함수) 가 필요함
@@ -85,9 +132,10 @@ function animate(){
 
 function render(){
 		
-	renderer.clear();
 	renderer.render(scene, camera);
 }
+
+
 function finish_render(){
 	renderer.clear();
 	renderer = undefined;
@@ -172,59 +220,6 @@ var removePlayers = function(){
 	}
 	
 }
-
-
-
-var updateMyDirection = function(data){
-	player.rotation.x = data.xRoll;
-	player.rotation.y = data.yPitch;
-	player.rotation.z = data.zYaw;	
-}
-
-
-// 특정 플레이어의 위치 값을 바꾸는 함수
-var updatePlayerPosition = function(data){
-	var somePlayer = playerForId(data.playerId);
-	
-	somePlayer.position.x = data.x;
-	somePlayer.position.y = data.y;
-	somePlayer.position.z = data.z;
-	
-	somePlayer.rotation.x = data.r_x;
-	somePlayer.rotation.y = data.r_y;
-	somePlayer.rotation.z = data.r_z;
-	
-	
-};
-
-
-
-
-
-/*
-var updateCameraPosition = function(){
-
-    camera.position.x = player.position.x + 6 * Math.sin( player.rotation.y );
-    camera.position.y = player.position.y + 6;
-    camera.position.z = player.position.z + 6 * Math.cos( player.rotation.y );
-
-};
-*/
-
-var playerForId = function(id){
-    var index;
-	
-    for (var i = 0; i < otherPlayersId.length; i++){
-        if (otherPlayersId[i] == id){
-            index = i;
-            break;
-        }
-    }
-	
-	console.log(otherPlayers[index]);
-    return otherPlayers[index];
-};
-
 
 
 function onWindowResize() {
