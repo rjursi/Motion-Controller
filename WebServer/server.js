@@ -23,7 +23,7 @@ var server = app.listen(3000, ()=>{
 
 
 //express 서버를 socket.io 서버로 업그레이드
-var io = socketio.listen(server);
+const io = socketio.listen(server);
 
 
 // 플레이어 목록을 관리하는 객체 생성

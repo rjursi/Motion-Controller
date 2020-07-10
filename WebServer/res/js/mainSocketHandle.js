@@ -1,13 +1,15 @@
-var io = io.connect();
+//var io = io.connect();
+const io_ui = io();
+io_ui.connect();
 var controller_state = {};
 
-io.on('connect', function(){
+io_ui.on('connect', function(){
 	  
 	// 서버에 접속 되었다는 신호를 보내게 됨
-	io.emit('game_connect');
-	io.on('game_connected', game_connected);
+	io_ui.emit('game_connect');
+	io_ui.on('game_connected', game_connected);
 	
-	io.on('controller_connected', function(connected){
+	io_ui.on('controller_connected', function(connected){
 		
 		if(connected){
 			
@@ -29,7 +31,7 @@ io.on('connect', function(){
 	});
 });
 
-io.on('updateUI', function(objStatuses){
+io_ui.on('updateUI', function(objStatuses){
 	
 	// 각종 UI 오브젝트의 상태를 보내서 업데이트
 	updateUI(objStatuses);
@@ -38,9 +40,9 @@ io.on('updateUI', function(objStatuses){
 
 var create_QR = function(){
 	var QR_code;
-	var url = "https://jswebgame.run.goorm.io?id=" + io.id;
+	var url = "https://jswebgame.run.goorm.io?id=" + io_ui.id;
 	
-	console.log(io.id);
+	console.log(io_ui.id);
 	
 	info_element = document.createElement('div');
 	info_element.id = "app_info";
@@ -81,11 +83,11 @@ var game_connected = function(){
 	create_QR();
 	
 	// 더 이상 사용을 안하므로 해당 리스너를 지움
-	io.removeListener('game_connected', game_connected);
+	io_ui.removeListener('game_connected', game_connected);
 	
 }
 
-io.on('Disconnected_UI', function(){
+io_ui.on('Disconnected_UI', function(){
 	// main.js 에 있는 함수
 	DisconnectedUI();	  
 });
@@ -93,7 +95,7 @@ io.on('Disconnected_UI', function(){
 
 
 // 서버로 부터 플레이어 캐릭터를 생성하라는 신호가 오면
-io.on('ui_createPlayer', function(initPlayerObjArr){
+io_ui.on('ui_createPlayer', function(initPlayerObjArr){
 	console.log(initPlayerObjArr);
 	
 	// UI 단에서 플레이어를 생성하는 함수를 실행, 해당 객체 값은 플레이어의 각종 위치, 크기 등 정보가 들어있는 값임

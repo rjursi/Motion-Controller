@@ -72,7 +72,7 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 			//console.log(game_sockets[socket.id]);
 			
 			// 게임 서버에 연결이 되었다고 신호를 보냄
-			socket.emit('game_connected');
+			socket.emit('game_connected');		
 		});	
 		
 		// 그럼 안드로이드 단에도 웹 소켓을 보내야 됨, 데이터 값이 날라옴
@@ -81,7 +81,7 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 			cont_socketIdTemp = socket.id;
 			if(game_sockets[game_socket_id]){
 				
-				console.log(`controller connected : ${game_socket_id}`);
+				
 			
 				// 해당 컨트롤러 소켓이 저장됨
 				controller_sockets[socket.id] = {
@@ -89,7 +89,7 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 					game_id : game_socket_id
 				};
 
-				socket.emit("controller_connected", true);
+				console.log(`controller connected : ${game_socket_id}`);
 				
 				// 아래 작업할 소켓은 컨트롤러가 연결될 시 연결되는 소켓.
 				game_sockets[game_socket_id].controller_id = socket.id;

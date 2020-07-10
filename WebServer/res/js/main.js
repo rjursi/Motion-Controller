@@ -1,8 +1,9 @@
 const SERVER_URL = "https://jswebgame.run.goorm.io";
+const MODELINGDATA_PATH = "/res/js/modelingData/";
 
 // object는 일단 각종 요소(예를 들어 큐브) 등의 요소들이 들어가는 부분
 
-var scene, camera, renderer, container, light;
+var scene, camera, renderer, light;
 
 // 오브젝트 로드를 위한 gltf loader 객체 변수 설정
 var gltfLoader, dracoLoader;
@@ -25,9 +26,6 @@ game_sockets[socket.id] = {
 */
 function init(){
 
-	// 해당 3D 요소들이 위치할 공간
-	container = document.getElementById('container');
-	
 	
 	scene = new THREE.Scene(); 
 	light = new THREE.HemisphereLight();
@@ -49,6 +47,7 @@ function init(){
 
 	// 앱을 렌더링할 크기를 설정해야함 - 여기서는 브라우저의 창 높이와 너비
 
+	
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setClearColor(0xffffff);
 	// 여기 setSize 에서 앱의 크기를 유지하면서 더 낮은 해상도로 랜더링 할 경우에는 
@@ -83,10 +82,12 @@ function init(){
 	
 	gltfLoader = new THREE.GLTFLoader();
 	dracoLoader = new THREE.DRACOLoader();
+	
+	
 	console.log(dracoLoader);
 	dracoLoader.setDecoderPath( SERVER_URL + '/node_modules/three/examples/js/libs/draco/' );	
 	gltfLoader.setDRACOLoader( dracoLoader );
-	const test_man = SERVER_URL + "/res/js/modelingData/test_man.gltf";
+	const test_man = SERVER_URL + MODELINGDATA_PATH + "test_man.gltf"
 	
 	gltfLoader.load(test_man, function(gltfObj){
 		gltfObj.scene.scale.set( 0.1, 0.1, 0.1 );			   
@@ -109,7 +110,7 @@ function init(){
 	}			   
 	);
 	// 그래서 카메라를 약간 움직임
-	
+		
 	camera.position.z = 30;
 
 
@@ -118,20 +119,15 @@ function init(){
 	
 	
 	// 이벤트 정의, 아래는 윈도우 사이즈가 바뀔 경우에 대해서 이벤트 리스너 정의
-	window.addEventListener( 'resize', onWindowResize, false );
+	window.addEventListener( 'resize', onWindowResize);	
 	
-	container.appendChild(renderer.domElement);
-	document.body.appendChild( container );
+	document.body.appendChild(renderer.domElement);
+	
 
 }
 
 function animate(){
 	requestAnimationFrame(animate);
-	render();
-}
-
-function render(){
-		
 	renderer.render(scene, camera);
 }
 
@@ -139,7 +135,7 @@ function render(){
 function finish_render(){
 	renderer.clear();
 	renderer = undefined;
-	document.body.removeChild(container);
+	document.body.removeChild(renderer.domElement);
 }
 	
 // 해당 객체 정보를 가져와서 플레이어를 테스트로 생성하는 부분
@@ -225,8 +221,9 @@ var removePlayers = function(){
 function onWindowResize() {
 
 	camera.aspect = window.innerWidth / window.innerHeight;
+	
 	camera.updateProjectionMatrix();
 
-	renderer.setSize( window.innerWidth, window.innerHeight );
+	renderer.setSize(window.innerWidth, window.innerHeight);
 
 }
