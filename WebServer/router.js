@@ -35,6 +35,9 @@ module.exports = function(app)
         res.sendFile(__dirname + '/node_modules/three/examples/js/loaders/DRACOLoader.js');
      });
 	
+	 app.get('/node_modules/three/examples/js/controls/OrbitControls.js', function(req, res){
+		 res.sendFile(__dirname + '/node_modules/three/examples/js/controls/OrbitControls.js');
+	 });
 	
 	 app.get('/res/js/main.js',function(req,res){
         res.sendFile(__dirname + '/res/js/main.js');

@@ -1,10 +1,14 @@
 const SERVER_URL = "https://jswebgame.run.goorm.io";
 const MODELINGDATA_PATH = "/res/js/modelingData/";
+const GIRL_MODEL_PATH = "girl/";
+const BOY_MODEL_PATH = "boy/";
+const MOVE_OBJECT_PATH = "moveobj/";
 
 // object는 일단 각종 요소(예를 들어 큐브) 등의 요소들이 들어가는 부분
 
-var scene, camera, renderer, light;
+var scene, camera, renderer, light, clock, anim_mixer, orbControls;
 
+var ambLight, directionalLight;
 // 오브젝트 로드를 위한 gltf loader 객체 변수 설정
 var gltfLoader, dracoLoader;
 
@@ -28,9 +32,19 @@ function init(){
 
 	
 	scene = new THREE.Scene(); 
-	light = new THREE.HemisphereLight();
+	//light = new THREE.HemisphereLight();
+	directionalLight = new THREE.DirectionalLight(0xffffff,1);
+	directionalLight.position.set(0,1,0);
+    directionalLight.castShadow = true;
 	
-	scene.add(light)
+	scene.add(directionalLight);
+	
+	ambLight = new THREE.AmbientLight(0xffffff, 0.5);
+	scene.add(ambLight);
+	
+	
+	
+	// scene.add(light)
 	// camera 생	성, 일단은 PerspectiveCamera 로 설정
 	camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
@@ -50,6 +64,7 @@ function init(){
 	
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setClearColor(0xffffff);
+	renderer.outputEncoding = THREE.sRGBEncoding;
 	// 여기 setSize 에서 앱의 크기를 유지하면서 더 낮은 해상도로 랜더링 할 경우에는 
 	// setSize의 세번째 인수 (updateStyle)로 false를 넣고 렌더링 사이즈를 넣으면 됨
 
@@ -71,31 +86,48 @@ function init(){
 	
 	// 맵의 위치를 가늠해보기 위한 테스트
 	
-	
-	// 기본적으로 아래와 같이 호출하면 좌표(0,0,0) 에 추가됨
+
+		// 기본적으로 아래와 같이 호출하면 좌표(0,0,0) 에 추가됨
 	// 아래 메소드를 통하여 카메라와 큐브가 서로 내부에 있게 됨
 	
 	scene.add(cube);
 	
 	*/
 	
+    orbControls = new THREE.OrbitControls( camera, renderer.domElement );
+	camera.position.z = 250;
 	
 	gltfLoader = new THREE.GLTFLoader();
-	dracoLoader = new THREE.DRACOLoader();
+	//dracoLoader = new THREE.DRACOLoader();
+	clock = new THREE.Clock();
 	
 	
-	console.log(dracoLoader);
-	dracoLoader.setDecoderPath( SERVER_URL + '/node_modules/three/examples/js/libs/draco/' );	
-	gltfLoader.setDRACOLoader( dracoLoader );
-	const test_man = SERVER_URL + MODELINGDATA_PATH + "test_man.gltf"
+	//dracoLoader.setDecoderPath( SERVER_URL + '/node_modules/three/examples/js/libs/draco/' );	
+	//gltfLoader.setDRACOLoader( dracoLoader );
+	const map = SERVER_URL + MODELINGDATA_PATH + "map_test.glb";
+	const girl_run = SERVER_URL + MODELINGDATA_PATH + "girl_run.glb";
 	
-	gltfLoader.load(test_man, function(gltfObj){
-		gltfObj.scene.scale.set( 0.1, 0.1, 0.1 );			   
+	gltfLoader.load(map, function(gltfObj){
+		
+		map_Elements.push(gltfObj);
+		gltfObj.scene.scale.set( 5, 5, 5 );			   
 		gltfObj.scene.position.x = 0;				    //Position (x = right+ left-) 
         gltfObj.scene.position.y = 0;				    //Position (y = up+, down-)
 		gltfObj.scene.position.z = 0;				    //Position (z = front +, back-)
 	
-		scene.add( gltfObj.scene );
+		
+		// console.log(gltfObj.animations)
+		// anim_mixer = new THREE.AnimationMixer(gltfObj.scene);
+		
+		
+		/*
+		gltfObj.animations.forEach((clip) => {
+			anim_mixer.clipAction(clip).play();
+		
+		});
+		*/
+		
+		scene.add( gltfObj.scene );	
 	},
 	function ( xhr ) {
 
@@ -109,13 +141,48 @@ function init(){
 
 	}			   
 	);
-	// 그래서 카메라를 약간 움직임
+	
+	
+	
+	gltfLoader.load(girl_run, function(gltfObj){
 		
-	camera.position.z = 30;
+		playerUIObj.push(gltfObj);
+		gltfObj.scene.scale.set( 5, 5, 5 );			   
+		gltfObj.scene.position.x = 0;				    //Position (x = right+ left-) 
+        gltfObj.scene.position.y = 0;				    //Position (y = up+, down-)
+		gltfObj.scene.position.z = 0;				    //Position (z = front +, back-)
+	
+		
+		// console.log(gltfObj.animations)
+		anim_mixer = new THREE.AnimationMixer(gltfObj.scene);
+		
+		
+		
+		gltfObj.animations.forEach((clip) => {
+			anim_mixer.clipAction(clip).play();
+		
+		});
+		
+		
+		scene.add( gltfObj.scene );	
+	},
+	function ( xhr ) {
+
+		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+	},
+	// called when loading has errors
+	function ( error ) {
+
+		console.log( 'An error happened' + error );
+
+	}			   
+	);
+	
+	
+	
 
 
-	// 이제 위의 값들을 렌더링할 렌더링 루프(함수) 가 필요함
-	// 기본 초당 60회 
 	
 	
 	// 이벤트 정의, 아래는 윈도우 사이즈가 바뀔 경우에 대해서 이벤트 리스너 정의
@@ -123,14 +190,23 @@ function init(){
 	
 	document.body.appendChild(renderer.domElement);
 	
-
+	
 }
 
 function animate(){
+	
+	
+	if(playerUIObj[0]){
+		anim_mixer.update(clock.getDelta());
+	}
+	render();
 	requestAnimationFrame(animate);
-	renderer.render(scene, camera);
+	
 }
 
+function render(){
+	renderer.render(scene, camera);
+}
 
 function finish_render(){
 	renderer.clear();

@@ -61,8 +61,11 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 		
 		socket.on('game_connect', function(){
 			web_socketIdTemp = socket.id;
+			
 			console.log(`Web Client Connected. ${socket.id}`);
 		    // 유저 하나가 들어감
+			
+			console.log(web_socketIdTemp);
 			
 			game_sockets[socket.id] = {
 				socket : socket,
@@ -78,44 +81,52 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 		// 그럼 안드로이드 단에도 웹 소켓을 보내야 됨, 데이터 값이 날라옴
 		// 아래에는 안드로이드 단에서 날라오는 소켓
 		socket.on('controller_connect', function(game_socket_id){
-			cont_socketIdTemp = socket.id;
-			if(game_sockets[game_socket_id]){
-				
+		
+			if(cont_socketIdTemp == undefined){
 				
 			
-				// 해당 컨트롤러 소켓이 저장됨
-				controller_sockets[socket.id] = {
-					socket : socket,
-					game_id : game_socket_id
-				};
+				cont_socketIdTemp = socket.id;
+				console.log(cont_socketIdTemp);
+				if(game_sockets[game_socket_id]){
 
-				console.log(`controller connected : ${game_socket_id}`);
-				
-				// 아래 작업할 소켓은 컨트롤러가 연결될 시 연결되는 소켓.
-				game_sockets[game_socket_id].controller_id = socket.id;
-				
-				console.log(game_sockets[game_socket_id].controller_id);
-				// 웹 게임 소켓에다가 컨트롤러가 연결이 되었다고 알림
-				game_sockets[game_socket_id].socket.emit("controller_connected", true);
-				
-			
-				// 아래에서 초대코드를 만들고 초대 코드를 보내는 과정이 필요함	
-				var inviteCode = '';
-				
-				// 로비에 해당 유저를 추가하는 과정, 웹페이지 소켓을 전송
-				lobbyMgr.push(game_sockets[game_socket_id].socket);
-				
-				inviteCode = makeInviteString();
-				
-				// 유저 당 초기에 만들어진 각자 초대코드를 저장하는 딕셔너리
-				inviteCodesPerUser[game_socket_id] = inviteCode;
-				
-				// 안드로이드 단에 보내는 자신의 초대 코드
-				socket.emit("server_inviteCode", inviteCode);
-				
-				// 유저 한명 당 방을 만드는 함수
-				lobbyMgr.dispatch(roomMgr, inviteCode);
-				
+
+					// 해당 컨트롤러 소켓이 저장됨
+					controller_sockets[socket.id] = {
+						socket : socket,
+						game_id : game_socket_id
+					};
+
+					console.log(`controller connected : ${game_socket_id}`);
+
+					// 아래 작업할 소켓은 컨트롤러가 연결될 시 연결되는 소켓.
+					game_sockets[game_socket_id].controller_id = socket.id;
+
+					console.log(game_sockets[game_socket_id].controller_id);
+					// 웹 게임 소켓에다가 컨트롤러가 연결이 되었다고 알림
+					game_sockets[game_socket_id].socket.emit("controller_connected", true);
+
+
+					// 아래에서 초대코드를 만들고 초대 코드를 보내는 과정이 필요함	
+					var inviteCode = '';
+
+					// 로비에 해당 유저를 추가하는 과정, 웹페이지 소켓을 전송
+					lobbyMgr.push(game_sockets[game_socket_id].socket);
+
+					inviteCode = makeInviteString();
+
+					// 유저 당 초기에 만들어진 각자 초대코드를 저장하는 딕셔너리
+					inviteCodesPerUser[game_socket_id] = inviteCode;
+
+					// 안드로이드 단에 보내는 자신의 초대 코드
+					socket.emit("server_inviteCode", inviteCode);
+
+					// 유저 한명 당 방을 만드는 함수
+					lobbyMgr.dispatch(roomMgr, inviteCode);
+
+				}
+			}
+			else if(cont_socketIdTemp != undefined){
+				console.log("Controller connect denied : reconnect");
 			}
 			else{
 				console.log("Controller failed to connect");

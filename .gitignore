@@ -6,3 +6,7 @@ WebServer/node_modules
 
 WebServer/apkFile
 
+
+# Modeling Resource files
+
+WebServer/res/js/modelingData

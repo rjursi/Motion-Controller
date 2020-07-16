@@ -1,20 +1,20 @@
-var express = require('express');
-var app = express();
+const express = require('express');
+const app = express();
 
 // 각종 게임 관련 작업 클래스 호출
-var lobbyManager = require('./gameObjects/LobbyManager');
-var roomManager = require('./gameObjects/RoomManager');
-var playerManager = require('./gameObjects/playerManager');
+const lobbyManager = require('./gameObjects/LobbyManager');
+const roomManager = require('./gameObjects/RoomManager');
+const playerManager = require('./gameObjects/playerManager');
 
-var socketio = require('socket.io');
-var ioEvents = require('./ioEvents');
+const socketio = require('socket.io');
+const ioEvents = require('./ioEvents');
 
 
 // 각종 페이지 요청 파일들을 안내해주는 모듈 router
-var router = require('./router')(app);
+const router = require('./router')(app);
 
 
-var server = app.listen(3000, ()=>{
+const server = app.listen(3000, ()=>{
   console.log('Listening at port number 3000...')
 });
 // express 웹서버 프레임워크로 3000 포트르 Listen
@@ -27,12 +27,12 @@ const io = socketio.listen(server);
 
 
 // 플레이어 목록을 관리하는 객체 생성
-var playerMgr = new playerManager();
-var lobbyMgr = new lobbyManager(io);
-var roomMgr = new roomManager(io);
+const playerMgr = new playerManager();
+const lobbyMgr = new lobbyManager(io);
+const roomMgr = new roomManager(io);
 
 // io 소켓 통신을 관리하는 객체 생성
-var Handler = new ioEvents(io);
+const Handler = new ioEvents(io);
 
 
 

@@ -1,4 +1,4 @@
-//var io = io.connect();
+
 const io_ui = io();
 io_ui.connect();
 var controller_state = {};
@@ -17,6 +17,7 @@ io_ui.on('connect', function(){
 			
 			info_element.style.display = "none";
 			init();
+			render();
 			animate();
 			
 		}else{
