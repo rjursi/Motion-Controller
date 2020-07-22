@@ -68,125 +68,21 @@ function init(){
 	// 여기 setSize 에서 앱의 크기를 유지하면서 더 낮은 해상도로 랜더링 할 경우에는 
 	// setSize의 세번째 인수 (updateStyle)로 false를 넣고 렌더링 사이즈를 넣으면 됨
 
-
-	// 큐브를 만들려면 BoxGeometry 가 필요하다.
-	// 큐브의 모든 점(정점)과 채우기(면) 을 포함하는 객체
-	
-	/*
-	var geometry = new THREE.BoxGeometry();
-
-	// 색상을 지정할 material, 즉 재질이 필요, 아래는 색깔만 입힘
-	var material = new THREE.MeshBasicMaterial({color : 0x000fff, wireframe : true});
-
-	// 메쉬가 필요, 장면에 삽입하고 자유롭게 움직이도록 하는 것을 넣음 
-	var cube = new THREE.Mesh(geometry, material);
-	
-	// 맵 배열에 추가, 아마 하
-	map_Elements.push(cube);
-	
-	// 맵의 위치를 가늠해보기 위한 테스트
-	
-
-		// 기본적으로 아래와 같이 호출하면 좌표(0,0,0) 에 추가됨
-	// 아래 메소드를 통하여 카메라와 큐브가 서로 내부에 있게 됨
-	
-	scene.add(cube);
-	
-	*/
 	
     orbControls = new THREE.OrbitControls( camera, renderer.domElement );
+	orbControls.addEventListener('change', showCameraPosition);
 	camera.position.z = 250;
 	
 	gltfLoader = new THREE.GLTFLoader();
-	//dracoLoader = new THREE.DRACOLoader();
 	clock = new THREE.Clock();
 	
-	
-	//dracoLoader.setDecoderPath( SERVER_URL + '/node_modules/three/examples/js/libs/draco/' );	
-	//gltfLoader.setDRACOLoader( dracoLoader );
-	const map = SERVER_URL + MODELINGDATA_PATH + "map_test.glb";
-	const girl_run = SERVER_URL + MODELINGDATA_PATH + "girl_run.glb";
-	
-	gltfLoader.load(map, function(gltfObj){
-		
-		map_Elements.push(gltfObj);
-		gltfObj.scene.scale.set( 5, 5, 5 );			   
-		gltfObj.scene.position.x = 0;				    //Position (x = right+ left-) 
-        gltfObj.scene.position.y = 0;				    //Position (y = up+, down-)
-		gltfObj.scene.position.z = 0;				    //Position (z = front +, back-)
-	
-		
-		// console.log(gltfObj.animations)
-		// anim_mixer = new THREE.AnimationMixer(gltfObj.scene);
-		
-		
-		/*
-		gltfObj.animations.forEach((clip) => {
-			anim_mixer.clipAction(clip).play();
-		
-		});
-		*/
-		
-		scene.add( gltfObj.scene );	
-	},
-	function ( xhr ) {
 
-		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-
-	},
-	// called when loading has errors
-	function ( error ) {
-
-		console.log( 'An error happened' + error );
-
-	}			   
-	);
-	
-	
-	
-	gltfLoader.load(girl_run, function(gltfObj){
+	load_Map();
+	load_GirlAnimation();
 		
-		playerUIObj.push(gltfObj);
-		gltfObj.scene.scale.set( 5, 5, 5 );			   
-		gltfObj.scene.position.x = 0;				    //Position (x = right+ left-) 
-        gltfObj.scene.position.y = 0;				    //Position (y = up+, down-)
-		gltfObj.scene.position.z = 0;				    //Position (z = front +, back-)
-	
-		
-		// console.log(gltfObj.animations)
-		anim_mixer = new THREE.AnimationMixer(gltfObj.scene);
-		
-		
-		
-		gltfObj.animations.forEach((clip) => {
-			anim_mixer.clipAction(clip).play();
-		
-		});
-		
-		
-		scene.add( gltfObj.scene );	
-	},
-	function ( xhr ) {
-
-		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-
-	},
-	// called when loading has errors
-	function ( error ) {
-
-		console.log( 'An error happened' + error );
-
-	}			   
-	);
-	
-	
-	
-
-
-	
 	
 	// 이벤트 정의, 아래는 윈도우 사이즈가 바뀔 경우에 대해서 이벤트 리스너 정의
-	window.addEventListener( 'resize', onWindowResize);	
+	window.addEventListener( 'resize', onWindowResize);		
 	
 	document.body.appendChild(renderer.domElement);
 	
@@ -195,15 +91,17 @@ function init(){
 
 function animate(){
 	
-	
-	if(playerUIObj[0]){
-		anim_mixer.update(clock.getDelta());
-	}
+	update();
 	render();
 	requestAnimationFrame(animate);
 	
 }
-
+function update(){
+	if(playerUIObj[0]){
+		anim_mixer.update(clock.getDelta());
+	}
+	
+}
 function render(){
 	renderer.render(scene, camera);
 }
@@ -214,6 +112,15 @@ function finish_render(){
 	document.body.removeChild(renderer.domElement);
 }
 	
+
+function showCameraPosition(){
+	var cameraPosition_x = Math.floor(camera.position.x);
+	var cameraPosition_y = Math.floor(camera.position.y);
+	var cameraPosition_z = Math.floor(camera.position.z);
+	
+	console.log(`Camera position : X : ${cameraPosition_x}, Y : ${cameraPosition_y}, Z : ${cameraPosition_z}`);
+	
+}
 // 해당 객체 정보를 가져와서 플레이어를 테스트로 생성하는 부분
 var createPlayer = function(initPlayerObjArr){
 	
