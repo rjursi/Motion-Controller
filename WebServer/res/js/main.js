@@ -8,6 +8,8 @@ const MOVE_OBJECT_PATH = "moveobj/";
 
 var scene, camera, renderer, light, clock, anim_mixer, orbControls;
 
+
+var playerBufferGeo;
 var ambLight, directionalLight;
 // 오브젝트 로드를 위한 gltf loader 객체 변수 설정
 var gltfLoader, dracoLoader;
@@ -77,9 +79,14 @@ function init(){
 	clock = new THREE.Clock();
 	
 
+
 	load_Map();
+	load_Map_Collision();
 	load_GirlAnimation();
-		
+	
+	console.log(map_Elements[0]);
+	console.log(map_Elements[1]);
+	
 	
 	// 이벤트 정의, 아래는 윈도우 사이즈가 바뀔 경우에 대해서 이벤트 리스너 정의
 	window.addEventListener( 'resize', onWindowResize);		
@@ -99,8 +106,36 @@ function animate(){
 function update(){
 	if(playerUIObj[0]){
 		anim_mixer.update(clock.getDelta());
+		//collision_check();
 	}
 	
+	
+	
+}
+
+function collision_check(){
+	
+	
+	console.log(playerUIObj[0]);
+	
+	var originPoint = playerUIObj[0].scene.position.clone();
+	
+	//console.log(playerUIObj[0]);
+	for (var vertexIndex = 0; vertexIndex <	 originPoint.length(); vertexIndex++)
+	{		
+		
+		console.log(originPoint[vertexIndex]);
+		var localVertex =  originPoint[vertexIndex].clone();
+		var globalVertex = localVertex.applyMatrix4(  playerUIObj[0].scene.matrix );
+		var directionVector = globalVertex.sub(  playerUIObj[0].scene.position );
+		
+		var ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
+		var collisionResults = ray.intersectObjects( map_Elements );
+		if ( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()){
+			
+			console.log("hit");
+		}
+	}
 }
 function render(){
 	renderer.render(scene, camera);
