@@ -9,13 +9,14 @@ const MOVE_OBJECT_PATH = "moveobj/";
 var scene, camera, renderer, light, clock, anim_mixer, orbControls;
 
 
-var playerBufferGeo;
+var collision_datas = [];
 var ambLight, directionalLight;
 // 오브젝트 로드를 위한 gltf loader 객체 변수 설정
 var gltfLoader, dracoLoader;
 
 // 플레이어 객체가 들어가 있는 배열, 총 2개 밖에 안들어감
 var playerUIObj = [];
+var playerCollisionObj, col_geometry, col_material; // 충돌 테스트를 위한 임시 Mesh 요소
 
 // 맵 관련 오브젝트가 들어갈 예정
 var map_Elements = [];
@@ -78,16 +79,22 @@ function init(){
 	gltfLoader = new THREE.GLTFLoader();
 	clock = new THREE.Clock();
 	
+	gltfload_Map();
+	gltfload_Map_Collision();
+	gltfload_GirlAnimation();
+	
+	// 충돌 테스트를 위한 임시 Mesh 추가
+	
+	col_geometry = new THREE.BoxGeometry(20,30,20);
+	col_material = new THREE.MeshBasicMaterial({color : 0x00ff00});
+	
+	playerCollisionObj = new THREE.Mesh(col_geometry, col_material);
+	playerCollisionObj.position.set(-30,20,0);
+	
+	
+	scene.add(playerCollisionObj);
+	
 
-
-	load_Map();
-	load_Map_Collision();
-	load_GirlAnimation();
-	
-	console.log(map_Elements[0]);
-	console.log(map_Elements[1]);
-	
-	
 	// 이벤트 정의, 아래는 윈도우 사이즈가 바뀔 경우에 대해서 이벤트 리스너 정의
 	window.addEventListener( 'resize', onWindowResize);		
 	
@@ -106,31 +113,52 @@ function animate(){
 function update(){
 	if(playerUIObj[0]){
 		anim_mixer.update(clock.getDelta());
-		//collision_check();
+		collision_check();
 	}
 	
 	
 	
 }
 
+/*
+function makeCollisionVertices(){
+	let vertices_tmp;
+	const vertices = [];
+	
+	
+	for(let i = 0; 	i< collision_datas.length; i++){
+		let geometry = collision_datas[i].geometry;
+		
+		const positions = geometry.attributes.position.array;
+		
+		for(let k = 0; k < positions.length; k +=3){
+			vertices_tmp.set(positions[k], positions[k + 1], positions[k + 2]);
+			vertices.push(vertices_tmp.clone());
+		}
+	}
+	
+	return vertices;
+}
+*/
+
+
 function collision_check(){
 	
 	
-	console.log(playerUIObj[0]);
 	
-	var originPoint = playerUIObj[0].scene.position.clone();
+	var originPoint = playerCollisionObj.position.clone();
 	
-	//console.log(playerUIObj[0]);
-	for (var vertexIndex = 0; vertexIndex <	 originPoint.length(); vertexIndex++)
+
+	for (var vertexIndex = 0; vertexIndex <	playerCollisionObj.geometry.vertices.length; vertexIndex++)
 	{		
 		
-		console.log(originPoint[vertexIndex]);
-		var localVertex =  originPoint[vertexIndex].clone();
-		var globalVertex = localVertex.applyMatrix4(  playerUIObj[0].scene.matrix );
-		var directionVector = globalVertex.sub(  playerUIObj[0].scene.position );
+		
+		var localVertex =  playerCollisionObj.geometry.vertices[vertexIndex].clone();
+		var globalVertex = localVertex.applyMatrix4(   playerCollisionObj.matrix );
+		var directionVector = globalVertex.sub(   playerCollisionObj.position );
 		
 		var ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
-		var collisionResults = ray.intersectObjects( map_Elements );
+		var collisionResults = ray.intersectObjects( collision_datas );
 		if ( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()){
 			
 			console.log("hit");
@@ -244,4 +272,134 @@ function onWindowResize() {
 
 	renderer.setSize(window.innerWidth, window.innerHeight);
 
+}
+
+
+
+//////////////////////////////////////////////// gltf 로딩 부분
+
+
+function gltfload_Map() {
+	
+	const map = SERVER_URL + MODELINGDATA_PATH + "test_map.glb";
+	
+	
+	gltfLoader.load(map, function(gltfObj){
+		
+		
+		map_Elements.push(gltfObj);
+		gltfObj.scene.scale.set( 5, 5, 5 );			   
+		gltfObj.scene.position.x = 70;				    //Position (x = right+ left-) 
+        gltfObj.scene.position.y = 0;				    //Position (y = up+, down-)
+		gltfObj.scene.position.z = 0;				    //Position (z = front +, back-)
+	
+		scene.add( gltfObj.scene );	
+	},
+	function ( xhr ) {
+
+		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+	},
+	// called when loading has errors
+	function ( error ) {
+
+		console.log( 'An error happened' + error );
+
+	}			   
+	);
+	
+}
+
+function gltfload_Map_Collision(){
+	
+	const map_collision = SERVER_URL + MODELINGDATA_PATH + "collision_map.glb";
+
+	gltfLoader.load(map_collision, function(gltfObj){
+		
+	
+		gltfObj.scene.traverse(function(children){
+			
+			 if(children.type == "Mesh"){
+				 collision_datas.push(children);
+			 }
+			 	
+		});
+		
+		console.log(collision_datas);
+		map_Elements.push(gltfObj);
+		gltfObj.scene.scale.set( 5, 5, 5);			   
+		gltfObj.scene.position.x = 70;    //Position (x = right+ left-) 
+        gltfObj.scene.position.y = 0;    //Position (y = up+, down-)
+		gltfObj.scene.position.z = 0;				    //Position (z = front +, back-)
+	
+		scene.add( gltfObj.scene );	
+		
+		
+	
+		
+		},
+		function ( xhr ) {
+
+			console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+		},
+		// called when loading has errors
+		function ( error ) {
+
+			console.log( 'An error happened' + error );
+
+		}			   
+					
+	);
+	
+	
+	
+}
+
+function gltfload_ManAnimation(){
+	
+}
+
+function gltfload_GirlAnimation(){
+	
+	const girl_run = SERVER_URL + MODELINGDATA_PATH + "girl_run.glb";
+	
+	
+	gltfLoader.load(girl_run, function(gltfObj){
+		
+		
+		playerUIObj.push(gltfObj);
+		gltfObj.scene.scale.set( 5, 5, 5 );			   
+		gltfObj.scene.position.x = 0;				    //Position (x = right+ left-) 
+        gltfObj.scene.position.y = 0;				    //Position (y = up+, down-)
+		gltfObj.scene.position.z = 0;				    //Position (z = front +, back-)
+	
+		
+		// console.log(gltfObj.animations)
+		anim_mixer = new THREE.AnimationMixer(gltfObj.scene);
+		
+		
+		
+		gltfObj.animations.forEach((clip) => {
+			anim_mixer.clipAction(clip).play();
+		
+		});
+		
+		
+		scene.add( gltfObj.scene );	
+	},
+	function ( xhr ) {
+
+		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+	},
+	// called when loading has errors
+	function ( error ) {
+
+		console.log( 'An error happened' + error );
+
+	}			   
+	);
+	
+	
 }

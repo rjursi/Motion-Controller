@@ -4,10 +4,7 @@ module.exports = function(app)
 		 
 		 res.sendFile(__dirname + req.path);
 	 });
-	 app.get('/res/js/LoadGltf.js', function(req, res){
-		 
-		 res.sendFile(__dirname + "/res/js/LoadGltf.js");
-	 });
+	
 	
 	
 	 app.get('/node_modules/three/examples/js/libs/draco/*', function(req, res){
