@@ -1,4 +1,4 @@
-var BaseObject = require("./BaseObject.js");
+	var BaseObject = require("./BaseObject.js");
 
 // 모든 플레이어 목록을 저장
 var players = [];
@@ -14,17 +14,17 @@ function playerManager(id, position){
 	switch(position){
 		case "LEFT":
 		// x,y,z 축 위치
-			this.objStatus.x = 5;
-			this.objStatus.y = 0;
-			this.objStatus.z = 0;	
+			this.objStatus.x = 60;
+			this.objStatus.y = -11.54;
+			this.objStatus.z = 15.38;	
 			
 			this.color = 0xffffff;
 			
 			break;
 		case "RIGHT":
-			this.objStatus.x = -5;
-			this.objStatus.y = 0;
-			this.objStatus.z = 0;	
+			this.objStatus.x = 65;
+			this.objStatus.y = -11.02;
+			this.objStatus.z = 15.38;	
 			
 			this.color = 0x825fff;
 			break;
@@ -38,9 +38,9 @@ function playerManager(id, position){
 	
 	// 플레이어가 만들어 질때 사이즈
 	
-    this.objStatus.sizeX = 5;
-    this.objStatus.sizeY = 5;
-    this.objStatus.sizeZ = 5;
+    this.objStatus.sizeX = 20;
+    this.objStatus.sizeY = 30;
+    this.objStatus.sizeZ = 20;
 	
 	
 	
@@ -131,7 +131,26 @@ playerManager.prototype.updatePlayerGyroData = function(playerSock_web, gyroData
 	return player;
 }
 
+playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joystickData){
+	var player = this.playerForId(playerSock_web.id);
 
+	// 해당 플레이어의 객체를 찾음
+	
+	/*
+	// 해당 객체의 회전각 데이터 값 수정
+	player.objStatus.r_x = gyroData.xRoll;
+	player.objStatus.r_y = gyroData.yPitch;
+	player.objStatus.r_z = gyroData.zYaw;
+
+	*/
+	
+	player.objStatus.x = joystickData.x;
+	player.objStatus.y = joystickData.y;
+	player.objStatus.z = joystickData.z;
+	
+	// 데이터 값이 수정된 해당 플레이어 정보 데이터 반환
+	return player;
+}
 
 // 지정한 하나의 플레이어 값을 반환하는 함수
 playerManager.prototype.playerForId = function(id){

@@ -17,7 +17,7 @@ io_ui.on('connect', function(){
 			
 			info_element.style.display = "none";
 			init();
-			render();
+			// render();
 			animate();
 			
 		}else{
@@ -98,6 +98,9 @@ io_ui.on('Disconnected_UI', function(){
 // 서버로 부터 플레이어 캐릭터를 생성하라는 신호가 오면
 io_ui.on('ui_createPlayer', function(initPlayerObjArr){
 	console.log(initPlayerObjArr);
+	
+	// 맵을 및 맵 충돌을 보이게 하도록 설정
+	viewMap();
 	
 	// UI 단에서 플레이어를 생성하는 함수를 실행, 해당 객체 값은 플레이어의 각종 위치, 크기 등 정보가 들어있는 값임
     createPlayer(initPlayerObjArr);

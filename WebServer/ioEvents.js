@@ -294,7 +294,10 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 			if(controller_sockets[socket.id]){
 				console.log(`joystick Direction : ${direction_data}`);
 				
-				// var game_socket = game_sockets[controller_sockets[socket.id].game_id].socket;
+				var game_socket = game_sockets[controller_sockets[socket.id].game_id].socket;
+
+				// 해당 roomManager 에게 해당 컨트롤러와 연결되어있는 웹 소켓과 자이로스코프 데이터를 보냄 
+				roomMgr.updatePlayerGyroData(game_socket, data);
 			}
 		});
 				

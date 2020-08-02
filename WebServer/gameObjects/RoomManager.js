@@ -1,7 +1,7 @@
  var playerManager = require("./playerManager.js");
 
 // 업데이트하기 위한 주기 값
-var INTERVAL = 10;
+var INTERVAL = 500;
 
 var players = []; // 플레이어 들의 웹 소켓들이 저장되어 있는 공간
 
@@ -125,6 +125,16 @@ function RoomManager(io){
 	  
   }	
   
+  RmMg.updatePlayerJoystickData = function(playerSock, joystickData){
+	var getPlayer = RmMg.rooms[RmMg.roomIndex[playerSock.id]].objects[playerSock.id];
+	
+	// 플레이어의 회전각 등 데이터 변경 - playerManager 객체에서 데이터 수정 -> 수정된 데이터 반환
+	var updatedPlayerDataObj = getPlayer.updatePlayerJoystickData(playerSock, joystickData);
+
+
+	// 해당 방의 지정한 플레이어 소켓에 플레이어 데이터 값을 업데이트
+	RmMg.rooms[RmMg.roomIndex[playerSock.id]].objects[playerSock.id] = updatedPlayerDataObj;  
+  }
  
   	
 	

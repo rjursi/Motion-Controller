@@ -44,6 +44,7 @@ module.exports = function(app)
         res.sendFile(__dirname + '/res/js/main.js');
      });
 	
+	
 	 app.get('/res/js/mainSocketHandle.js',function(req,res){
         res.sendFile(__dirname + '/res/js/mainSocketHandle.js');
      });
