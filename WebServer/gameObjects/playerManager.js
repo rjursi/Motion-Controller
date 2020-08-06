@@ -14,17 +14,18 @@ function playerManager(id, position){
 	switch(position){
 		case "LEFT":
 		// x,y,z 축 위치
-			this.objStatus.x = 60;
-			this.objStatus.y = -11.54;
-			this.objStatus.z = 15.38;	
+			this.objStatus.x = 300;
+			this.objStatus.y = 77;
+			this.objStatus.z = 72;	
 			
 			this.color = 0xffffff;
 			
 			break;
+			
 		case "RIGHT":
-			this.objStatus.x = 65;
-			this.objStatus.y = -11.02;
-			this.objStatus.z = 15.38;	
+			this.objStatus.x = 320;
+			this.objStatus.y = 77;
+			this.objStatus.z = 72;	
 			
 			this.color = 0x825fff;
 			break;
@@ -36,11 +37,11 @@ function playerManager(id, position){
     this.objStatus.r_y = 0;
     this.objStatus.r_z = 0;
 	
-	// 플레이어가 만들어 질때 사이즈
+	// hitbox 사이즈
 	
-    this.objStatus.sizeX = 20;
-    this.objStatus.sizeY = 30;
-    this.objStatus.sizeZ = 20;
+    this.objStatus.sizeX = 5;
+    this.objStatus.sizeY = 15;
+    this.objStatus.sizeZ = 5;
 	
 	
 	
@@ -134,6 +135,9 @@ playerManager.prototype.updatePlayerGyroData = function(playerSock_web, gyroData
 playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joystickData){
 	var player = this.playerForId(playerSock_web.id);
 
+	var direction;
+	var move_x, move_z;
+	var angle = Math.PI / 4;
 	// 해당 플레이어의 객체를 찾음
 	
 	/*
@@ -144,9 +148,64 @@ playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joys
 
 	*/
 	
-	player.objStatus.x = joystickData.x;
-	player.objStatus.y = joystickData.y;
-	player.objStatus.z = joystickData.z;
+	// console.log(`joystickData : ${joystickData}`);
+	
+	switch(joystickData){
+		case 6.0:
+			direction = 0;
+			move_x = 0;
+			move_z = 0.1;
+			break;
+			
+		case 4.5:
+			direction = angle;
+			move_x = 0.1;
+			move_z = 0.1;
+			break;
+			
+		case 3:
+			direction = angle * 2;
+			move_x = 0.1;
+			move_z = 0;
+			break;
+			
+		case 1.5:
+			direction = angle * 3;
+			move_x = 0.1;
+			move_z = -0.1;
+			break;
+			
+		case 12:
+			direction = angle * 4;
+			move_x = 0;
+			move_z = -0.1;
+			break;
+			
+		case 10.5:
+			direction = angle * 5;
+			move_x = -0.1;
+			move_z = 0.1;
+			break;
+			
+		case 9:
+			direction = angle * 6;
+			move_x = -0.1;
+			move_z = 0;
+			break;
+			
+		case 7.5:
+			direction = angle * 7;
+			move_x = -0.1;
+			move_z = 0.1;
+			break;
+			
+			
+	}
+	
+	console.log("move_x : " + move_x + ", move_z : " + move_z);
+	player.objStatus.r_y = direction;
+	player.objStatus.x += move_x;
+	player.objStatus.z += move_z;
 	
 	// 데이터 값이 수정된 해당 플레이어 정보 데이터 반환
 	return player;

@@ -3,6 +3,7 @@ const MODELINGDATA_PATH = "/res/js/modelingData/";
 const GIRL_MODEL_PATH = "girl/";
 const BOY_MODEL_PATH = "boy/";
 const MOVE_OBJECT_PATH = "moveobj/";
+const HITBOX_DEFAULT_HEIGHT = 8;
 
 // object는 일단 각종 요소(예를 들어 큐브) 등의 요소들이 들어가는 부분
 
@@ -97,6 +98,9 @@ function init(){
 
 function viewMap(){
 	scene.add(map_Elements["map"].scene);
+	
+	// 충돌판정을 안보이게 하고 해당 판정을 맵에 추가
+	map_Elements["hitbox"].scene.visible = false;
 	scene.add(map_Elements["hitbox"].scene);
 }
 function character_obj_init(){
@@ -104,20 +108,30 @@ function character_obj_init(){
 	playerUIObj["girl"] = {
 		
 		gltf_nowView : undefined,
+		gltf_nowView_animMixer : undefined,
 		gltf_run : undefined,
+		gltf_run_animMixer : undefined,
 		gltf_push : undefined,
+		gltf_push_animMixer : undefined,
 		gltf_idle : undefined,
+		gltf_idle_animMixer : undefined,
 		gltf_cwalk : undefined,
+		gltf_cwalk_animMixer : undefined,
 		hitbox : undefined
 		
 	};
 	
 	playerUIObj["boy"] = {
 		gltf_nowView : undefined,
+		gltf_nowView_animMixer : undefined,
 		gltf_run : undefined,
+		gltf_run_animMixer : undefined,
 		gltf_push : undefined,
+		gltf_push_animMixer : undefined,
 		gltf_idle : undefined,
+		gltf_idle_animMixer : undefined,
 		gltf_cwalk : undefined,
+		gltf_cwalk_animMixer : undefined,
 	    hitbox : undefined
 		
 	}
@@ -135,9 +149,13 @@ function animate(){
 }
 function update(){
 	
+	
 	// 플레이어 UI 객체가 보이는 상태이면
 	if(playerUIObj["view_status"]){
-		anim_mixer.update(clock.getDelta());
+		
+		let clockTime = clock.getDelta();
+		playerUIObj["girl"].gltf_nowView_animMixer.update(clockTime);
+		playerUIObj["boy"].gltf_nowView_animMixer.update(clockTime);
 		collision_check();
 	}
 	
@@ -172,7 +190,7 @@ function collision_check(){
 	
 	for(var playerCollisionObj of playerCollisionObjs){
 		
-		console.log("playerCollisionObj : " + playerCollisionObj);
+		//console.log("playerCollisionObj : " + playerCollisionObj);
 		var originPoint = playerCollisionObj.position.clone();
 	
 
@@ -218,17 +236,19 @@ function showCameraPosition(){
 // 해당 객체 정보를 가져와서 플레이어를 테스트로 생성하는 부분
 var createPlayer = function(initPlayerObjArr){
 	
-	
-	
+
 	// 플레이어 데이터 객체 목록 갯수 만큼 해당 반복문 실행
 	for(var i in initPlayerObjArr){
 		
+		console.log("i : " + i);
 		var nowPlayerKey = Object.keys(playerUIObj)[i];
+		console.log("now player key : " + nowPlayerKey);
+		console.log(`hitbox Size : ${initPlayerObjArr[i].objStatus.sizeX}, ${initPlayerObjArr[i].objStatus.sizeY}, ${initPlayerObjArr[i].objStatus.sizeZ}`);
 		
-		console.log(initPlayerObjArr[i]);
-		var cube_geometry = new THREE.BoxGeometry(initPlayerObjArr[i].objStatus.sizeX, initPlayerObjArr[i].objStatus.sizeY, initPlayerObjArr[i].objStatus.SizeZ);
 		
-		var cube_material = new THREE.MeshBasicMaterial({color :initPlayerObjArr[i].color , wireframe : true});
+		var cube_geometry = new THREE.BoxGeometry(initPlayerObjArr[i].objStatus.sizeX, initPlayerObjArr[i].objStatus.sizeY, initPlayerObjArr[i].objStatus.sizeZ);
+		
+		var cube_material = new THREE.MeshBasicMaterial({color :initPlayerObjArr[i].color, wireframe : true});
 
 		// 여기서 해당 플레이어에 대한 각종 캐릭터 값을 만듬
 		var player_Obj = new THREE.Mesh(cube_geometry, cube_material);
@@ -243,13 +263,14 @@ var createPlayer = function(initPlayerObjArr){
 		
 		// 각 플레이어의 정보를 가지고 player_obj 객체를 생성
 		player_Obj.position.x = initPlayerObjArr[i].objStatus.x;
-		player_Obj.position.y = initPlayerObjArr[i].objStatus.y;
+		player_Obj.position.y = initPlayerObjArr[i].objStatus.y + HITBOX_DEFAULT_HEIGHT;
 		player_Obj.position.z = initPlayerObjArr[i].objStatus.z;
 		
 		
 		// 기본 자세를 가만히 있는 idle 자세로 수정
 		playerUIObj[nowPlayerKey].nowView = playerUIObj[nowPlayerKey].gltf_idle;
 		
+		playerUIObj[nowPlayerKey].gltf_nowView_animMixer = playerUIObj[nowPlayerKey].gltf_idle_animMixer;
 		
 		// 현재 눈에 보이는 gltf 모델의 위치를 수정
 		playerUIObj[nowPlayerKey].nowView.scene.position.x = initPlayerObjArr[i].objStatus.x;
@@ -260,9 +281,9 @@ var createPlayer = function(initPlayerObjArr){
 		
 		playerUIObj[nowPlayerKey].hitbox = player_Obj;
 		
-		scene.add(player_Obj); // 충돌 hitbox 추가
-		playerCollisionObjs.push(player_Obj);
-		//console.log(playerUIObj[nowPlayerKey].nowView.scene);
+		scene.add(playerUIObj[nowPlayerKey].hitbox); // 충돌 hitbox 추가
+		playerCollisionObjs.push(playerUIObj[nowPlayerKey].hitbox);
+		console.log(nowPlayerKey + " : gltfObj View");
 		scene.add(playerUIObj[nowPlayerKey].nowView.scene); // 현재 설정된 gltf view 추가
 		
 	}
@@ -275,7 +296,7 @@ var updateUI = function(objStatuses){
 	var player_1_status = objStatuses[0];
 	var player_2_status = objStatuses[1];
 	
-	
+	console.log(player_2_status.objStatus.r_y);
 	// player_1 회전각 업데이트
 	playerUIObj["girl"].nowView.scene.rotation.x = player_1_status.objStatus.r_x;
 	playerUIObj["girl"].nowView.scene.rotation.y = player_1_status.objStatus.r_y;
@@ -288,7 +309,7 @@ var updateUI = function(objStatuses){
 	
 	// player_1 hitbox 위치 업데이트
 	playerUIObj["girl"].hitbox.position.x = player_1_status.objStatus.x;
-	playerUIObj["girl"].hitbox.position.y = player_1_status.objStatus.y;
+	playerUIObj["girl"].hitbox.position.y = player_1_status.objStatus.y + HITBOX_DEFAULT_HEIGHT;
 	playerUIObj["girl"].hitbox.position.z = player_1_status.objStatus.z;
 	
 	
@@ -310,7 +331,7 @@ var updateUI = function(objStatuses){
 	// player_2 hitbox 위치 업데이트
 	
 	playerUIObj["boy"].hitbox.position.x = player_2_status.objStatus.x;
-	playerUIObj["boy"].hitbox.position.y = player_2_status.objStatus.y;
+	playerUIObj["boy"].hitbox.position.y = player_2_status.objStatus.y + HITBOX_DEFAULT_HEIGHT;
 	playerUIObj["boy"].hitbox.position.z = player_2_status.objStatus.z;
 	
 }
@@ -359,8 +380,9 @@ function onWindowResize() {
 function gltf_Load(){
 	gltfload_Map();
 	gltfload_Map_Collision();
-	gltfload_GirlAnimation();
 	gltfload_ManAnimation();
+	gltfload_GirlAnimation();
+	
 }
 
 function gltfload_Map() {
@@ -382,7 +404,7 @@ function gltfload_Map() {
 	},
 	function ( xhr ) {
 
-		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+		console.log( Math.floor(( xhr.loaded / xhr.total * 100 )) + '% loaded' );
 
 	},
 	// called when loading has errors
@@ -401,7 +423,9 @@ function gltfload_Map_Collision(){
 
 	gltfLoader.load(map_collision, function(gltfObj){
 		
-	
+		// 충돌 판정이기 때문에 플레이어의 눈에 보이지 않도록 설정
+		
+		
 		gltfObj.scene.traverse(function(children){
 			
 			 if(children.type == "Mesh"){
@@ -410,24 +434,21 @@ function gltfload_Map_Collision(){
 			 	
 		});
 		
-		console.log(collision_datas);
+		// console.log(collision_datas);
 		map_Elements["hitbox"] = gltfObj;
 		gltfObj.scene.scale.set( 5, 5, 5);			   
 		gltfObj.scene.position.x = 0;    //Position (x = right+ left-) 
         gltfObj.scene.position.y = 0;    //Position (y = up+, down-)
 		gltfObj.scene.position.z = 0;				    //Position (z = front +, back-)
 		
-		// 충돌 판정이기 때문에 플레이어의 눈에 보이지 않도록 설정
-		gltfObj.scene.visible = false;
-		//scene.add( gltfObj.scene );	
-		
+	
 		
 		console.log("gltfLoader : Map Collision Loaded.");
 		
 		},
 		function ( xhr ) {
 
-			console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+			console.log( Math.floor(( xhr.loaded / xhr.total * 100 )) + '% loaded' );
 
 		},
 		// called when loading has errors
@@ -454,36 +475,24 @@ function gltfload_ManAnimation(){
 	
 	gltfLoader.load(boy_run, function(gltfObj){
 		
-		
-		
-		
-		
-		gltfObj.scene.scale.set( 5, 5, 5 );			   
-		
-		/*
-		gltfObj.scene.position.x = 0;				    //Position (x = right+ left-) 
-        gltfObj.scene.position.y = 0;				    //Position (y = up+, down-)
-		gltfObj.scene.position.z = 0;				    //Position (z = front +, back-)
-		*/
-		
-		
-		// console.log(gltfObj.animations)
-		anim_mixer = new THREE.AnimationMixer(gltfObj.scene);
-		
-		
-		
-		gltfObj.animations.forEach((clip) => {
-			anim_mixer.clipAction(clip).play();
-		}); // 애니메이션 실행시켜놓음
+		gltfObj.scene.scale.set( 3, 3, 3 );			   
 		
 		playerUIObj["boy"].gltf_run = gltfObj;
-		//scene.add( gltfObj.scene );	
+		playerUIObj["boy"].gltf_run_animMixer = new THREE.AnimationMixer(playerUIObj["boy"].gltf_run.scene);
+		
+		
+		
+		playerUIObj["boy"].gltf_run.animations.forEach((clip) => {
+			playerUIObj["boy"].gltf_run_animMixer.clipAction(clip).play();
+		}); // 애니메이션 실행시켜놓음
+		
+		
 		
 	
 	},
 	function ( xhr ) {
 
-		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+		console.log( Math.floor(( xhr.loaded / xhr.total * 100 )) + '% loaded' );
 
 	},
 	// called when loading has errors
@@ -501,31 +510,26 @@ function gltfload_ManAnimation(){
 		
 		
 		
-		gltfObj.scene.scale.set( 5, 5, 5 );			   
-		/*
-		gltfObj.scene.position.x = 0;				    //Position (x = right+ left-) 
-        gltfObj.scene.position.y = 0;				    //Position (y = up+, down-)
-		gltfObj.scene.position.z = 0;				    //Position (z = front +, back-)
-		*/
-		
-		
-		// console.log(gltfObj.animations)
-		anim_mixer = new THREE.AnimationMixer(gltfObj.scene);
-		
-		
-		
-		gltfObj.animations.forEach((clip) => {
-			anim_mixer.clipAction(clip).play();
-		}); // 애니메이션 실행시켜놓음
+		gltfObj.scene.scale.set( 3, 3, 3 );	   
 		
 		playerUIObj["boy"].gltf_idle = gltfObj;
-		//scene.add( gltfObj.scene );	
+		
+		playerUIObj["boy"].gltf_idle_animMixer = new THREE.AnimationMixer(playerUIObj["boy"].gltf_idle.scene);
+		
+		
+		
+		playerUIObj["boy"].gltf_idle.animations.forEach((clip) => {
+			playerUIObj["boy"].gltf_idle_animMixer.clipAction(clip).play();
+		}); // 애니메이션 실행시켜놓음
+		
+		
+		
 		
 	
 	},
 	function ( xhr ) {
 
-		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+		console.log( Math.floor(( xhr.loaded / xhr.total * 100 )) + '% loaded' );
 
 	},
 	// called when loading has errors
@@ -544,31 +548,26 @@ function gltfload_ManAnimation(){
 		
 		
 		
-		gltfObj.scene.scale.set( 5, 5, 5 );		
-		/*
-		gltfObj.scene.position.x = 0;				    //Position (x = right+ left-) 
-        gltfObj.scene.position.y = 0;				    //Position (y = up+, down-)
-		gltfObj.scene.position.z = 0;				    //Position (z = front +, back-)
-		*/
-		
-		
-		// console.log(gltfObj.animations)
-		anim_mixer = new THREE.AnimationMixer(gltfObj.scene);
-		
-		
-		
-		gltfObj.animations.forEach((clip) => {
-			anim_mixer.clipAction(clip).play();
-		}); // 애니메이션 실행시켜놓음
+		gltfObj.scene.scale.set( 3, 3, 3 );	
 		
 		playerUIObj["boy"].gltf_cwalk = gltfObj;
-		//scene.add( gltfObj.scene );	
 		
+		// console.log(gltfObj.animations)
+		playerUIObj["boy"].gltf_cwalk_animMixer = new THREE.AnimationMixer(playerUIObj["boy"].gltf_cwalk.scene);
+		
+		
+		
+		playerUIObj["boy"].gltf_cwalk.animations.forEach((clip) => {
+			playerUIObj["boy"].gltf_cwalk_animMixer.clipAction(clip).play();
+		}); // 애니메이션 실행시켜놓음
+		
+		
+	
 	
 	},
 	function ( xhr ) {
 
-		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+		console.log( Math.floor(( xhr.loaded / xhr.total * 100 )) + '% loaded' );
 
 	},
 	// called when loading has errors
@@ -587,31 +586,27 @@ function gltfload_ManAnimation(){
 		
 		
 		
-		gltfObj.scene.scale.set( 5, 5, 5 );		
-		/*
-		gltfObj.scene.position.x = 0;				    //Position (x = right+ left-) 
-        gltfObj.scene.position.y = 0;				    //Position (y = up+, down-)
-		gltfObj.scene.position.z = 0;				    //Position (z = front +, back-)
-		*/
-		
+		gltfObj.scene.scale.set( 3, 3, 3 );
+	
+		playerUIObj["boy"].gltf_push = gltfObj;
 		
 		// console.log(gltfObj.animations)
-		anim_mixer = new THREE.AnimationMixer(gltfObj.scene);
+		playerUIObj["boy"].gltf_push_animMixer = new THREE.AnimationMixer(gltfObj.scene);
 		
 		
 		
-		gltfObj.animations.forEach((clip) => {
-			anim_mixer.clipAction(clip).play();
+		playerUIObj["boy"].gltf_push.animations.forEach((clip) => {
+			playerUIObj["boy"].gltf_push_animMixer.clipAction(clip).play();
 		}); // 애니메이션 실행시켜놓음
 		
-		playerUIObj["boy"].gltf_push = gltfObj;
+		
 		//scene.add( gltfObj.scene );	
 		
 	
 	},
 	function ( xhr ) {
 
-		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+		console.log( Math.floor(( xhr.loaded / xhr.total * 100 )) + '% loaded' );
 
 	},
 	// called when loading has errors
@@ -636,35 +631,24 @@ function gltfload_GirlAnimation(){
 	gltfLoader.load(girl_run, function(gltfObj){
 		
 		
-		
-		
-		
-		gltfObj.scene.scale.set( 5, 5, 5 );			   
-		
-		/*
-		gltfObj.scene.position.x = 0;				    //Position (x = right+ left-) 
-        gltfObj.scene.position.y = 0;				    //Position (y = up+, down-)
-		gltfObj.scene.position.z = 0;				    //Position (z = front +, back-)
-		*/
-		
-		
-		// console.log(gltfObj.animations)
-		anim_mixer = new THREE.AnimationMixer(gltfObj.scene);
-		
-		
-		
-		gltfObj.animations.forEach((clip) => {
-			anim_mixer.clipAction(clip).play();
-		}); // 애니메이션 실행시켜놓음
+		gltfObj.scene.scale.set( 3, 3, 3 );			   
 		
 		playerUIObj["girl"].gltf_run = gltfObj;
-		//scene.add( gltfObj.scene );	
+	
+		playerUIObj["girl"].gltf_run_animMixer = new THREE.AnimationMixer(playerUIObj["girl"].gltf_run.scene);
+		
+		
+		
+		playerUIObj["girl"].gltf_run.animations.forEach((clip) => {
+			playerUIObj["girl"].gltf_run_animMixer.clipAction(clip).play();
+		}); // 애니메이션 실행시켜놓음
+		
 		
 	
 	},
 	function ( xhr ) {
 
-		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+		console.log( Math.floor(( xhr.loaded / xhr.total * 100 )) + '% loaded' );
 
 	},
 	// called when loading has errors
@@ -678,35 +662,25 @@ function gltfload_GirlAnimation(){
 	
 	gltfLoader.load(girl_idle, function(gltfObj){
 		
-		
-		
-		
-		
-		gltfObj.scene.scale.set( 5, 5, 5 );			   
-		/*
-		gltfObj.scene.position.x = 0;				    //Position (x = right+ left-) 
-        gltfObj.scene.position.y = 0;				    //Position (y = up+, down-)
-		gltfObj.scene.position.z = 0;				    //Position (z = front +, back-)
-		*/
-		
-		
-		// console.log(gltfObj.animations)
-		anim_mixer = new THREE.AnimationMixer(gltfObj.scene);
-		
-		
-		
-		gltfObj.animations.forEach((clip) => {
-			anim_mixer.clipAction(clip).play();
-		}); // 애니메이션 실행시켜놓음
+	
+		gltfObj.scene.scale.set( 3, 3, 3 );		   
 		
 		playerUIObj["girl"].gltf_idle = gltfObj;
-		//scene.add( gltfObj.scene );	
+	
+		playerUIObj["girl"].gltf_idle_animMixer = new THREE.AnimationMixer(gltfObj.scene);
+		
+		
+		
+		playerUIObj["girl"].gltf_idle.animations.forEach((clip) => {
+			playerUIObj["girl"].gltf_idle_animMixer.clipAction(clip).play();
+		}); // 애니메이션 실행시켜놓음
+	
 		
 	
 	},
 	function ( xhr ) {
 
-		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+		console.log( Math.floor(( xhr.loaded / xhr.total * 100 )) + '% loaded' );
 
 	},
 	// called when loading has errors
@@ -725,31 +699,24 @@ function gltfload_GirlAnimation(){
 		
 		
 		
-		gltfObj.scene.scale.set( 5, 5, 5 );		
-		/*
-		gltfObj.scene.position.x = 0;				    //Position (x = right+ left-) 
-        gltfObj.scene.position.y = 0;				    //Position (y = up+, down-)
-		gltfObj.scene.position.z = 0;				    //Position (z = front +, back-)
-		*/
-		
-		
-		// console.log(gltfObj.animations)
-		anim_mixer = new THREE.AnimationMixer(gltfObj.scene);
+		gltfObj.scene.scale.set( 3, 3, 3 );	
+		playerUIObj["girl"].gltf_cwalk = gltfObj;
+		playerUIObj["girl"].gltf_cwalk_animMixer = new THREE.AnimationMixer(gltfObj.scene);
 		
 		
 		
-		gltfObj.animations.forEach((clip) => {
-			anim_mixer.clipAction(clip).play();
+		playerUIObj["girl"].gltf_cwalk.animations.forEach((clip) => {
+			playerUIObj["girl"].gltf_cwalk_animMixer.clipAction(clip).play();
 		}); // 애니메이션 실행시켜놓음
 		
-		playerUIObj["girl"].gltf_cwalk = gltfObj;
-		//scene.add( gltfObj.scene );	
+		
+		
 		
 	
 	},
 	function ( xhr ) {
 
-		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+		console.log( Math.floor(( xhr.loaded / xhr.total * 100 )) + '% loaded' );
 
 	},
 	// called when loading has errors
@@ -764,35 +731,24 @@ function gltfload_GirlAnimation(){
 	
 	gltfLoader.load(girl_push, function(gltfObj){
 		
-		
-		
-		
-		
-		gltfObj.scene.scale.set( 5, 5, 5 );		
-		/*
-		gltfObj.scene.position.x = 0;				    //Position (x = right+ left-) 
-        gltfObj.scene.position.y = 0;				    //Position (y = up+, down-)
-		gltfObj.scene.position.z = 0;				    //Position (z = front +, back-)
-		*/
-		
-		
-		// console.log(gltfObj.animations)
-		anim_mixer = new THREE.AnimationMixer(gltfObj.scene);
-		
-		
-		
-		gltfObj.animations.forEach((clip) => {
-			anim_mixer.clipAction(clip).play();
-		}); // 애니메이션 실행시켜놓음
-		
+
+		gltfObj.scene.scale.set( 3, 3, 3 );	
 		playerUIObj["girl"].gltf_push = gltfObj;
-		//scene.add( gltfObj.scene );	
+		
+
+		playerUIObj["girl"].gltf_push_animMixer = new THREE.AnimationMixer(gltfObj.scene);
+		
+		
+		
+		playerUIObj["girl"].gltf_push.animations.forEach((clip) => {
+			playerUIObj["girl"].gltf_push_animMixer.clipAction(clip).play();
+		}); // 애니메이션 실행시켜놓음
 		
 	
 	},
 	function ( xhr ) {
 
-		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+		console.log( Math.floor(( xhr.loaded / xhr.total * 100 )) + '% loaded' );
 
 	},
 	// called when loading has errors

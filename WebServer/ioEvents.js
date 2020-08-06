@@ -268,13 +268,17 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 		});
 		
 		
+		/*
 		// 해당 가속도, 센서값 소켓에는 안드로이드에서 접속한 소켓 값이 들어오게 됨
 		socket.on('ad_AccData', function(data){
 
 			console.log(`x : ${data.x}, y : ${data.y}, z : ${data.z}`)
 
 		}); 
-
+		*/
+		
+		
+		/*
 		socket.on('ad_GyroData', function(data){
 			
 			// 컨트롤러 소켓 값이 저장되어 있을 경우
@@ -290,6 +294,9 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 			
 		});	
 		
+		*/
+		
+		
 		socket.on('ad_joystickData', function(direction_data){
 			if(controller_sockets[socket.id]){
 				console.log(`joystick Direction : ${direction_data}`);
@@ -297,7 +304,7 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 				var game_socket = game_sockets[controller_sockets[socket.id].game_id].socket;
 
 				// 해당 roomManager 에게 해당 컨트롤러와 연결되어있는 웹 소켓과 자이로스코프 데이터를 보냄 
-				roomMgr.updatePlayerGyroData(game_socket, data);
+				roomMgr.updatePlayerJoystickData(game_socket, direction_data);
 			}
 		});
 				

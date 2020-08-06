@@ -1,7 +1,7 @@
  var playerManager = require("./playerManager.js");
 
 // 업데이트하기 위한 주기 값
-var INTERVAL = 500;
+var INTERVAL = 100;
 
 var players = []; // 플레이어 들의 웹 소켓들이 저장되어 있는 공간
 
@@ -156,7 +156,7 @@ function RoomManager(io){
       io.to(room.id).emit('updateUI',objStatuses);
     }
   },INTERVAL);
-  // 0.01 초 간격으로 해당 플레이어의 데이터를 업데이트
+  // 0.5 초 간격으로 해당 플레이어의 데이터를 업데이트
   
 }
 
