@@ -1,4 +1,4 @@
-	var BaseObject = require("./BaseObject.js");
+var BaseObject = require("./BaseObject.js");
 
 // 모든 플레이어 목록을 저장
 var players = [];
@@ -44,12 +44,12 @@ function playerManager(id, position){
     this.objStatus.sizeZ = 5;
 	
 	
-	
 	// 플레이어가 움직이는 스피드
-    this.speed = 0.1;
+    this.speed = 0.3;
 	
 	// 플레이어가 돌아갈 때 스피드
     this.turnSpeed = 0.03;
+	
 	
 	
 	// 플레이어 배열에 해당 객체 값이 들어감
@@ -135,81 +135,88 @@ playerManager.prototype.updatePlayerGyroData = function(playerSock_web, gyroData
 playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joystickData){
 	var player = this.playerForId(playerSock_web.id);
 
+
 	var direction;
 	var move_x, move_z;
 	var angle = Math.PI / 4;
-	// 해당 플레이어의 객체를 찾음
-	
-	/*
-	// 해당 객체의 회전각 데이터 값 수정
-	player.objStatus.r_x = gyroData.xRoll;
-	player.objStatus.r_y = gyroData.yPitch;
-	player.objStatus.r_z = gyroData.zYaw;
 
-	*/
 	
-	// console.log(`joystickData : ${joystickData}`);
+	
+	player.objStatus.isMoving = true;
+	
 	
 	switch(joystickData){
-		case 6.0:
+		case 0:
+			move_x = 0;
+			move_z = 0;
+			direction = player.objStatus.r_y; // 마지막으로 초기화 한 값 반환
+			player.objStatus.isMoving = false;
+			break;
+			
+		case 6:
 			direction = 0;
 			move_x = 0;
-			move_z = 0.1;
+			move_z = player.speed;
 			break;
-			
+
 		case 4.5:
 			direction = angle;
-			move_x = 0.1;
-			move_z = 0.1;
+			move_x = player.speed;
+			move_z = player.speed;
 			break;
-			
+
 		case 3:
 			direction = angle * 2;
-			move_x = 0.1;
+			move_x = player.speed;
 			move_z = 0;
 			break;
-			
+
 		case 1.5:
 			direction = angle * 3;
-			move_x = 0.1;
-			move_z = -0.1;
+			move_x = player.speed;
+			move_z = -player.speed;
 			break;
-			
+
 		case 12:
 			direction = angle * 4;
 			move_x = 0;
-			move_z = -0.1;
+			move_z = -player.speed;
 			break;
-			
+
 		case 10.5:
 			direction = angle * 5;
-			move_x = -0.1;
-			move_z = 0.1;
+			move_x = -player.speed;
+			move_z = -player.speed;
 			break;
-			
+
 		case 9:
 			direction = angle * 6;
-			move_x = -0.1;
+			move_x = -player.speed;
 			move_z = 0;
 			break;
-			
+
 		case 7.5:
 			direction = angle * 7;
-			move_x = -0.1;
-			move_z = 0.1;
+			move_x = -player.speed;
+			move_z = player.speed;
 			break;
-			
+
+		
 			
 	}
+
+	console.log("Moving Status : " + player.objStatus.isMoving);
 	
-	console.log("move_x : " + move_x + ", move_z : " + move_z);
+	//console.log("move_x : " + move_x + ", move_z : " + move_z);
 	player.objStatus.r_y = direction;
 	player.objStatus.x += move_x;
 	player.objStatus.z += move_z;
-	
+
 	// 데이터 값이 수정된 해당 플레이어 정보 데이터 반환
 	return player;
+
 }
+
 
 // 지정한 하나의 플레이어 값을 반환하는 함수
 playerManager.prototype.playerForId = function(id){

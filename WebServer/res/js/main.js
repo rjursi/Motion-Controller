@@ -117,7 +117,10 @@ function character_obj_init(){
 		gltf_idle_animMixer : undefined,
 		gltf_cwalk : undefined,
 		gltf_cwalk_animMixer : undefined,
-		hitbox : undefined
+		
+		
+		hitbox : undefined,
+		isPoseChangedStatus : false
 		
 	};
 	
@@ -132,8 +135,9 @@ function character_obj_init(){
 		gltf_idle_animMixer : undefined,
 		gltf_cwalk : undefined,
 		gltf_cwalk_animMixer : undefined,
-	    hitbox : undefined
 		
+	    hitbox : undefined,
+		isPoseChangedStatus : false
 	}
 	
 	playerUIObj["view_status"] = false;
@@ -268,14 +272,14 @@ var createPlayer = function(initPlayerObjArr){
 		
 		
 		// 기본 자세를 가만히 있는 idle 자세로 수정
-		playerUIObj[nowPlayerKey].nowView = playerUIObj[nowPlayerKey].gltf_idle;
+		playerUIObj[nowPlayerKey].gltf_nowView = playerUIObj[nowPlayerKey].gltf_idle;
 		
 		playerUIObj[nowPlayerKey].gltf_nowView_animMixer = playerUIObj[nowPlayerKey].gltf_idle_animMixer;
 		
 		// 현재 눈에 보이는 gltf 모델의 위치를 수정
-		playerUIObj[nowPlayerKey].nowView.scene.position.x = initPlayerObjArr[i].objStatus.x;
-		playerUIObj[nowPlayerKey].nowView.scene.position.y = initPlayerObjArr[i].objStatus.y;
-		playerUIObj[nowPlayerKey].nowView.scene.position.z = initPlayerObjArr[i].objStatus.z;
+		playerUIObj[nowPlayerKey].gltf_nowView.scene.position.x = initPlayerObjArr[i].objStatus.x;
+		playerUIObj[nowPlayerKey].gltf_nowView.scene.position.y = initPlayerObjArr[i].objStatus.y;
+		playerUIObj[nowPlayerKey].gltf_nowView.scene.position.z = initPlayerObjArr[i].objStatus.z;
 
 		console.log(player_Obj.position);
 		
@@ -284,7 +288,7 @@ var createPlayer = function(initPlayerObjArr){
 		scene.add(playerUIObj[nowPlayerKey].hitbox); // 충돌 hitbox 추가
 		playerCollisionObjs.push(playerUIObj[nowPlayerKey].hitbox);
 		console.log(nowPlayerKey + " : gltfObj View");
-		scene.add(playerUIObj[nowPlayerKey].nowView.scene); // 현재 설정된 gltf view 추가
+		scene.add(playerUIObj[nowPlayerKey].gltf_nowView.scene); // 현재 설정된 gltf view 추가
 		
 	}
 	
@@ -292,20 +296,113 @@ var createPlayer = function(initPlayerObjArr){
 	
 }
 
+
+function playerPoseChangeCheck(player_1_status, player_2_status){
+
+	if(player_1_status.objStatus.isMoving == true){
+		
+		
+		if(playerUIObj["girl"].isPoseChangedStatus == false){
+			console.log("player_1_isMoving....");
+			
+			
+			scene.remove(playerUIObj["girl"].gltf_nowView.scene); 
+			
+			playerUIObj["girl"].isPoseChangedStatus = true;
+
+			playerUIObj["girl"].gltf_nowView_animMixer = playerUIObj["girl"].gltf_run_animMixer;
+			playerUIObj["girl"].gltf_nowView = playerUIObj["girl"].gltf_run;
+
+			if(player_1_status.objStatus.isCWalking == true){
+				playerUIObj["girl"].gltf_nowView_animMixer = playerUIObj["girl"].gltf_cwalk_animMixer;
+				playerUIObj["girl"].gltf_nowView = playerUIObj["girl"].gltf_cwalk;
+			}else if(player_1_status.objStatus.isPushing == true){
+				playerUIObj["girl"].gltf_nowView_animMixer = playerUIObj["girl"].gltf_push_animMixer;
+				playerUIObj["girl"].gltf_nowView = playerUIObj["girl"].gltf_push;
+			}
+			
+			
+			scene.add(playerUIObj["girl"].gltf_nowView.scene); 
+			
+		}
+	}else{
+		
+		
+		if(playerUIObj["girl"].isPoseChangedStatus == true){
+			
+			console.log("player_1_isStop....");
+			
+			
+			playerUIObj["girl"].isPoseChangedStatus = false;
+			scene.remove(playerUIObj["girl"].gltf_nowView.scene); 
+			playerUIObj["girl"].gltf_nowView_animMixer = playerUIObj["girl"].gltf_idle_animMixer;
+			playerUIObj["girl"].gltf_nowView = playerUIObj["girl"].gltf_idle;
+			scene.add(playerUIObj["girl"].gltf_nowView.scene);
+		}
+		
+	}
+	
+	
+	
+	if(player_2_status.objStatus.isMoving == true){
+		if(playerUIObj["boy"].isPoseChangedStatus == false){	
+			console.log("player_2_isMoving....");
+		
+			
+			scene.remove(playerUIObj["boy"].gltf_nowView.scene); 
+			
+			playerUIObj["boy"].isPoseChangedStatus = true;
+			playerUIObj["boy"].gltf_nowView_animMixer = playerUIObj["boy"].gltf_run_animMixer;
+			playerUIObj["boy"].gltf_nowView = playerUIObj["boy"].gltf_run;
+
+			if(player_2_status.objStatus.isCWalking == true){
+				playerUIObj["boy"].gltf_nowView_animMixer = playerUIObj["boy"].gltf_cwalk_animMixer;
+				playerUIObj["boy"].gltf_nowView = playerUIObj["boy"].gltf_cwalk;
+			}else if(player_2_status.objStatus.isPushing == true){
+				playerUIObj["boy"].gltf_nowView_animMixer = playerUIObj["boy"].gltf_push_animMixer;
+				playerUIObj["boy"].gltf_nowView = playerUIObj["boy"].gltf_push;
+			}
+			
+			
+			scene.add(playerUIObj["boy"].gltf_nowView.scene); 
+		}	
+	}else{
+		
+		
+		
+		if(playerUIObj["boy"].isPoseChangedStatus == true){	
+			console.log("player_2_isStop....");
+			playerUIObj["boy"].isPoseChangedStatus = false;
+			scene.remove(playerUIObj["boy"].gltf_nowView.scene); 
+			playerUIObj["boy"].gltf_nowView_animMixer = playerUIObj["boy"].gltf_idle_animMixer;
+			playerUIObj["boy"].gltf_nowView = playerUIObj["boy"].gltf_idle;
+			scene.add(playerUIObj["boy"].gltf_nowView.scene);
+		}		
+	}
+	
+	
+	
+}
+
+
 var updateUI = function(objStatuses){
 	var player_1_status = objStatuses[0];
 	var player_2_status = objStatuses[1];
 	
-	console.log(player_2_status.objStatus.r_y);
+	
+	
+	playerPoseChangeCheck(player_1_status, player_2_status);
+	
+	
 	// player_1 회전각 업데이트
-	playerUIObj["girl"].nowView.scene.rotation.x = player_1_status.objStatus.r_x;
-	playerUIObj["girl"].nowView.scene.rotation.y = player_1_status.objStatus.r_y;
-	playerUIObj["girl"].nowView.scene.rotation.z = player_1_status.objStatus.r_z;
+	playerUIObj["girl"].gltf_nowView.scene.rotation.x = player_1_status.objStatus.r_x;
+	playerUIObj["girl"].gltf_nowView.scene.rotation.y = player_1_status.objStatus.r_y;
+	playerUIObj["girl"].gltf_nowView.scene.rotation.z = player_1_status.objStatus.r_z;
 	
 	// player_1 위치 업데이트
-	playerUIObj["girl"].nowView.scene.position.x = player_1_status.objStatus.x;
-	playerUIObj["girl"].nowView.scene.position.y = player_1_status.objStatus.y;
-	playerUIObj["girl"].nowView.scene.position.z = player_1_status.objStatus.z;
+	playerUIObj["girl"].gltf_nowView.scene.position.x = player_1_status.objStatus.x;
+	playerUIObj["girl"].gltf_nowView.scene.position.y = player_1_status.objStatus.y;
+	playerUIObj["girl"].gltf_nowView.scene.position.z = player_1_status.objStatus.z;
 	
 	// player_1 hitbox 위치 업데이트
 	playerUIObj["girl"].hitbox.position.x = player_1_status.objStatus.x;
@@ -318,14 +415,14 @@ var updateUI = function(objStatuses){
 	
 	
 	// player_2 회전각 업데이트
-	playerUIObj["boy"].nowView.scene.rotation.x = player_2_status.objStatus.r_x;
-	playerUIObj["boy"].nowView.scene.rotation.y = player_2_status.objStatus.r_y;
-	playerUIObj["boy"].nowView.scene.rotation.z = player_2_status.objStatus.r_z;
+	playerUIObj["boy"].gltf_nowView.scene.rotation.x = player_2_status.objStatus.r_x;
+	playerUIObj["boy"].gltf_nowView.scene.rotation.y = player_2_status.objStatus.r_y;
+	playerUIObj["boy"].gltf_nowView.scene.rotation.z = player_2_status.objStatus.r_z;
 	
 	// player_2 위치 업데이트
-	playerUIObj["boy"].nowView.scene.position.x = player_2_status.objStatus.x;
-	playerUIObj["boy"].nowView.scene.position.y = player_2_status.objStatus.y;
-	playerUIObj["boy"].nowView.scene.position.z = player_2_status.objStatus.z;
+	playerUIObj["boy"].gltf_nowView.scene.position.x = player_2_status.objStatus.x;
+	playerUIObj["boy"].gltf_nowView.scene.position.y = player_2_status.objStatus.y;
+	playerUIObj["boy"].gltf_nowView.scene.position.z = player_2_status.objStatus.z;
 	
 	
 	// player_2 hitbox 위치 업데이트
