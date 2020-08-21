@@ -77,6 +77,9 @@ var create_QR = function(){
 	
 }
 
+function hitboxNotification(playerId){
+	io_ui.emit('ui_holdByHit', playerId);
+}
 // 플레이어가 웹 게임에 접속을 할 경우 QR코드를 띄울 수 있도록 함수를 호출
 var game_connected = function(){
 	
@@ -106,7 +109,11 @@ io_ui.on('ui_createPlayer', function(initPlayerObjArr){
     createPlayer(initPlayerObjArr);
 });
 
-
+io_ui.on('playerStatusUpdate', function(updatedPlayerData){
+	
+	updatePlayerStatus(updatedPlayerData);
+	
+});
 
 // server.js 측에서 보내는(ioEvents) socket.io 메시지와 
 // 자신 (main.js) 에서 보내는 socket.io 메시지를 공통으로 처리하는 부분

@@ -126,20 +126,23 @@ function RoomManager(io){
   }	
   
   RmMg.updatePlayerJoystickData = function(playerSock, joystickData){
+	let getRoom = RmMg.rooms[RmMg.roomIndex[playerSock.id]];
 	var getPlayer = RmMg.rooms[RmMg.roomIndex[playerSock.id]].objects[playerSock.id];
 	
 	// 플레이어의 회전각 등 데이터 변경 - playerManager 객체에서 데이터 수정 -> 수정된 데이터 반환
 	var updatedPlayerDataObj = getPlayer.updatePlayerJoystickData(playerSock, joystickData);
 	  
 
-    RmMg.rooms[RmMg.roomIndex[playerSock.id]].objects[playerSock.id] = updatedPlayerDataObj;  
+	  
+	io.to(getRoom.id).emit('playerStatusUpdate', updatedPlayerDataObj);
+    // RmMg.rooms[RmMg.roomIndex[playerSock.id]].objects[playerSock.id] = updatedPlayerDataObj;  
 
 	// 해당 방의 지정한 플레이어 소켓에 플레이어 데이터 값을 업데이트
 	
   }
  
   	
-	
+	/*
   RmMg.update = setInterval(function(){
     for(var roomId in RmMg.rooms){
 	// 하나의 룸을 가져옴
@@ -159,6 +162,8 @@ function RoomManager(io){
     }
   },INTERVAL);
   // 0.05 초 간격으로 해당 플레이어의 데이터를 업데이트
+  
+  */
   
 }
 

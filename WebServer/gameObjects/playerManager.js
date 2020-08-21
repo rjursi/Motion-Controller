@@ -13,7 +13,7 @@ function playerManager(id, position){
 	
 	switch(position){
 		case "LEFT":
-		// x,y,z 축 위치
+		// x,y,z 초기 축 위치
 			this.objStatus.x = 300;
 			this.objStatus.y = 77;
 			this.objStatus.z = 72;	
@@ -32,17 +32,24 @@ function playerManager(id, position){
 	}
 	
 	
-	// x,y,z 회전 각도
-    this.objStatus.r_x = 0;
-    this.objStatus.r_y = 0;
-    this.objStatus.r_z = 0;
+	// 움직이는 방향값, 여기에 증감하는 스피드가 대입이 될 예정
+	this.objStatus.move_x = 0;
+	this.objStatus.move_z = 0;
+	
+	
+	this.objStatus.movingDirection_x = 1;
+	this.objStatus.movingDirection_y = 1;
+	this.objStatus.movingDirection_z = 1;
+	
+	
+    this.objStatus.seeDirection = 0;
+   
 	
 	// hitbox 사이즈
 	
     this.objStatus.sizeX = 5;
     this.objStatus.sizeY = 15;
     this.objStatus.sizeZ = 5;
-	
 	
 	// 플레이어가 움직이는 스피드
     this.speed = 0.3;
@@ -98,22 +105,11 @@ playerManager.prototype.removePlayer = function(player){
 
 */
 
-// 지정한 하나의 플레이어의 각종 값을 바꾸는 함수
-playerManager.prototype.updatePlayerData = function(data){
-	var player = playerForId(data.playerId);
-	
-	player.x = data.x;
-	player.y = data.y;
-	player.z = data.z;
-	
-	player.r_x = data.r_x;
-	player.r_y = data.r_y;
-	player.r_z = data.r_z;
-	
-	return player;
-	
-};
 
+playerManager.prototype.holdPlayerPosition = function(playerId){
+	var player = this.playerForId(playerId);
+	
+}
 
 // 지정한 웹 플레이어 소켓을 가져옴
 playerManager.prototype.updatePlayerGyroData = function(playerSock_web, gyroData){
@@ -136,84 +132,114 @@ playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joys
 	var player = this.playerForId(playerSock_web.id);
 
 
-	var direction;
+	var seeDirection;
 	var move_x, move_z;
 	var angle = Math.PI / 4;
 
-	
-	
+
 	player.objStatus.isMoving = true;
-	
-	
+
+
 	switch(joystickData){
 		case 0:
 			move_x = 0;
 			move_z = 0;
-			direction = player.objStatus.r_y; // 마지막으로 초기화 한 값 반환
+
+			player.objStatus.movingDirection_x = 1;
+			player.objStatus.movingDirection_y = 1;
+			player.objStatus.movingDirection_z = 1;
+			
+			
+			seeDirection = player.objStatus.seeDirection; // 마지막으로 초기화 한 값 반환
 			player.objStatus.isMoving = false;
 			break;
-			
+
 		case 6:
-			direction = 0;
+			seeDirection = 0;
 			move_x = 0;
 			move_z = player.speed;
+
+			
 			break;
 
 		case 4.5:
-			direction = angle;
+			seeDirection = angle;
 			move_x = player.speed;
 			move_z = player.speed;
+
+
 			break;
 
 		case 3:
-			direction = angle * 2;
+			seeDirection = angle * 2;
 			move_x = player.speed;
 			move_z = 0;
+
+
 			break;
 
 		case 1.5:
-			direction = angle * 3;
+			seeDirection = angle * 3;
 			move_x = player.speed;
 			move_z = -player.speed;
+
+		
+			player.objStatus.movingDirection_z = 1;
+
 			break;
 
 		case 12:
-			direction = angle * 4;
+			seeDirection = angle * 4;
 			move_x = 0;
 			move_z = -player.speed;
+
+			player.objStatus.movingDirection_z = -1;
+
 			break;
 
 		case 10.5:
-			direction = angle * 5;
+			seeDirection = angle * 5;
 			move_x = -player.speed;
 			move_z = -player.speed;
+			
+			player.objStatus.movingDirection_x = -1;
+			player.objStatus.movingDirection_z = -1;
+
+
 			break;
 
 		case 9:
-			direction = angle * 6;
+			seeDirection = angle * 6;
 			move_x = -player.speed;
 			move_z = 0;
+			
+			player.objStatus.movingDirection_x = -1;
+
+
 			break;
 
 		case 7.5:
-			direction = angle * 7;
+
+
+			seeDirection = angle * 7;
 			move_x = -player.speed;
 			move_z = player.speed;
+
+			player.objStatus.movingDirection_x = -1;
+			
+			
 			break;
 
-		
-			
 	}
 
-	console.log("Moving Status : " + player.objStatus.isMoving);
-	
-	//console.log("move_x : " + move_x + ", move_z : " + move_z);
-	player.objStatus.r_y = direction;
-	player.objStatus.x += move_x;
-	player.objStatus.z += move_z;
+	console.info("Moving Status : " + player.objStatus.isMoving);
 
-	// 데이터 값이 수정된 해당 플레이어 정보 데이터 반환
+	player.objStatus.move_x = move_x;
+	player.objStatus.move_z = move_z;
+	player.objStatus.seeDirection = seeDirection;
+		
 	return player;
+	
 
 }
 

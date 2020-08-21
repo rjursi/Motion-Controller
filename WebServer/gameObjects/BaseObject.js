@@ -5,7 +5,6 @@
 function BaseObject() {
   this.objStatus = {};
 	
-	
   this.objStatus.isPoseChanged = false;
 	
 	
@@ -30,10 +29,10 @@ function BaseObject() {
   this.objStatus.sizeX = 0;
   this.objStatus.sizeY = 0;
   this.objStatus.sizeZ = 0;
-	
+		
 	
   // 초기 플레이어 방향값	
-  this.objStatus.direction = 0;
+  this.objStatus.seeDirection = 0;
 }
 
 

@@ -48,7 +48,7 @@ module.exports = function(app)
 	 app.get('/res/js/mainSocketHandle.js',function(req,res){
         res.sendFile(__dirname + '/res/js/mainSocketHandle.js');
      });
-	
+
 	 app.get('/apkFile/blindness.apk', function(req,res){
 		res.sendFile(__dirname + '/apkFile/blindness.apk'); 
 	 });

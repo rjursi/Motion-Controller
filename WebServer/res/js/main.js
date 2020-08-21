@@ -35,6 +35,146 @@ game_sockets[socket.id] = {
 				controller_id : undefined
 			};
 */
+
+function setLight() {
+
+            var light = new THREE.AmbientLight(0xaccde0, 0.1);
+	        scene.add(light);
+            /////////////////////////////////////
+            //////////////// 2층 ////////////////
+            /////////////////////////////////////
+            var light_2Froom = new THREE.PointLight(0xffffff, 1, 3);
+	        light_2Froom.position.set(6.1, 2.2, 0.6);
+            //light_2Froom.castShadow = true;
+	        scene.add(light_2Froom);    // 2층 방 조명
+
+
+                var light_2FroomBold = new THREE.SpotLight( 0xfff36c, 1, 2, 0.5, 0.4, 0.4 );
+                light_2FroomBold.position.set( 6.1, 3, 1.1 );
+		        //light_2FroomBold.castShadow = true;
+                light_2FroomBold.target = mesh;
+	            scene.add(light_2FroomBold);    // 2층 방 강조 조명
+                
+
+                var light_2Fhallway = new THREE.SpotLight(0xffffff, 0.6, 8, 0.2, 0.3, 0.4);
+                light_2Fhallway.position.set(4.9, 3.5, -5);
+                light_2Fhallway.target = mesh2;
+                //light_2Fhallway.castShadow = true;
+                scene.add(light_2Fhallway); // 2층 복도 조명
+                
+
+                var light_2Fsquarelamp = new THREE.PointLight(0xffffff, 0.7, 3);
+                light_2Fsquarelamp.position.set(4.9, 3, -3);
+                //light_2Fsquarelamp.castShadow = true;
+                scene.add(light_2Fsquarelamp);  // 2층 복도끝 조명
+                
+
+                var light_2FsquarelampBold = new THREE.SpotLight(0xffff9c, 1, 5, 0.4, 0.1, 0.8);
+                light_2FsquarelampBold.position.set(4.9, 3, -3);
+                light_2FsquarelampBold.target = mesh3;
+                //light_2FsquarelampBold.castShadow = true;
+                scene.add(light_2FsquarelampBold);  // 2층 복도끝 강조 조명
+                
+
+                var light_2Fstairs01 = new THREE.PointLight(0xffffff, 0.7, 4);
+                light_2Fstairs01.position.set(2.9, 3, -0.1);
+                //light_2Fstairs01.castShadow = true;
+                scene.add(light_2Fstairs01); // 2층 계단 조명 오른쪽
+                
+
+                var light_2Fstairs01Bold = new THREE.SpotLight(0xffffff, 0.6, 5, 2, 0.1, 1.2);
+                light_2Fstairs01Bold.position.set(2.8, 3, -0.1);
+                light_2Fstairs01Bold.target = mesh5;
+                //light_2Fstairs01Bold.castShadow = true;
+                scene.add(light_2Fstairs01Bold);    // 2층 계단 강조 조명 오른쪽
+                
+
+                var light_2Fstairs02 = new THREE.PointLight(0xffffff, 0.7, 4);
+                light_2Fstairs02.position.set(2.9, 3, -1.5);
+                //light_2Fstairs02.castShadow = true;
+                scene.add(light_2Fstairs02);    // 2층 계단 조명 왼쪽
+                
+
+                var light_2Fstairs02Bold = new THREE.SpotLight(0xffffff, 0.6, 5, 2, 0.1, 1.2);
+                light_2Fstairs02Bold.position.set(2.8, 3, -1.5);
+                light_2Fstairs02Bold.target = mesh4;
+                //light_2Fstairs02Bold.castShadow = true;
+                scene.add(light_2Fstairs02Bold);    //2층 계단 강조 조명 왼쪽
+                
+
+
+                var light_2Fstairs1F = new THREE.PointLight(0xffffff, 0.7, 4);
+                light_2Fstairs1F.position.set(3.8, 1, -0.3);
+                //light_2Fstairs1F.castShadow = true;
+                scene.add(light_2Fstairs1F);    // 2층 계단 1층 조명
+                
+                /////////////////////////////////////
+                //////////////// 1층 ////////////////
+                /////////////////////////////////////
+
+                var light_1Fhallway = new THREE.SpotLight(0xffffff, 1.3, 8, 1, 0.5, 0.4);
+                light_1Fhallway.position.set(2.9, 1.2, 1);
+                light_1Fhallway.target = mesh7;
+                light_1Fhallway.castShadow = true;
+                scene.add(light_1Fhallway);     // 1층 복도 강조 조명
+                
+
+                var light_1Fkitchen = new THREE.PointLight(0xffffff, 1, 4);
+	            light_1Fkitchen.position.set(-2.8, 1, -2.1);
+                light_1Fkitchen.castShadow = true;
+	            scene.add(light_1Fkitchen);     // 1층 부엌 조명
+	            
+
+                var light_1FkitchenBold = new THREE.SpotLight( 0xffffff, 1, 3, 0.6, 0.4, 0.4 );
+                light_1FkitchenBold.position.set(-2.8, 2, -1.2);
+                light_1FkitchenBold.target = mesh6;
+                light_1FkitchenBold.castShadow = true;
+                scene.add(light_1FkitchenBold);     // 1층 부엌 강조 조명
+                
+                /////////////////////////////////////
+                /////////////////////////////////////
+                /////////////////////////////////////
+
+                var help_2Froom = new THREE.PointLightHelper(light_2Froom, 0.1);
+	            scene.add(help_2Froom);
+                
+                help_2FroomBold = new THREE.SpotLightHelper( light_2FroomBold );
+                scene.add( help_2FroomBold );
+
+                var help_2Fhallway = new THREE.SpotLightHelper(light_2Fhallway);
+                scene.add(help_2Fhallway);
+
+                var help_2Fsquarelamp = new THREE.PointLightHelper(light_2Fsquarelamp, 0.1);
+                scene.add(help_2Fsquarelamp);
+
+                var help_2FsquarelampBold = new THREE.SpotLightHelper(light_2FsquarelampBold);
+                scene.add(help_2FsquarelampBold);
+
+                var help_2Fstairs01 = new THREE.PointLightHelper(light_2Fstairs01, 0.1);
+                scene.add(help_2Fstairs01);
+
+                var help_2Fstairs01Bold = new THREE.SpotLightHelper(light_2Fstairs01Bold);
+                scene.add(help_2Fstairs01Bold);
+
+                var help_2Fstairs02 = new THREE.PointLightHelper(light_2Fstairs02, 0.1);
+                scene.add(help_2Fstairs02);
+
+                var help_2Fstairs02Bold = new THREE.SpotLightHelper(light_2Fstairs02Bold);
+                scene.add(help_2Fstairs02Bold);
+
+                var help_2Fstairs1F = new THREE.PointLightHelper(light_2Fstairs1F, 0.1);
+                scene.add(help_2Fstairs1F);
+
+                var help_1Fhallway = new THREE.SpotLightHelper(light_1Fhallway);
+                scene.add(help_1Fhallway);
+
+                var help_1Fkitchen = new THREE.PointLightHelper(light_1Fkitchen, 0.1);
+	            scene.add(help_1Fkitchen);
+
+                var help_1FkitchenBold = new THREE.SpotLightHelper( light_1FkitchenBold );
+	            scene.add(help_1FkitchenBold);
+            }
+
 function init(){
 
 	
@@ -43,12 +183,15 @@ function init(){
 	directionalLight = new THREE.DirectionalLight(0xffffff,1);
 	directionalLight.position.set(0,1,0);
     directionalLight.castShadow = true;
-	
+	// 하녕이 수정하는 즁
 	scene.add(directionalLight);
 	
 	ambLight = new THREE.AmbientLight(0xffffff, 0.5);
 	scene.add(ambLight);
 	
+	
+	
+	//////////////////////////// 여까지
 	
 	
 	// scene.add(light)
@@ -94,6 +237,64 @@ function init(){
 	document.body.appendChild(renderer.domElement);
 	
 	
+	/// 하녕이 메쉬츄가
+	
+	
+	var targetGeometry = new THREE.BoxBufferGeometry( 1, 1, 1 );
+	var targetMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+	var targetMaterial2 = new THREE.MeshBasicMaterial( { color: 0x00ff60 } );
+	
+
+	LightTargetMesh = new THREE.Mesh(targetGeometry, targetMaterial);
+	LightTargetMesh2 = new THREE.Mesh(targetGeometry, targetMaterial);
+	LightTargetMesh3 = new THREE.Mesh(targetGeometry, targetMaterial2);
+	LightTargetMesh4 = new THREE.Mesh(targetGeometry, targetMaterial2);
+	LightTargetMesh5 = new THREE.Mesh(targetGeometry, targetMaterial);
+	LightTargetMesh6 = new THREE.Mesh(targetGeometry, targetMaterial);
+	LightTargetMesh7 = new THREE.Mesh(targetGeometry, targetMaterial);
+
+
+	scene.add(LightTargetMesh);
+	scene.add(LightTargetMesh2);
+	scene.add(LightTargetMesh3);
+	scene.add( LightTargetMesh4 );
+	scene.add( LightTargetMesh5 );
+	scene.add( LightTargetMesh6 );
+	scene.add( LightTargetMesh7 );
+
+	LightTargetMesh.position.x = 6.1;
+	LightTargetMesh.position.y = 1;
+	LightTargetMesh.position.z = 1.1;
+
+	LightTargetMesh2.position.x = 4.9;
+	LightTargetMesh2.position.y = 1;
+	LightTargetMesh2.position.z = 4;
+
+
+	LightTargetMesh3.position.x = 4.9;
+	LightTargetMesh3.position.y = 1;
+	LightTargetMesh3.position.z = - 1.5;
+
+	LightTargetMesh4.position.x = 8;
+	LightTargetMesh4.position.y = 3;
+	LightTargetMesh4.position.z = - 1.5;
+
+	LightTargetMesh5.position.x = 8;
+	LightTargetMesh5.position.y = 3;
+	LightTargetMesh5.position.z = - 0.1;
+
+	LightTargetMesh6.position.x = -2.8;
+	LightTargetMesh6.position.y = -1;
+	LightTargetMesh6.position.z = - 1.2;
+
+	LightTargetMesh7.position.x = -4.5;
+	LightTargetMesh7.position.y = -1;
+	LightTargetMesh7.position.z = 1;
+	
+	//setLight();
+	
+	//// 여까지
+	
 }
 
 function viewMap(){
@@ -107,6 +308,8 @@ function character_obj_init(){
 	
 	playerUIObj["girl"] = {
 		
+		playerId : undefined,
+		
 		gltf_nowView : undefined,
 		gltf_nowView_animMixer : undefined,
 		gltf_run : undefined,
@@ -119,12 +322,26 @@ function character_obj_init(){
 		gltf_cwalk_animMixer : undefined,
 		
 		
+		now_position_x : 0,
+		now_position_y : 0,
+		now_position_z : 0,
+		
+		
+		pre_position_x : 0,
+		pre_position_y : 0,
+		pre_position_z : 0,
+		
 		hitbox : undefined,
-		isPoseChangedStatus : false
+		
+		isPoseChangedStatus : false,
+		isCanMove : true
 		
 	};
 	
 	playerUIObj["boy"] = {
+		
+		playerId : undefined,
+		
 		gltf_nowView : undefined,
 		gltf_nowView_animMixer : undefined,
 		gltf_run : undefined,
@@ -136,12 +353,67 @@ function character_obj_init(){
 		gltf_cwalk : undefined,
 		gltf_cwalk_animMixer : undefined,
 		
+		
+		now_position_x : 0,
+		now_position_y : 0,
+		now_position_z : 0,
+		
+		pre_position_x : 0,
+		pre_position_y : 0,
+		pre_position_z : 0,
+		
+		
 	    hitbox : undefined,
-		isPoseChangedStatus : false
+		
+		isPoseChangedStatus : false,
+		isCanMove : true
 	}
 	
 	playerUIObj["view_status"] = false;
 }
+
+function updatePlayerStatus(updatedPlayerData){
+	
+	var forUpdatePlayerObj;
+	for(var index in playerUIObj){
+		
+		if(playerUIObj[index].playerId == updatedPlayerData.playerId){
+			forUpdatePlayerObj = playerUIObj[index];
+			break;
+		}
+	}
+	
+	
+	playerPoseChangeCheck(updatedPlayerData);
+	
+	if(forUpdatePlayerObj.isCanMove == true){
+		// 이전 위치 값 백업
+	
+		
+		
+		forUpdatePlayerObj.now_position_x += updatedPlayerData.objStatus.move_x;
+		forUpdatePlayerObj.now_position_z += updatedPlayerData.objStatus.move_z;
+
+		
+		forUpdatePlayerObj.gltf_nowView.scene.position.x = forUpdatePlayerObj.now_position_x;
+		forUpdatePlayerObj.gltf_nowView.scene.position.y = forUpdatePlayerObj.now_position_y;
+		forUpdatePlayerObj.gltf_nowView.scene.position.z = forUpdatePlayerObj.now_position_z;
+		
+		forUpdatePlayerObj.hitbox.position.x = forUpdatePlayerObj.now_position_x;
+		forUpdatePlayerObj.hitbox.position.y = forUpdatePlayerObj.now_position_y + HITBOX_DEFAULT_HEIGHT;
+		forUpdatePlayerObj.hitbox.position.z = forUpdatePlayerObj.now_position_z;
+
+		
+		forUpdatePlayerObj.gltf_nowView.scene.rotation.y = updatedPlayerData.objStatus.seeDirection;
+		
+		
+	}
+	
+	collision_check();
+	
+	
+}
+
 
 
 function animate(){
@@ -153,16 +425,14 @@ function animate(){
 }
 function update(){
 	
-	
 	// 플레이어 UI 객체가 보이는 상태이면
 	if(playerUIObj["view_status"]){
 		
 		let clockTime = clock.getDelta();
 		playerUIObj["girl"].gltf_nowView_animMixer.update(clockTime);
 		playerUIObj["boy"].gltf_nowView_animMixer.update(clockTime);
-		collision_check();
+		
 	}
-	
 	
 	
 }
@@ -192,8 +462,16 @@ function makeCollisionVertices(){
 function collision_check(){
 	
 	
-	for(var playerCollisionObj of playerCollisionObjs){
+	for(var index in playerCollisionObjs){
 		
+		var gltf_key;
+		if(index == 0){
+			gltf_key = "girl";
+		}else if(index == 1){
+			gltf_key = "boy";
+		}
+		
+		var playerCollisionObj = playerCollisionObjs[index];
 		//console.log("playerCollisionObj : " + playerCollisionObj);
 		var originPoint = playerCollisionObj.position.clone();
 	
@@ -211,6 +489,35 @@ function collision_check(){
 			if ( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()){
 
 				console.log("hit");
+				
+				
+				
+				playerUIObj[gltf_key].isCanMove = false;
+				
+				playerUIObj[gltf_key].now_position_x = playerUIObj[gltf_key].pre_position_x;
+				playerUIObj[gltf_key].now_position_y = playerUIObj[gltf_key].pre_position_y;
+				playerUIObj[gltf_key].now_position_z = playerUIObj[gltf_key].pre_position_z;
+				
+				playerUIObj[gltf_key].gltf_nowView.scene.position.x = playerUIObj[gltf_key].pre_position_x;
+				playerUIObj[gltf_key].gltf_nowView.scene.position.y = playerUIObj[gltf_key].pre_position_y;
+				playerUIObj[gltf_key].gltf_nowView.scene.position.z = playerUIObj[gltf_key].pre_position_z;
+				
+				playerUIObj[gltf_key].hitbox.position.x = playerUIObj[gltf_key].pre_position_x;
+				playerUIObj[gltf_key].hitbox.position.y = playerUIObj[gltf_key].pre_position_y + HITBOX_DEFAULT_HEIGHT;
+				playerUIObj[gltf_key].hitbox.position.z = playerUIObj[gltf_key].pre_position_z;
+				
+				
+				playerUIObj[gltf_key].isCanMove = true;
+				
+				
+				
+			}else{
+				
+				playerUIObj[gltf_key].pre_position_x = playerUIObj[gltf_key].gltf_nowView.scene.position.x;
+				playerUIObj[gltf_key].pre_position_y = playerUIObj[gltf_key].gltf_nowView.scene.position.y;
+				playerUIObj[gltf_key].pre_position_z = playerUIObj[gltf_key].gltf_nowView.scene.position.z;
+				
+
 			}
 		}	
 	}
@@ -263,7 +570,7 @@ var createPlayer = function(initPlayerObjArr){
 		console.log(player_Obj);
 
 		
-		// player.rotation.set(0,0,0);
+		
 		
 		// 각 플레이어의 정보를 가지고 player_obj 객체를 생성
 		player_Obj.position.x = initPlayerObjArr[i].objStatus.x;
@@ -271,23 +578,31 @@ var createPlayer = function(initPlayerObjArr){
 		player_Obj.position.z = initPlayerObjArr[i].objStatus.z;
 		
 		
+		playerUIObj[nowPlayerKey].playerId = initPlayerObjArr[i].playerId;
+		
 		// 기본 자세를 가만히 있는 idle 자세로 수정
 		playerUIObj[nowPlayerKey].gltf_nowView = playerUIObj[nowPlayerKey].gltf_idle;
 		
 		playerUIObj[nowPlayerKey].gltf_nowView_animMixer = playerUIObj[nowPlayerKey].gltf_idle_animMixer;
 		
+		
 		// 현재 눈에 보이는 gltf 모델의 위치를 수정
-		playerUIObj[nowPlayerKey].gltf_nowView.scene.position.x = initPlayerObjArr[i].objStatus.x;
-		playerUIObj[nowPlayerKey].gltf_nowView.scene.position.y = initPlayerObjArr[i].objStatus.y;
-		playerUIObj[nowPlayerKey].gltf_nowView.scene.position.z = initPlayerObjArr[i].objStatus.z;
+		playerUIObj[nowPlayerKey].now_position_x = initPlayerObjArr[i].objStatus.x;
+		playerUIObj[nowPlayerKey].now_position_y = initPlayerObjArr[i].objStatus.y;
+		playerUIObj[nowPlayerKey].now_position_z = initPlayerObjArr[i].objStatus.z;
 
-		console.log(player_Obj.position);
+
+		playerUIObj[nowPlayerKey].gltf_nowView.scene.position.x = playerUIObj[nowPlayerKey].now_position_x;
+		playerUIObj[nowPlayerKey].gltf_nowView.scene.position.y = playerUIObj[nowPlayerKey].now_position_y;
+		playerUIObj[nowPlayerKey].gltf_nowView.scene.position.z = playerUIObj[nowPlayerKey].now_position_z;
+		
 		
 		playerUIObj[nowPlayerKey].hitbox = player_Obj;
+	
 		
 		scene.add(playerUIObj[nowPlayerKey].hitbox); // 충돌 hitbox 추가
 		playerCollisionObjs.push(playerUIObj[nowPlayerKey].hitbox);
-		console.log(nowPlayerKey + " : gltfObj View");
+		console.info(nowPlayerKey + " : gltfObj View");
 		scene.add(playerUIObj[nowPlayerKey].gltf_nowView.scene); // 현재 설정된 gltf view 추가
 		
 	}
@@ -297,6 +612,69 @@ var createPlayer = function(initPlayerObjArr){
 }
 
 
+function playerPoseChangeCheck(player_status){
+	
+	var selectedPlayerObj;
+	
+	
+	for(var index in playerUIObj){
+		
+		if(playerUIObj[index].playerId == player_status.playerId){
+			selectedPlayerObj = playerUIObj[index];
+			break;
+		}
+	}
+
+	
+	if(player_status.objStatus.isMoving == true){
+		
+		
+		if(selectedPlayerObj.isPoseChangedStatus == false){
+			console.log("player_1_isMoving....");
+			
+			
+			scene.remove(selectedPlayerObj.gltf_nowView.scene); 
+			
+			selectedPlayerObj.isPoseChangedStatus = true;
+
+			selectedPlayerObj.gltf_nowView_animMixer = selectedPlayerObj.gltf_run_animMixer;
+			selectedPlayerObj.gltf_nowView = selectedPlayerObj.gltf_run;
+
+			if(player_status.objStatus.isCWalking == true){
+				selectedPlayerObj.gltf_nowView_animMixer = selectedPlayerObj.gltf_cwalk_animMixer;
+				selectedPlayerObj.gltf_nowView = selectedPlayerObj.gltf_cwalk;
+			}else if(player_status.objStatus.isPushing == true){
+				selectedPlayerObj.gltf_nowView_animMixer = selectedPlayerObj.gltf_push_animMixer;
+				selectedPlayerObj.gltf_nowView = selectedPlayerObj.gltf_push;
+			}
+			
+			
+			scene.add(selectedPlayerObj.gltf_nowView.scene); 
+			
+		}
+		
+	}else{
+		
+		
+		if(selectedPlayerObj.isPoseChangedStatus == true){
+			
+			console.log("player_1_isStop....");
+			
+			
+			selectedPlayerObj.isPoseChangedStatus = false;
+			
+			scene.remove(selectedPlayerObj.gltf_nowView.scene); 
+			
+			selectedPlayerObj.gltf_nowView_animMixer = selectedPlayerObj.gltf_idle_animMixer;
+			selectedPlayerObj.gltf_nowView = selectedPlayerObj.gltf_idle;
+			
+			scene.add(selectedPlayerObj.gltf_nowView.scene);
+		}
+		
+	}
+}
+
+/*
 function playerPoseChangeCheck(player_1_status, player_2_status){
 
 	if(player_1_status.objStatus.isMoving == true){
@@ -384,14 +762,16 @@ function playerPoseChangeCheck(player_1_status, player_2_status){
 	
 }
 
+*/
 
+/*
 var updateUI = function(objStatuses){
 	var player_1_status = objStatuses[0];
 	var player_2_status = objStatuses[1];
 	
 	
 	
-	playerPoseChangeCheck(player_1_status, player_2_status);
+	
 	
 	
 	// player_1 회전각 업데이트
@@ -412,7 +792,7 @@ var updateUI = function(objStatuses){
 	
 	
 	
-	
+
 	
 	// player_2 회전각 업데이트
 	playerUIObj["boy"].gltf_nowView.scene.rotation.x = player_2_status.objStatus.r_x;
@@ -432,6 +812,8 @@ var updateUI = function(objStatuses){
 	playerUIObj["boy"].hitbox.position.z = player_2_status.objStatus.z;
 	
 }
+
+*/
 
 
 // 한쪽에서 Disconnect 되었을 때 처리하는 함수
