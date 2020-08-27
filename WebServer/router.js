@@ -49,6 +49,9 @@ module.exports = function(app)
         res.sendFile(__dirname + '/res/js/mainSocketHandle.js');
      });
 
+	 app.get('/res/js/test_findLocation.js', function(req, res){
+		res.sendFile(__dirname + '/res/js/test_findLocation.js');
+	 });
 	 app.get('/apkFile/blindness.apk', function(req,res){
 		res.sendFile(__dirname + '/apkFile/blindness.apk'); 
 	 });

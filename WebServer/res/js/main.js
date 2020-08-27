@@ -11,6 +11,9 @@ var scene, camera, renderer, light, clock, anim_mixer, orbControls;
 
 // 충돌하는 메쉬들이 들어가는 배열
 
+
+let forFindMesh;
+
 var collision_datas = [];
 var ambLight, directionalLight;
 // 오브젝트 로드를 위한 gltf loader 객체 변수 설정
@@ -36,144 +39,8 @@ game_sockets[socket.id] = {
 			};
 */
 
-function setLight() {
-
-            var light = new THREE.AmbientLight(0xaccde0, 0.1);
-	        scene.add(light);
-            /////////////////////////////////////
-            //////////////// 2층 ////////////////
-            /////////////////////////////////////
-            var light_2Froom = new THREE.PointLight(0xffffff, 1, 3);
-	        light_2Froom.position.set(6.1, 2.2, 0.6);
-            //light_2Froom.castShadow = true;
-	        scene.add(light_2Froom);    // 2층 방 조명
 
 
-                var light_2FroomBold = new THREE.SpotLight( 0xfff36c, 1, 2, 0.5, 0.4, 0.4 );
-                light_2FroomBold.position.set( 6.1, 3, 1.1 );
-		        //light_2FroomBold.castShadow = true;
-                light_2FroomBold.target = mesh;
-	            scene.add(light_2FroomBold);    // 2층 방 강조 조명
-                
-
-                var light_2Fhallway = new THREE.SpotLight(0xffffff, 0.6, 8, 0.2, 0.3, 0.4);
-                light_2Fhallway.position.set(4.9, 3.5, -5);
-                light_2Fhallway.target = mesh2;
-                //light_2Fhallway.castShadow = true;
-                scene.add(light_2Fhallway); // 2층 복도 조명
-                
-
-                var light_2Fsquarelamp = new THREE.PointLight(0xffffff, 0.7, 3);
-                light_2Fsquarelamp.position.set(4.9, 3, -3);
-                //light_2Fsquarelamp.castShadow = true;
-                scene.add(light_2Fsquarelamp);  // 2층 복도끝 조명
-                
-
-                var light_2FsquarelampBold = new THREE.SpotLight(0xffff9c, 1, 5, 0.4, 0.1, 0.8);
-                light_2FsquarelampBold.position.set(4.9, 3, -3);
-                light_2FsquarelampBold.target = mesh3;
-                //light_2FsquarelampBold.castShadow = true;
-                scene.add(light_2FsquarelampBold);  // 2층 복도끝 강조 조명
-                
-
-                var light_2Fstairs01 = new THREE.PointLight(0xffffff, 0.7, 4);
-                light_2Fstairs01.position.set(2.9, 3, -0.1);
-                //light_2Fstairs01.castShadow = true;
-                scene.add(light_2Fstairs01); // 2층 계단 조명 오른쪽
-                
-
-                var light_2Fstairs01Bold = new THREE.SpotLight(0xffffff, 0.6, 5, 2, 0.1, 1.2);
-                light_2Fstairs01Bold.position.set(2.8, 3, -0.1);
-                light_2Fstairs01Bold.target = mesh5;
-                //light_2Fstairs01Bold.castShadow = true;
-                scene.add(light_2Fstairs01Bold);    // 2층 계단 강조 조명 오른쪽
-                
-
-                var light_2Fstairs02 = new THREE.PointLight(0xffffff, 0.7, 4);
-                light_2Fstairs02.position.set(2.9, 3, -1.5);
-                //light_2Fstairs02.castShadow = true;
-                scene.add(light_2Fstairs02);    // 2층 계단 조명 왼쪽
-                
-
-                var light_2Fstairs02Bold = new THREE.SpotLight(0xffffff, 0.6, 5, 2, 0.1, 1.2);
-                light_2Fstairs02Bold.position.set(2.8, 3, -1.5);
-                light_2Fstairs02Bold.target = mesh4;
-                //light_2Fstairs02Bold.castShadow = true;
-                scene.add(light_2Fstairs02Bold);    //2층 계단 강조 조명 왼쪽
-                
-
-
-                var light_2Fstairs1F = new THREE.PointLight(0xffffff, 0.7, 4);
-                light_2Fstairs1F.position.set(3.8, 1, -0.3);
-                //light_2Fstairs1F.castShadow = true;
-                scene.add(light_2Fstairs1F);    // 2층 계단 1층 조명
-                
-                /////////////////////////////////////
-                //////////////// 1층 ////////////////
-                /////////////////////////////////////
-
-                var light_1Fhallway = new THREE.SpotLight(0xffffff, 1.3, 8, 1, 0.5, 0.4);
-                light_1Fhallway.position.set(2.9, 1.2, 1);
-                light_1Fhallway.target = mesh7;
-                light_1Fhallway.castShadow = true;
-                scene.add(light_1Fhallway);     // 1층 복도 강조 조명
-                
-
-                var light_1Fkitchen = new THREE.PointLight(0xffffff, 1, 4);
-	            light_1Fkitchen.position.set(-2.8, 1, -2.1);
-                light_1Fkitchen.castShadow = true;
-	            scene.add(light_1Fkitchen);     // 1층 부엌 조명
-	            
-
-                var light_1FkitchenBold = new THREE.SpotLight( 0xffffff, 1, 3, 0.6, 0.4, 0.4 );
-                light_1FkitchenBold.position.set(-2.8, 2, -1.2);
-                light_1FkitchenBold.target = mesh6;
-                light_1FkitchenBold.castShadow = true;
-                scene.add(light_1FkitchenBold);     // 1층 부엌 강조 조명
-                
-                /////////////////////////////////////
-                /////////////////////////////////////
-                /////////////////////////////////////
-
-                var help_2Froom = new THREE.PointLightHelper(light_2Froom, 0.1);
-	            scene.add(help_2Froom);
-                
-                help_2FroomBold = new THREE.SpotLightHelper( light_2FroomBold );
-                scene.add( help_2FroomBold );
-
-                var help_2Fhallway = new THREE.SpotLightHelper(light_2Fhallway);
-                scene.add(help_2Fhallway);
-
-                var help_2Fsquarelamp = new THREE.PointLightHelper(light_2Fsquarelamp, 0.1);
-                scene.add(help_2Fsquarelamp);
-
-                var help_2FsquarelampBold = new THREE.SpotLightHelper(light_2FsquarelampBold);
-                scene.add(help_2FsquarelampBold);
-
-                var help_2Fstairs01 = new THREE.PointLightHelper(light_2Fstairs01, 0.1);
-                scene.add(help_2Fstairs01);
-
-                var help_2Fstairs01Bold = new THREE.SpotLightHelper(light_2Fstairs01Bold);
-                scene.add(help_2Fstairs01Bold);
-
-                var help_2Fstairs02 = new THREE.PointLightHelper(light_2Fstairs02, 0.1);
-                scene.add(help_2Fstairs02);
-
-                var help_2Fstairs02Bold = new THREE.SpotLightHelper(light_2Fstairs02Bold);
-                scene.add(help_2Fstairs02Bold);
-
-                var help_2Fstairs1F = new THREE.PointLightHelper(light_2Fstairs1F, 0.1);
-                scene.add(help_2Fstairs1F);
-
-                var help_1Fhallway = new THREE.SpotLightHelper(light_1Fhallway);
-                scene.add(help_1Fhallway);
-
-                var help_1Fkitchen = new THREE.PointLightHelper(light_1Fkitchen, 0.1);
-	            scene.add(help_1Fkitchen);
-
-                var help_1FkitchenBold = new THREE.SpotLightHelper( light_1FkitchenBold );
-	            scene.add(help_1FkitchenBold);
-            }
 
 function init(){
 
@@ -184,17 +51,17 @@ function init(){
 	directionalLight.position.set(0,1,0);
     directionalLight.castShadow = true;
 	// 하녕이 수정하는 즁
-	scene.add(directionalLight);
+	//scene.add(directionalLight);
 	
 	ambLight = new THREE.AmbientLight(0xffffff, 0.5);
-	scene.add(ambLight);
+	//scene.add(ambLight);
 	
 	
+	// 이거는 테스트용 미니
 	
 	//////////////////////////// 여까지
 	
-	
-	// scene.add(light)
+
 	// camera 생	성, 일단은 PerspectiveCamera 로 설정
 	camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 	camera.position.z = 250;
@@ -229,7 +96,7 @@ function init(){
 	character_obj_init(); // 캐릭터 gltf 오브젝트를 넣어놓을 공간 초기화
 	
 	gltf_Load(); // 모든 gltf 모델 로드
-
+	
 
 	// 이벤트 정의, 아래는 윈도우 사이즈가 바뀔 경우에 대해서 이벤트 리스너 정의
 	window.addEventListener( 'resize', onWindowResize);		
@@ -240,11 +107,25 @@ function init(){
 	/// 하녕이 메쉬츄가
 	
 	
-	var targetGeometry = new THREE.BoxBufferGeometry( 1, 1, 1 );
-	var targetMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-	var targetMaterial2 = new THREE.MeshBasicMaterial( { color: 0x00ff60 } );
+	// 아래는 테스트용 
+	var test_findLocationBox = new THREE.BoxGeometry(6,6,6);
+	var test_findLocationGeometry = new THREE.MeshBasicMaterial({color : 0x000000});
 	
-
+	forFindMesh = new THREE.Mesh(test_findLocationBox, test_findLocationGeometry);
+	
+	forFindMesh.position.x = 300;
+	forFindMesh.position.y = 77;
+	forFindMesh.position.z = 72;	
+	
+	scene.add(forFindMesh);
+	
+	// 테스트용 메쉬
+	
+	
+	var targetGeometry = new THREE.BoxBufferGeometry( 5, 5, 50 );
+	var targetMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+	var targetMaterial2 = new THREE.MeshBasicMaterial({ color: 0x00ff60 });
+	
 	LightTargetMesh = new THREE.Mesh(targetGeometry, targetMaterial);
 	LightTargetMesh2 = new THREE.Mesh(targetGeometry, targetMaterial);
 	LightTargetMesh3 = new THREE.Mesh(targetGeometry, targetMaterial2);
@@ -262,43 +143,188 @@ function init(){
 	scene.add( LightTargetMesh6 );
 	scene.add( LightTargetMesh7 );
 
-	LightTargetMesh.position.x = 6.1;
-	LightTargetMesh.position.y = 1;
-	LightTargetMesh.position.z = 1.1;
+	LightTargetMesh.position.x = 305;
+	LightTargetMesh.position.y = 50;
+	LightTargetMesh.position.z = 55;
 
-	LightTargetMesh2.position.x = 4.9;
-	LightTargetMesh2.position.y = 1;
-	LightTargetMesh2.position.z = 4;
+	LightTargetMesh2.position.x = 245;
+	LightTargetMesh2.position.y = 50;
+	LightTargetMesh2.position.z = 200;
 
 
-	LightTargetMesh3.position.x = 4.9;
-	LightTargetMesh3.position.y = 1;
-	LightTargetMesh3.position.z = - 1.5;
+	LightTargetMesh3.position.x = 245;
+	LightTargetMesh3.position.y = 50;
+	LightTargetMesh3.position.z = - 75;
 
-	LightTargetMesh4.position.x = 8;
-	LightTargetMesh4.position.y = 3;
-	LightTargetMesh4.position.z = - 1.5;
+	LightTargetMesh4.position.x = 400;
+	LightTargetMesh4.position.y = 150;
+	LightTargetMesh4.position.z = - 75;
 
-	LightTargetMesh5.position.x = 8;
-	LightTargetMesh5.position.y = 3;
-	LightTargetMesh5.position.z = - 0.1;
+	LightTargetMesh5.position.x = 400;
+	LightTargetMesh5.position.y = 150;
+	LightTargetMesh5.position.z = - 5;
 
-	LightTargetMesh6.position.x = -2.8;
-	LightTargetMesh6.position.y = -1;
-	LightTargetMesh6.position.z = - 1.2;
+	LightTargetMesh6.position.x = -140;
+	LightTargetMesh6.position.y = -50;
+	LightTargetMesh6.position.z = - 60;
 
-	LightTargetMesh7.position.x = -4.5;
-	LightTargetMesh7.position.y = -1;
-	LightTargetMesh7.position.z = 1;
-	
-	//setLight();
-	
+	LightTargetMesh7.position.x = -225;
+	LightTargetMesh7.position.y = -50;
+	LightTargetMesh7.position.z = 50;
+
+
+	setLight();
 	//// 여까지
 	
 }
 
+
+
+function setLight() {
+
+            var light = new THREE.AmbientLight(0xaccde0, 0.1);
+	        scene.add(light);
+            /////////////////////////////////////
+            //////////////// 2층 ////////////////
+            /////////////////////////////////////
+            var light_2Froom = new THREE.PointLight(0xffffff, 1, 150);
+	        light_2Froom.position.set(305, 110, 30);
+            //light_2Froom.castShadow = true;
+	        scene.add(light_2Froom);    // 2층 방 조명
+
+
+                var light_2FroomBold = new THREE.SpotLight( 0xfff36c, 1, 100, 0.5, 0.4, 0.4 );
+                light_2FroomBold.position.set( 305, 150, 55 );
+		        //light_2FroomBold.castShadow = true;
+                light_2FroomBold.target = LightTargetMesh;
+	            scene.add(light_2FroomBold);    // 2층 방 강조 조명
+                
+
+                var light_2Fhallway = new THREE.SpotLight(0xffffff, 0.6, 400, 0.2, 0.3, 0.4);
+                light_2Fhallway.position.set(245, 175, -250);
+                light_2Fhallway.target = LightTargetMesh2;
+                //light_2Fhallway.castShadow = true;
+                scene.add(light_2Fhallway); // 2층 복도 조명
+                
+
+                var light_2Fsquarelamp = new THREE.PointLight(0xffffff, 0.7, 150);
+                light_2Fsquarelamp.position.set(245, 150, -150);
+                //light_2Fsquarelamp.castShadow = true;
+                scene.add(light_2Fsquarelamp);  // 2층 복도끝 조명
+                
+
+                var light_2FsquarelampBold = new THREE.SpotLight(0xffff9c, 1, 250, 0.4, 0.1, 0.8);
+                light_2FsquarelampBold.position.set(245, 150, -150);
+                light_2FsquarelampBold.target = LightTargetMesh3;
+                //light_2FsquarelampBold.castShadow = true;
+                scene.add(light_2FsquarelampBold);  // 2층 복도끝 강조 조명
+                
+
+                var light_2Fstairs01 = new THREE.PointLight(0xffffff, 0.7, 200);
+                light_2Fstairs01.position.set(145, 150, -5);
+                //light_2Fstairs01.castShadow = true;
+                scene.add(light_2Fstairs01); // 2층 계단 조명 오른쪽
+                
+
+                var light_2Fstairs01Bold = new THREE.SpotLight(0xffffff, 0.6, 250, 2, 0.1, 1.2);
+                light_2Fstairs01Bold.position.set(140, 150, -5);
+                light_2Fstairs01Bold.target = LightTargetMesh5;
+                //light_2Fstairs01Bold.castShadow = true;
+                scene.add(light_2Fstairs01Bold);    // 2층 계단 강조 조명 오른쪽
+                
+
+                var light_2Fstairs02 = new THREE.PointLight(0xffffff, 0.7, 200);
+                light_2Fstairs02.position.set(145, 150, -75);
+                //light_2Fstairs02.castShadow = true;
+                scene.add(light_2Fstairs02);    // 2층 계단 조명 왼쪽
+                
+
+                var light_2Fstairs02Bold = new THREE.SpotLight(0xffffff, 0.6, 250, 2, 0.1, 1.2);
+                light_2Fstairs02Bold.position.set(140, 150, -75);
+                light_2Fstairs02Bold.target = LightTargetMesh4;
+                //light_2Fstairs02Bold.castShadow = true;
+                scene.add(light_2Fstairs02Bold);    //2층 계단 강조 조명 왼쪽
+                
+
+
+                var light_2Fstairs1F = new THREE.PointLight(0xffffff, 0.7, 200);
+                light_2Fstairs1F.position.set(190, 50, -15);
+                //light_2Fstairs1F.castShadow = true;
+                scene.add(light_2Fstairs1F);    // 2층 계단 1층 조명
+                
+                /////////////////////////////////////
+                //////////////// 1층 ////////////////
+                /////////////////////////////////////
+
+                var light_1Fhallway = new THREE.SpotLight(0xffffff, 1.3, 400, 1, 0.5, 0.4);
+                light_1Fhallway.position.set(145, 60, 50);
+                light_1Fhallway.target = LightTargetMesh7;
+                light_1Fhallway.castShadow = true;
+                scene.add(light_1Fhallway);     // 1층 복도 강조 조명
+                
+
+                var light_1Fkitchen = new THREE.PointLight(0xffffff, 1, 200);
+	            light_1Fkitchen.position.set(-140, 50, -105);
+                light_1Fkitchen.castShadow = true;
+	            scene.add(light_1Fkitchen);     // 1층 부엌 조명
+	            
+
+                var light_1FkitchenBold = new THREE.SpotLight( 0xffffff, 1, 150, 0.6, 0.4, 0.4 );
+                light_1FkitchenBold.position.set(-140, 100, -60);
+                light_1FkitchenBold.target = LightTargetMesh6;
+                light_1FkitchenBold.castShadow = true;
+                scene.add(light_1FkitchenBold);     // 1층 부엌 강조 조명
+                
+                /////////////////////////////////////
+                /////////////////////////////////////
+                /////////////////////////////////////
+
+                help_2Froom = new THREE.PointLightHelper(light_2Froom, 5);
+	            scene.add(help_2Froom);
+                
+                help_2FroomBold = new THREE.SpotLightHelper( light_2FroomBold );
+                scene.add( help_2FroomBold );
+
+                help_2Fhallway = new THREE.SpotLightHelper(light_2Fhallway);
+                scene.add(help_2Fhallway);
+
+                help_2Fsquarelamp = new THREE.PointLightHelper(light_2Fsquarelamp, 5);
+                scene.add(help_2Fsquarelamp);
+
+            	help_2FsquarelampBold = new THREE.SpotLightHelper(light_2FsquarelampBold);
+                scene.add(help_2FsquarelampBold);
+
+                help_2Fstairs01 = new THREE.PointLightHelper(light_2Fstairs01, 5);
+                scene.add(help_2Fstairs01);
+
+                help_2Fstairs01Bold = new THREE.SpotLightHelper(light_2Fstairs01Bold);
+                scene.add(help_2Fstairs01Bold);
+
+                help_2Fstairs02 = new THREE.PointLightHelper(light_2Fstairs02, 5);
+                scene.add(help_2Fstairs02);
+
+                help_2Fstairs02Bold = new THREE.SpotLightHelper(light_2Fstairs02Bold);
+                scene.add(help_2Fstairs02Bold);
+
+                help_2Fstairs1F = new THREE.PointLightHelper(light_2Fstairs1F, 5);
+                scene.add(help_2Fstairs1F);
+
+                help_1Fhallway = new THREE.SpotLightHelper(light_1Fhallway);
+                scene.add(help_1Fhallway);
+
+                help_1Fkitchen = new THREE.PointLightHelper(light_1Fkitchen, 5);
+	            scene.add(help_1Fkitchen);
+
+                help_1FkitchenBold = new THREE.SpotLightHelper( light_1FkitchenBold );
+	            scene.add(help_1FkitchenBold);
+	
+	
+}
+
+
+
 function viewMap(){
-	scene.add(map_Elements["map"].scene);
+	map_Elements["map"].scene.visible = true;
 	
 	// 충돌판정을 안보이게 하고 해당 판정을 맵에 추가
 	map_Elements["hitbox"].scene.visible = false;
@@ -421,6 +447,22 @@ function animate(){
 	update();
 	render();
 	requestAnimationFrame(animate);
+	
+	///////// 테스트용 나중에 지워도 됌 /////////
+	help_2Froom.update();
+	help_2FroomBold.update();
+	help_2Fhallway.update();
+	help_2Fsquarelamp.update();
+	help_2FsquarelampBold.update();
+	help_2Fstairs01.update();
+	help_2Fstairs01Bold.update();
+	help_2Fstairs02.update();
+	help_2Fstairs02Bold.update();
+	help_2Fstairs1F.update();
+	help_1Fhallway.update();
+	help_1Fkitchen.update();
+	help_1FkitchenBold.update();
+	//////////////////////////////////////////
 	
 }
 function update(){
@@ -674,146 +716,6 @@ function playerPoseChangeCheck(player_status){
 	}
 }
 
-/*
-function playerPoseChangeCheck(player_1_status, player_2_status){
-
-	if(player_1_status.objStatus.isMoving == true){
-		
-		
-		if(playerUIObj["girl"].isPoseChangedStatus == false){
-			console.log("player_1_isMoving....");
-			
-			
-			scene.remove(playerUIObj["girl"].gltf_nowView.scene); 
-			
-			playerUIObj["girl"].isPoseChangedStatus = true;
-
-			playerUIObj["girl"].gltf_nowView_animMixer = playerUIObj["girl"].gltf_run_animMixer;
-			playerUIObj["girl"].gltf_nowView = playerUIObj["girl"].gltf_run;
-
-			if(player_1_status.objStatus.isCWalking == true){
-				playerUIObj["girl"].gltf_nowView_animMixer = playerUIObj["girl"].gltf_cwalk_animMixer;
-				playerUIObj["girl"].gltf_nowView = playerUIObj["girl"].gltf_cwalk;
-			}else if(player_1_status.objStatus.isPushing == true){
-				playerUIObj["girl"].gltf_nowView_animMixer = playerUIObj["girl"].gltf_push_animMixer;
-				playerUIObj["girl"].gltf_nowView = playerUIObj["girl"].gltf_push;
-			}
-			
-			
-			scene.add(playerUIObj["girl"].gltf_nowView.scene); 
-			
-		}
-	}else{
-		
-		
-		if(playerUIObj["girl"].isPoseChangedStatus == true){
-			
-			console.log("player_1_isStop....");
-			
-			
-			playerUIObj["girl"].isPoseChangedStatus = false;
-			scene.remove(playerUIObj["girl"].gltf_nowView.scene); 
-			playerUIObj["girl"].gltf_nowView_animMixer = playerUIObj["girl"].gltf_idle_animMixer;
-			playerUIObj["girl"].gltf_nowView = playerUIObj["girl"].gltf_idle;
-			scene.add(playerUIObj["girl"].gltf_nowView.scene);
-		}
-		
-	}
-	
-	
-	
-	if(player_2_status.objStatus.isMoving == true){
-		if(playerUIObj["boy"].isPoseChangedStatus == false){	
-			console.log("player_2_isMoving....");
-		
-			
-			scene.remove(playerUIObj["boy"].gltf_nowView.scene); 
-			
-			playerUIObj["boy"].isPoseChangedStatus = true;
-			playerUIObj["boy"].gltf_nowView_animMixer = playerUIObj["boy"].gltf_run_animMixer;
-			playerUIObj["boy"].gltf_nowView = playerUIObj["boy"].gltf_run;
-
-			if(player_2_status.objStatus.isCWalking == true){
-				playerUIObj["boy"].gltf_nowView_animMixer = playerUIObj["boy"].gltf_cwalk_animMixer;
-				playerUIObj["boy"].gltf_nowView = playerUIObj["boy"].gltf_cwalk;
-			}else if(player_2_status.objStatus.isPushing == true){
-				playerUIObj["boy"].gltf_nowView_animMixer = playerUIObj["boy"].gltf_push_animMixer;
-				playerUIObj["boy"].gltf_nowView = playerUIObj["boy"].gltf_push;
-			}
-			
-			
-			scene.add(playerUIObj["boy"].gltf_nowView.scene); 
-		}	
-	}else{
-		
-		
-		
-		if(playerUIObj["boy"].isPoseChangedStatus == true){	
-			console.log("player_2_isStop....");
-			playerUIObj["boy"].isPoseChangedStatus = false;
-			scene.remove(playerUIObj["boy"].gltf_nowView.scene); 
-			playerUIObj["boy"].gltf_nowView_animMixer = playerUIObj["boy"].gltf_idle_animMixer;
-			playerUIObj["boy"].gltf_nowView = playerUIObj["boy"].gltf_idle;
-			scene.add(playerUIObj["boy"].gltf_nowView.scene);
-		}		
-	}
-	
-	
-	
-}
-
-*/
-
-/*
-var updateUI = function(objStatuses){
-	var player_1_status = objStatuses[0];
-	var player_2_status = objStatuses[1];
-	
-	
-	
-	
-	
-	
-	// player_1 회전각 업데이트
-	playerUIObj["girl"].gltf_nowView.scene.rotation.x = player_1_status.objStatus.r_x;
-	playerUIObj["girl"].gltf_nowView.scene.rotation.y = player_1_status.objStatus.r_y;
-	playerUIObj["girl"].gltf_nowView.scene.rotation.z = player_1_status.objStatus.r_z;
-	
-	// player_1 위치 업데이트
-	playerUIObj["girl"].gltf_nowView.scene.position.x = player_1_status.objStatus.x;
-	playerUIObj["girl"].gltf_nowView.scene.position.y = player_1_status.objStatus.y;
-	playerUIObj["girl"].gltf_nowView.scene.position.z = player_1_status.objStatus.z;
-	
-	// player_1 hitbox 위치 업데이트
-	playerUIObj["girl"].hitbox.position.x = player_1_status.objStatus.x;
-	playerUIObj["girl"].hitbox.position.y = player_1_status.objStatus.y + HITBOX_DEFAULT_HEIGHT;
-	playerUIObj["girl"].hitbox.position.z = player_1_status.objStatus.z;
-	
-	
-	
-	
-
-	
-	// player_2 회전각 업데이트
-	playerUIObj["boy"].gltf_nowView.scene.rotation.x = player_2_status.objStatus.r_x;
-	playerUIObj["boy"].gltf_nowView.scene.rotation.y = player_2_status.objStatus.r_y;
-	playerUIObj["boy"].gltf_nowView.scene.rotation.z = player_2_status.objStatus.r_z;
-	
-	// player_2 위치 업데이트
-	playerUIObj["boy"].gltf_nowView.scene.position.x = player_2_status.objStatus.x;
-	playerUIObj["boy"].gltf_nowView.scene.position.y = player_2_status.objStatus.y;
-	playerUIObj["boy"].gltf_nowView.scene.position.z = player_2_status.objStatus.z;
-	
-	
-	// player_2 hitbox 위치 업데이트
-	
-	playerUIObj["boy"].hitbox.position.x = player_2_status.objStatus.x;
-	playerUIObj["boy"].hitbox.position.y = player_2_status.objStatus.y + HITBOX_DEFAULT_HEIGHT;
-	playerUIObj["boy"].hitbox.position.z = player_2_status.objStatus.z;
-	
-}
-
-*/
 
 
 // 한쪽에서 Disconnect 되었을 때 처리하는 함수
@@ -879,7 +781,10 @@ function gltfload_Map() {
 		gltfObj.scene.position.z = 0;				    //Position (z = front +, back-)
 	
 		console.log("gltfLoader : Map Loaded.");
-		//scene.add( gltfObj.scene );	
+		
+		// 아래는 좌표 테스트 용으로 띄워 놓음. 
+		scene.add( gltfObj.scene );	
+		gltfObj.scene.visible = false; // 초기에는 안보이게
 	},
 	function ( xhr ) {
 
@@ -1239,3 +1144,5 @@ function gltfload_GirlAnimation(){
 	);
 	
 }
+
+

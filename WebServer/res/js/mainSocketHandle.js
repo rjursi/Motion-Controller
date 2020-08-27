@@ -17,7 +17,7 @@ io_ui.on('connect', function(){
 			
 			info_element.style.display = "none";
 			init();
-			// render();
+			
 			animate();
 			
 		}else{
