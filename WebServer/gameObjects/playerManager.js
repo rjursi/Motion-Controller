@@ -145,7 +145,7 @@ playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joys
 			move_x = 0;
 			move_z = 0;
 
-		
+			
 		
 			seeDirection = player.objStatus.seeDirection; // 마지막으로 초기화 한 값 반환
 			player.objStatus.isMoving = false;
@@ -155,7 +155,9 @@ playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joys
 			seeDirection = 0;
 			move_x = 0;
 			move_z = player.speed;
-
+			
+			player.objStatus.movingDirection_x = 1;
+			player.objStatus.movingDirection_z = 1;
 			
 			break;
 
@@ -163,7 +165,10 @@ playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joys
 			seeDirection = angle;
 			move_x = player.speed;
 			move_z = player.speed;
-
+			
+			
+			player.objStatus.movingDirection_x = 1;
+			player.objStatus.movingDirection_z = 1;
 
 			break;
 
@@ -171,7 +176,9 @@ playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joys
 			seeDirection = angle * 2;
 			move_x = player.speed;
 			move_z = 0;
-
+			
+			player.objStatus.movingDirection_x = 1;
+			player.objStatus.movingDirection_z = 1;
 
 			break;
 
@@ -180,7 +187,8 @@ playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joys
 			move_x = player.speed;
 			move_z = -player.speed;
 
-		
+			player.objStatus.movingDirection_x = 1;
+			player.objStatus.movingDirection_z = -1;
 			
 			break;
 
@@ -189,7 +197,9 @@ playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joys
 			move_x = 0;
 			move_z = -player.speed;
 
-		
+			player.objStatus.movingDirection_x = 1;
+			player.objStatus.movingDirection_z = -1;
+			
 			break;
 
 		case 10.5:
@@ -197,6 +207,8 @@ playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joys
 			move_x = -player.speed;
 			move_z = -player.speed;
 		
+			player.objStatus.movingDirection_x = -1;
+			player.objStatus.movingDirection_z = -1;
 
 
 			break;
@@ -206,7 +218,8 @@ playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joys
 			move_x = -player.speed;
 			move_z = 0;
 			
-			
+			player.objStatus.movingDirection_x = -1;
+			player.objStatus.movingDirection_z = 1;
 
 
 			break;
@@ -218,7 +231,9 @@ playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joys
 			move_x = -player.speed;
 			move_z = player.speed;
 
-
+			
+			player.objStatus.movingDirection_x = -1;
+			player.objStatus.movingDirection_z = 1;
 			
 			
 			break;

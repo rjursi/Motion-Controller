@@ -15,6 +15,9 @@ var scene, camera, renderer, light, clock, anim_mixer, orbControls;
 let forFindMesh;
 
 var collision_datas = [];
+var stairHitbox_right_mesh_array = [];
+var stairHitbox_left_mesh_array = [];
+
 var ambLight, directionalLight;
 // 오브젝트 로드를 위한 gltf loader 객체 변수 설정
 var gltfLoader, dracoLoader;
@@ -119,9 +122,12 @@ function init(){
 	
 	scene.add(forFindMesh);
 	
+	
+	// 아래는 계단 충돌 메쉬 설정
+	setStairsHitbox();
+	
 	// 테스트용 메쉬
-	
-	
+
 	var targetGeometry = new THREE.BoxBufferGeometry( 5, 5, 50 );
 	var targetMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
 	var targetMaterial2 = new THREE.MeshBasicMaterial({ color: 0x00ff60 });
@@ -178,6 +184,30 @@ function init(){
 	
 }
 
+function setStairsHitbox(){
+	var stairHitbox_right_box = new THREE.BoxBufferGeometry(57,52,30);
+	var stairHitbox_right_geometry = new THREE.MeshBasicMaterial({color : 0x000000});
+	var stairHitbox_right_mesh = new THREE.Mesh(stairHitbox_right_box, stairHitbox_right_geometry);
+	
+	stairHitbox_right_mesh.position.x = 191;
+	stairHitbox_right_mesh.position.y = 65.5;
+	stairHitbox_right_mesh.position.z = -89.5;
+	stairHitbox_right_mesh.visible = false;
+	console.info(stairHitbox_right_mesh);
+	stairHitbox_right_mesh_array.push(stairHitbox_right_mesh);
+	
+	var stairHitbox_left_box = new THREE.BoxBufferGeometry(27,58,70);
+	var stairHitbox_left_geometry = new THREE.MeshBasicMaterial({color : 0x000000});
+	var stairHitbox_left_mesh = new THREE.Mesh(stairHitbox_left_box, stairHitbox_left_geometry);
+	
+	stairHitbox_left_mesh.position.x = 150.5;
+	stairHitbox_left_mesh.position.y = 30.5;
+	stairHitbox_left_mesh.position.z = -41.5;
+	stairHitbox_left_mesh.visible = false;
+	stairHitbox_left_mesh_array.push(stairHitbox_left_mesh);
+	scene.add(stairHitbox_right_mesh);
+	scene.add(stairHitbox_left_mesh);
+}
 
 
 function setLight() {
@@ -352,6 +382,8 @@ function character_obj_init(){
 		now_position_y : 0,
 		now_position_z : 0,
 		
+		now_movingDirection_x : 1,
+		now_movingDirection_z : 1,
 		
 		pre_position_x : 0,
 		pre_position_y : 0,
@@ -384,6 +416,10 @@ function character_obj_init(){
 		now_position_y : 0,
 		now_position_z : 0,
 		
+		
+		now_movingDirection_x : 1,
+		now_movingDirection_z : 1,
+		
 		pre_position_x : 0,
 		pre_position_y : 0,
 		pre_position_z : 0,
@@ -412,14 +448,22 @@ function updatePlayerStatus(updatedPlayerData){
 	
 	playerPoseChangeCheck(updatedPlayerData);
 	
+	
+	
+	
 	if(forUpdatePlayerObj.isCanMove == true){
 		// 이전 위치 값 백업
 	
-		
+		// 현재 계단 위치에 진입을 했는지 체크
+		stair_check();
 		
 		forUpdatePlayerObj.now_position_x += updatedPlayerData.objStatus.move_x;
 		forUpdatePlayerObj.now_position_z += updatedPlayerData.objStatus.move_z;
 
+		
+		forUpdatePlayerObj.now_movingDirection_x = updatedPlayerData.objStatus.movingDirection_x;
+		forUpdatePlayerObj.now_movingDirection_z = updatedPlayerData.objStatus.movingDirection_z;
+		// console.info(`now_movingDirection_x : ${forUpdatePlayerObj.now_movingDirection_x}, ${forUpdatePlayerObj.now_movingDirection_z}`)
 		
 		forUpdatePlayerObj.gltf_nowView.scene.position.x = forUpdatePlayerObj.now_position_x;
 		forUpdatePlayerObj.gltf_nowView.scene.position.y = forUpdatePlayerObj.now_position_y;
@@ -435,6 +479,7 @@ function updatePlayerStatus(updatedPlayerData){
 		
 	}
 	
+	// 맵 벽 충돌 체크
 	collision_check();
 	
 	
@@ -501,7 +546,90 @@ function makeCollisionVertices(){
 */
 
 
-function collision_check(){
+async function stair_check(){
+	
+	for(var index in playerCollisionObjs){
+		
+		var gltf_key;
+		if(index == 0){
+			gltf_key = "girl";
+		}else if(index == 1){
+			gltf_key = "boy";
+		}
+		
+		var playerCollisionObj = playerCollisionObjs[index];
+		//console.log("playerCollisionObj : " + playerCollisionObj);
+		var originPoint = playerCollisionObj.position.clone();
+		
+		
+		// 오른쪽 계단
+		for (var vertexIndex = 0; vertexIndex <	playerCollisionObj.geometry.vertices.length; vertexIndex++)
+		{		
+
+
+			var localVertex =  playerCollisionObj.geometry.vertices[vertexIndex].clone();
+			var globalVertex = localVertex.applyMatrix4(   playerCollisionObj.matrix );
+			var directionVector = globalVertex.sub(   playerCollisionObj.position );
+
+			var ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
+			var collisionResults = ray.intersectObjects( stairHitbox_right_mesh_array );
+			if ( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()){
+				console.info(`after hit : ${playerUIObj[gltf_key].now_movingDirection_x}, ${playerUIObj[gltf_key].now_movingDirection_z}`);
+				if(playerUIObj[gltf_key].now_movingDirection_x === 1){
+					
+					playerUIObj[gltf_key].now_position_y += 0.1;
+					
+					console.info("player UP.....")
+				}else if(playerUIObj[gltf_key].now_movingDirection_x === -1){
+					
+					playerUIObj[gltf_key].now_position_y -= 0.1;
+					console.info("player Down.....")
+				}
+			
+				playerUIObj[gltf_key].gltf_nowView.scene.position.y = playerUIObj[gltf_key].now_position_y;
+				playerUIObj[gltf_key].hitbox.position.y = playerUIObj[gltf_key].now_position_y;
+			}
+		}
+		
+		
+		// 왼쪽 계단
+		for (var vertexIndex = 0; vertexIndex <	playerCollisionObj.geometry.vertices.length; vertexIndex++)
+		{		
+
+
+			var localVertex =  playerCollisionObj.geometry.vertices[vertexIndex].clone();
+			var globalVertex = localVertex.applyMatrix4(   playerCollisionObj.matrix );
+			var directionVector = globalVertex.sub(   playerCollisionObj.position );
+
+			var ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
+			var collisionResults = ray.intersectObjects( stairHitbox_left_mesh_array );
+			if ( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()){
+				
+				if(playerUIObj[gltf_key].now_movingDirection_z === 1){
+					
+					playerUIObj[gltf_key].now_position_y += 0.1;
+					
+					console.info("player UP.....")
+				}else if(playerUIObj[gltf_key].now_movingDirection_z === -1){
+					
+					playerUIObj[gltf_key].now_position_y -= 0.1;
+					
+					console.info("player Down.....")
+				}
+				
+				playerUIObj[gltf_key].gltf_nowView.scene.position.y = playerUIObj[gltf_key].now_position_y;
+				playerUIObj[gltf_key].hitbox.position.y = playerUIObj[gltf_key].now_position_y;
+			
+			}
+		}
+		
+	}
+	
+}
+
+//맵 충돌 체크 함수
+
+async function collision_check(){
 	
 	
 	for(var index in playerCollisionObjs){
@@ -766,7 +894,7 @@ function gltf_Load(){
 	
 }
 
-function gltfload_Map() {
+async function gltfload_Map() {
 	
 	const map = SERVER_URL + MODELINGDATA_PATH + "map_texture.glb";
 	
@@ -801,7 +929,7 @@ function gltfload_Map() {
 	
 }
 
-function gltfload_Map_Collision(){
+async function gltfload_Map_Collision(){
 	
 	const map_collision = SERVER_URL + MODELINGDATA_PATH + "collision.glb";
 
@@ -848,7 +976,7 @@ function gltfload_Map_Collision(){
 	
 }
 
-function gltfload_ManAnimation(){
+async function gltfload_ManAnimation(){
 	
 	
 	const boy_run = SERVER_URL + MODELINGDATA_PATH + BOY_MODEL_PATH + "boy_run.glb";
@@ -1004,7 +1132,7 @@ function gltfload_ManAnimation(){
 
 
 
-function gltfload_GirlAnimation(){
+async function gltfload_GirlAnimation(){
 	
 	const girl_run = SERVER_URL + MODELINGDATA_PATH + GIRL_MODEL_PATH + "girl_run.glb";
 	const girl_idle = SERVER_URL + MODELINGDATA_PATH + GIRL_MODEL_PATH + "girl_idle.glb";
