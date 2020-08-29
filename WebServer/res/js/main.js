@@ -29,10 +29,12 @@ var playerUIObj = {};
 var playerCollisionObjs = [];
 
 // 맵 관련 오브젝트가 들어갈 예정
-var map_Elements = {};;
+var map_Elements = {};
 
 // 맵 내 움직일 수 있는 오브젝트가 들어갈 배열
 var map_objects = {};
+
+var arr_interactBoxList = [];
 
 // 위 형식은 일반 배열이 아닌 딕셔너리, 아래와 같이 인덱스 문자열과 함께 삽입 하면 됨
 /*
@@ -184,18 +186,31 @@ function init(){
 	
 }
 
+// 비동기 상호작용 처리 함수
+
+
+	
+	
 function setStairsHitbox(){
 	
 	// 오른쪽 계단
-	var stairHitbox_right_box = new THREE.BoxGeometry(5,15,29);
+	var stairHitbox_right_box = new THREE.BoxGeometry(5,15,28);
 	var stairHitbox_right_geometry = new THREE.MeshStandardMaterial({color : 0x000000});
 	
+	var stairHitbox_right_mesh_0 = new THREE.Mesh(stairHitbox_right_box, stairHitbox_right_geometry);
 	
+	stairHitbox_right_mesh_0.name = "stair_right_0";
+	stairHitbox_right_mesh_0.position.x = 218;
+	stairHitbox_right_mesh_0.position.y = 77;
+	stairHitbox_right_mesh_0.position.z = -91;
+	stairHitbox_right_mesh_0.visible = false;
 	
+	stairHitbox_right_mesh_array.push(stairHitbox_right_mesh_0);
+	scene.add(stairHitbox_right_mesh_0);
 	
 	var stairHitbox_right_mesh_1 = new THREE.Mesh(stairHitbox_right_box, stairHitbox_right_geometry);
 	
-	stairHitbox_right_mesh_1.name = "stair_right_first";
+	stairHitbox_right_mesh_1.name = "stair_right_1";
 	stairHitbox_right_mesh_1.position.x = 210;
 	stairHitbox_right_mesh_1.position.y = 74;
 	stairHitbox_right_mesh_1.position.z = -91;
@@ -205,6 +220,9 @@ function setStairsHitbox(){
 	scene.add(stairHitbox_right_mesh_1);
 	var stairHitbox_right_mesh_2 = new THREE.Mesh(stairHitbox_right_box, stairHitbox_right_geometry);
 	
+	
+	
+	stairHitbox_right_mesh_2.name = "stair_right_2";
 	stairHitbox_right_mesh_2.position.x = 202.5;
 	stairHitbox_right_mesh_2.position.y = 69;
 	stairHitbox_right_mesh_2.position.z = -91;
@@ -214,6 +232,7 @@ function setStairsHitbox(){
 	scene.add(stairHitbox_right_mesh_2);
 	var stairHitbox_right_mesh_3 = new THREE.Mesh(stairHitbox_right_box, stairHitbox_right_geometry);
 	
+	stairHitbox_right_mesh_3.name = "stair_right_3";
 	stairHitbox_right_mesh_3.position.x = 194.5;
 	stairHitbox_right_mesh_3.position.y = 64;
 	stairHitbox_right_mesh_3.position.z = -91;
@@ -224,6 +243,8 @@ function setStairsHitbox(){
 	
 	var stairHitbox_right_mesh_4 = new THREE.Mesh(stairHitbox_right_box, stairHitbox_right_geometry);
 	
+	
+	stairHitbox_right_mesh_4.name = "stair_right_4";
 	stairHitbox_right_mesh_4.position.x = 186.5;
 	stairHitbox_right_mesh_4.position.y = 59;
 	stairHitbox_right_mesh_4.position.z = -91;
@@ -234,6 +255,8 @@ function setStairsHitbox(){
 	
 	var stairHitbox_right_mesh_5 = new THREE.Mesh(stairHitbox_right_box, stairHitbox_right_geometry);
 	
+	
+	stairHitbox_right_mesh_5.name = "stair_right_5";
 	stairHitbox_right_mesh_5.position.x = 179.5;
 	stairHitbox_right_mesh_5.position.y = 54.5;
 	stairHitbox_right_mesh_5.position.z = -91;
@@ -243,6 +266,8 @@ function setStairsHitbox(){
 	scene.add(stairHitbox_right_mesh_5);
 	var stairHitbox_right_mesh_6 = new THREE.Mesh(stairHitbox_right_box, stairHitbox_right_geometry);
 	
+	
+	stairHitbox_right_mesh_6.name = "stair_right_6";
 	stairHitbox_right_mesh_6.position.x = 171;
 	stairHitbox_right_mesh_6.position.y = 49.5;
 	stairHitbox_right_mesh_6.position.z = -91;
@@ -252,8 +277,8 @@ function setStairsHitbox(){
 	scene.add(stairHitbox_right_mesh_6);
 	var stairHitbox_right_mesh_7 = new THREE.Mesh(stairHitbox_right_box, stairHitbox_right_geometry);
 	
-	
-	stairHitbox_right_mesh_7.name = "stair_right_last";
+	stairHitbox_right_mesh_7.name = "stair_right_7";
+
 	stairHitbox_right_mesh_7.position.x = 163.5;
 	stairHitbox_right_mesh_7.position.y = 45.5;
 	stairHitbox_right_mesh_7.position.z = -91;
@@ -263,27 +288,45 @@ function setStairsHitbox(){
 	scene.add(stairHitbox_right_mesh_7);
 	
 	
+	var stairHitbox_right_mesh_8 = new THREE.Mesh(stairHitbox_right_box, stairHitbox_right_geometry);
 	
+	stairHitbox_right_mesh_8.name = "stair_right_8";
+
+	stairHitbox_right_mesh_8.position.x = 157.5;
+	stairHitbox_right_mesh_8.position.y = 41.5;
+	stairHitbox_right_mesh_8.position.z = -91;
+	stairHitbox_right_mesh_8.visible = false;
+	
+	stairHitbox_right_mesh_array.push(stairHitbox_right_mesh_8);
+	scene.add(stairHitbox_right_mesh_8);
 	
 	
 	// 왼쪽 계단
-	var stairHitbox_left_box = new THREE.BoxGeometry(20,15,5);
+	
+	
+	var stairHitbox_left_box = new THREE.BoxGeometry(28,20,5);
 	var stairHitbox_left_geometry = new THREE.MeshStandardMaterial({color : 0x000000});
 
 	
 	var stairHitbox_left_mesh_1 = new THREE.Mesh(stairHitbox_left_box, stairHitbox_left_geometry);
 	
-	stairHitbox_left_mesh_1.name = "stair_left_first";
+	
+	stairHitbox_left_mesh_1.name = "stair_left_1";
+
 	stairHitbox_left_mesh_1.position.x = 152;
-	stairHitbox_left_mesh_1.position.y = 40;
+	stairHitbox_left_mesh_1.position.y = 41.5;
 	stairHitbox_left_mesh_1.position.z = -71;
 	stairHitbox_left_mesh_1.visible = false;
 	stairHitbox_left_mesh_array.push(stairHitbox_left_mesh_1);
 	
 	scene.add(stairHitbox_left_mesh_1);
 	
+	
+	
 	var stairHitbox_left_mesh_2 = new THREE.Mesh(stairHitbox_left_box, stairHitbox_left_geometry);
 	
+	
+	stairHitbox_left_mesh_2.name = "stair_left_2";
 	stairHitbox_left_mesh_2.position.x = 152;
 	stairHitbox_left_mesh_2.position.y = 35;
 	stairHitbox_left_mesh_2.position.z = -63.5;
@@ -294,6 +337,8 @@ function setStairsHitbox(){
 	
 	var stairHitbox_left_mesh_3 = new THREE.Mesh(stairHitbox_left_box, stairHitbox_left_geometry);
 	
+	
+	stairHitbox_left_mesh_3.name = "stair_left_3";
 	stairHitbox_left_mesh_3.position.x = 152;
 	stairHitbox_left_mesh_3.position.y = 30.5;
 	stairHitbox_left_mesh_3.position.z = -56.5;
@@ -304,6 +349,8 @@ function setStairsHitbox(){
 	
 	var stairHitbox_left_mesh_4 = new THREE.Mesh(stairHitbox_left_box, stairHitbox_left_geometry);
 	
+	
+	stairHitbox_left_mesh_4.name = "stair_left_4";
 	stairHitbox_left_mesh_4.position.x = 152;
 	stairHitbox_left_mesh_4.position.y = 25.5;
 	stairHitbox_left_mesh_4.position.z = -49;
@@ -314,6 +361,8 @@ function setStairsHitbox(){
 	
 	var stairHitbox_left_mesh_5 = new THREE.Mesh(stairHitbox_left_box, stairHitbox_left_geometry);
 	
+	
+	stairHitbox_left_mesh_5.name = "stair_left_5";
 	stairHitbox_left_mesh_5.position.x = 152;
 	stairHitbox_left_mesh_5.position.y = 21;
 	stairHitbox_left_mesh_5.position.z = -41.5;
@@ -324,6 +373,8 @@ function setStairsHitbox(){
 	
 	var stairHitbox_left_mesh_6 = new THREE.Mesh(stairHitbox_left_box, stairHitbox_left_geometry);
 	
+	
+	stairHitbox_left_mesh_6.name = "stair_left_6";
 	stairHitbox_left_mesh_6.position.x = 152;
 	stairHitbox_left_mesh_6.position.y = 16;
 	stairHitbox_left_mesh_6.position.z = -33;
@@ -334,6 +385,8 @@ function setStairsHitbox(){
 	
 	var stairHitbox_left_mesh_7 = new THREE.Mesh(stairHitbox_left_box, stairHitbox_left_geometry);
 	
+	
+	stairHitbox_left_mesh_7.name = "stair_left_7";
 	stairHitbox_left_mesh_7.position.x = 152;
 	stairHitbox_left_mesh_7.position.y = 11.5;
 	stairHitbox_left_mesh_7.position.z = -25.5;
@@ -344,14 +397,27 @@ function setStairsHitbox(){
 	
 	var stairHitbox_left_mesh_8 = new THREE.Mesh(stairHitbox_left_box, stairHitbox_left_geometry);
 	
-	stairHitbox_left_mesh_8.name = "stair_left_last";
+	
+	
+	stairHitbox_left_mesh_8.name = "stair_left_8";
 	stairHitbox_left_mesh_8.position.x = 152;
 	stairHitbox_left_mesh_8.position.y = 6.5;
-	stairHitbox_left_mesh_8.position.z = -13;
+	stairHitbox_left_mesh_8.position.z = -17.5;
 	stairHitbox_left_mesh_8.visible = false;
 	stairHitbox_left_mesh_array.push(stairHitbox_left_mesh_8);
 	
 	scene.add(stairHitbox_left_mesh_8);
+	
+	var stairHitbox_left_mesh_9 = new THREE.Mesh(stairHitbox_left_box, stairHitbox_left_geometry);
+	
+	stairHitbox_left_mesh_9.name = "stair_left_9";
+	stairHitbox_left_mesh_9.position.x = 152;
+	stairHitbox_left_mesh_9.position.y = -2;
+	stairHitbox_left_mesh_9.position.z = -9;
+	stairHitbox_left_mesh_9.visible = false;
+	stairHitbox_left_mesh_array.push(stairHitbox_left_mesh_9);
+	
+	scene.add(stairHitbox_left_mesh_9);
 }
 
 
@@ -601,6 +667,7 @@ function updatePlayerStatus(updatedPlayerData){
 	
 		// 현재 계단 위치에 진입을 했는지 체크
 		stair_check();
+		useInteraction();
 		
 		forUpdatePlayerObj.now_position_x += updatedPlayerData.objStatus.move_x;
 		forUpdatePlayerObj.now_position_z += updatedPlayerData.objStatus.move_z;
@@ -690,7 +757,51 @@ function makeCollisionVertices(){
 }
 */
 
+async function useInteraction(){
+	
+	// Player 1, 2 마다 반복문으로 모두 처리
+	for(var index in playerCollisionObjs){
+		
+		var gltf_key;
+		if(index == 0){
+			gltf_key = "girl";
+		}else if(index == 1){
+			gltf_key = "boy";
+		}
+		
+		var playerCollisionObj = playerCollisionObjs[index];
+		//console.log("playerCollisionObj : " + playerCollisionObj);
+		var originPoint = playerCollisionObj.position.clone();
+		
+		
+		// 오른쪽 계단
+		for (var vertexIndex = 0; vertexIndex <	playerCollisionObj.geometry.vertices.length; vertexIndex++)
+		{		
 
+
+			var localVertex =  playerCollisionObj.geometry.vertices[vertexIndex].clone();
+			var globalVertex = localVertex.applyMatrix4(   playerCollisionObj.matrix );
+			var directionVector = globalVertex.sub(   playerCollisionObj.position );
+
+			var ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
+			// arr_interactBoxList : 상호작용 처리할, 즉 부딛힐 박스의 목록
+			// 해당 배열에다가 부딛힐 Mesh 들 추가하면 됨, 전역변수로 넣어둠
+			
+			var collisionResults = ray.intersectObjects( arr_interactBoxList );
+			
+			if ( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()){
+			
+				// collisionResults[0] : 맨 마지막으로 부딛히는 Mesh를 가르킴, 해당 Mesh 에 접근할려면 collisionResults[0].object 로 접근
+				// ex) collisionResults[0].object.position.x = 10;
+				
+				// 여기다 부딛혔을때 할 원하는 작업 하면 됨
+				
+			}
+		}
+	}
+}
+	
+	
 async function stair_check(){
 	
 	for(var index in playerCollisionObjs){
@@ -722,24 +833,12 @@ async function stair_check(){
 			if ( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()){
 				console.info("stair Hit!!");
 				console.info(`after hit : ${playerUIObj[gltf_key].now_movingDirection_x}, ${playerUIObj[gltf_key].now_movingDirection_z}`);
-				if(playerUIObj[gltf_key].now_movingDirection_x === 1){
-					
-					playerUIObj[gltf_key].now_position_y += 0.175; 
-					if(collisionResults[0].object.name === "stair_right_first"){
-						playerUIObj[gltf_key].now_position_y = 77;
-					}
-					console.info("player UP.....")
-				}else if(playerUIObj[gltf_key].now_movingDirection_x === -1){
-					
-					playerUIObj[gltf_key].now_position_y -= 0.175;
-					if(collisionResults[0].object.name === "stair_right_last"){
-						playerUIObj[gltf_key].now_position_y = 42;
-					}
-					console.info("player Down.....")
-				}
-			
+				
+				playerUIObj[gltf_key].now_position_y = collisionResults[0].object.position.y;
 				playerUIObj[gltf_key].gltf_nowView.scene.position.y = playerUIObj[gltf_key].now_position_y;
 				playerUIObj[gltf_key].hitbox.position.y = playerUIObj[gltf_key].now_position_y;
+				
+				
 			}
 		}
 		
@@ -757,22 +856,9 @@ async function stair_check(){
 			var collisionResults = ray.intersectObjects( stairHitbox_left_mesh_array );
 			if ( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()){
 				console.info("stair Hit!!");
-				if(playerUIObj[gltf_key].now_movingDirection_z === 1){
-					
-					playerUIObj[gltf_key].now_position_y -= 0.165;
-					if(collisionResults[0].object.name === "stair_left_last"){
-						playerUIObj[gltf_key].now_position_y = -4.5;
-					}
-					console.info("player Down.....")
-				}else if(playerUIObj[gltf_key].now_movingDirection_z === -1){
-					
-					playerUIObj[gltf_key].now_position_y += 0.165;
-					if(collisionResults[0].object.name === "stair_left_first"){
-						playerUIObj[gltf_key].now_position_y = 42;
-					}
-					console.info("player Up.....")
-				}
 				
+				
+				playerUIObj[gltf_key].now_position_y = collisionResults[0].object.position.y;
 				playerUIObj[gltf_key].gltf_nowView.scene.position.y = playerUIObj[gltf_key].now_position_y;
 				playerUIObj[gltf_key].hitbox.position.y = playerUIObj[gltf_key].now_position_y;
 			
