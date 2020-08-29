@@ -603,7 +603,10 @@ function character_obj_init(){
 		hitbox : undefined,
 		
 		isPoseChangedStatus : false,
-		isCanMove : true
+		isCanMove : true,
+		
+		// 상호작용중이냐?
+		isTryInteraction : false
 		
 	};
 	
@@ -639,7 +642,9 @@ function character_obj_init(){
 	    hitbox : undefined,
 		
 		isPoseChangedStatus : false,
-		isCanMove : true
+		isCanMove : true,
+		// 상호작용중이냐?
+		isTryInteraction : false
 	}
 	
 	playerUIObj["view_status"] = false;
@@ -664,7 +669,8 @@ function updatePlayerStatus(updatedPlayerData){
 	
 	if(forUpdatePlayerObj.isCanMove == true){
 		// 이전 위치 값 백업
-	
+		
+		forUpdatePlayerObj.isTryInteraction = updatedPlayerData.objStatus.tryInteraction;
 		// 현재 계단 위치에 진입을 했는지 체크
 		stair_check();
 		useInteraction();
@@ -791,6 +797,11 @@ async function useInteraction(){
 			
 			if ( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()){
 			
+				// 플레이어가 상호작용을 시도했다면
+				if(playerUIObj[gltf_key].isTryInteraction === true){
+					
+				}
+				
 				// collisionResults[0] : 맨 마지막으로 부딛히는 Mesh를 가르킴, 해당 Mesh 에 접근할려면 collisionResults[0].object 로 접근
 				// ex) collisionResults[0].object.position.x = 10;
 				

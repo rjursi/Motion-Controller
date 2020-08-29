@@ -36,7 +36,7 @@ function playerManager(id, position){
 	this.objStatus.move_x = 0;
 	this.objStatus.move_z = 0;
 	
-	
+	this.objStatus.tryInteraction = false;
 	this.objStatus.movingDirection_x = 1;
 	this.objStatus.movingDirection_y = 1;
 	this.objStatus.movingDirection_z = 1;
@@ -150,7 +150,16 @@ playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joys
 			seeDirection = player.objStatus.seeDirection; // 마지막으로 초기화 한 값 반환
 			player.objStatus.isMoving = false;
 			break;
-
+		case 0.5:
+			
+			
+			move_x = 0;
+			move_z = 0;
+			player.objStatus.tryInteraction = true;
+			seeDirection = player.objStatus.seeDirection; // 마지막으로 초기화 한 값 반환
+			player.objStatus.isMoving = false;
+			break;
+			
 		case 6:
 			seeDirection = 0;
 			move_x = 0;
@@ -158,7 +167,7 @@ playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joys
 			
 			player.objStatus.movingDirection_x = 1;
 			player.objStatus.movingDirection_z = 1;
-			
+			player.objStatus.tryInteraction = false;
 			break;
 
 		case 4.5:
@@ -169,7 +178,7 @@ playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joys
 			
 			player.objStatus.movingDirection_x = 1;
 			player.objStatus.movingDirection_z = 1;
-
+			player.objStatus.tryInteraction = false;
 			break;
 
 		case 3:
@@ -179,7 +188,7 @@ playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joys
 			
 			player.objStatus.movingDirection_x = 1;
 			player.objStatus.movingDirection_z = 1;
-
+			player.objStatus.tryInteraction = false;
 			break;
 
 		case 1.5:
@@ -189,7 +198,7 @@ playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joys
 
 			player.objStatus.movingDirection_x = 1;
 			player.objStatus.movingDirection_z = -1;
-			
+			player.objStatus.tryInteraction = false;
 			break;
 
 		case 12:
@@ -199,7 +208,7 @@ playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joys
 
 			player.objStatus.movingDirection_x = 1;
 			player.objStatus.movingDirection_z = -1;
-			
+			player.objStatus.tryInteraction = false;
 			break;
 
 		case 10.5:
@@ -209,7 +218,7 @@ playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joys
 		
 			player.objStatus.movingDirection_x = -1;
 			player.objStatus.movingDirection_z = -1;
-
+			player.objStatus.tryInteraction = false;
 
 			break;
 
@@ -220,7 +229,7 @@ playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joys
 			
 			player.objStatus.movingDirection_x = -1;
 			player.objStatus.movingDirection_z = 1;
-
+			player.objStatus.tryInteraction = false;
 
 			break;
 
@@ -234,7 +243,7 @@ playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joys
 			
 			player.objStatus.movingDirection_x = -1;
 			player.objStatus.movingDirection_z = 1;
-			
+			player.objStatus.tryInteraction = false;
 			
 			break;
 
