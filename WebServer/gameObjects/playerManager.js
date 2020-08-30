@@ -253,7 +253,7 @@ playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joys
 
 	}
 
-	console.info("Moving Status : " + player.objStatus.isMoving);
+	// console.info("Moving Status : " + player.objStatus.isMoving);
 
 	player.objStatus.move_x = move_x;
 	player.objStatus.move_z = move_z;

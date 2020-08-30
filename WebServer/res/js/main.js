@@ -594,6 +594,10 @@ function character_obj_init(){
 		now_position_z : 0,
 		
 		
+		pre_position_x : 0,
+		
+		pre_position_z : 0,
+		
 		move_x : 0,
 		move_z : 0,
 		
@@ -630,6 +634,10 @@ function character_obj_init(){
 		now_position_x : 0,
 		now_position_y : 0,
 		now_position_z : 0,
+		
+		pre_position_x : 0,
+		
+		pre_position_z : 0,
 		
 		move_x : 0,
 		move_z : 0,
@@ -914,46 +922,32 @@ async function collision_check(){
 
 				console.log("hit");
 				
-				
-				
-				
-				if(playerUIObj[gltf_key].now_movingDirection_x !== 0){
-					playerUIObj[gltf_key].now_position_x += (playerUIObj[gltf_key].move_x * -1);
-				}
-				
-				//playerUIObj[gltf_key].now_position_y = playerUIObj[gltf_key].pre_position_y;
-				
-				if(playerUIObj[gltf_key].now_movingDirection_z !== 0){
-					playerUIObj[gltf_key].now_position_z += (playerUIObj[gltf_key].move_z * -1);
-				}
-				
+			
+				playerUIObj[gltf_key].now_position_x = playerUIObj[gltf_key].pre_position_x;
+				playerUIObj[gltf_key].now_position_z = playerUIObj[gltf_key].pre_position_z;
 				
 				playerUIObj[gltf_key].gltf_nowView.scene.position.x = playerUIObj[gltf_key].now_position_x;
-				//playerUIObj[gltf_key].gltf_nowView.scene.position.y = playerUIObj[gltf_key].pre_position_y;
 				playerUIObj[gltf_key].gltf_nowView.scene.position.z = playerUIObj[gltf_key].now_position_z;
 				
 				playerUIObj[gltf_key].hitbox.position.x = playerUIObj[gltf_key].now_position_x;
-				//playerUIObj[gltf_key].hitbox.position.y = playerUIObj[gltf_key].pre_position_y + HITBOX_DEFAULT_HEIGHT;
 				playerUIObj[gltf_key].hitbox.position.z = playerUIObj[gltf_key].now_position_z;
 				
 				
-				
-				
-				
-				
-			}
-			/*
-			else{
-				
-				
-				playerUIObj[gltf_key].pre_position_x = playerUIObj[gltf_key].gltf_nowView.scene.position.x;
-				//playerUIObj[gltf_key].pre_position_y = playerUIObj[gltf_key].gltf_nowView.scene.position.y;
-				playerUIObj[gltf_key].pre_position_z = playerUIObj[gltf_key].gltf_nowView.scene.position.z;
-				
-
-			}
-			*/
 			
+			}else{
+				
+				// 부딛히지 않으면 바라보는 방향의 뒷 방향으로 복귀 위치를 저장
+				if(playerUIObj[gltf_key].now_movingDirection_x !== 0){
+					playerUIObj[gltf_key].pre_position_x = playerUIObj[gltf_key].now_position_x + ((playerUIObj[gltf_key].move_x * 1.5 ) * -1);
+				}if(playerUIObj[gltf_key].now_movingDirection_z !== 0){
+					playerUIObj[gltf_key].pre_position_z = playerUIObj[gltf_key].now_position_z + ((playerUIObj[gltf_key].move_z * 1.5 ) * -1);
+				}
+				
+				
+				
+			}
+		
+	
 		}	
 	}
 }
@@ -1020,6 +1014,10 @@ var createPlayer = function(initPlayerObjArr){
 		
 		playerUIObj[nowPlayerKey].gltf_nowView_animMixer = playerUIObj[nowPlayerKey].gltf_idle_animMixer;
 		
+		playerUIObj[nowPlayerKey].gltf_nowView.animations.forEach((clip) => {
+			playerUIObj[nowPlayerKey].gltf_nowView_animMixer.clipAction(clip).play();
+		}); // 멈춤
+			
 		
 		// 현재 눈에 보이는 gltf 모델의 위치를 수정
 		playerUIObj[nowPlayerKey].now_position_x = initPlayerObjArr[i].objStatus.x;
@@ -1083,6 +1081,9 @@ function playerPoseChangeCheck(player_status){
 				selectedPlayerObj.gltf_nowView = selectedPlayerObj.gltf_push;
 			}
 			
+			selectedPlayerObj.gltf_nowView.animations.forEach((clip) => {
+				selectedPlayerObj.gltf_nowView_animMixer.clipAction(clip).play();
+			}); // 선텍된 애니메이션 플레이
 			
 			scene.add(selectedPlayerObj.gltf_nowView.scene); 
 			
@@ -1098,10 +1099,19 @@ function playerPoseChangeCheck(player_status){
 			
 			selectedPlayerObj.isPoseChangedStatus = false;
 			
+			selectedPlayerObj.gltf_nowView.animations.forEach((clip) => {
+				selectedPlayerObj.gltf_nowView_animMixer.clipAction(clip).stop();
+			}); // 멈춤
+			
+			
 			scene.remove(selectedPlayerObj.gltf_nowView.scene); 
 			
 			selectedPlayerObj.gltf_nowView_animMixer = selectedPlayerObj.gltf_idle_animMixer;
 			selectedPlayerObj.gltf_nowView = selectedPlayerObj.gltf_idle;
+			
+			selectedPlayerObj.gltf_nowView.animations.forEach((clip) => {
+				selectedPlayerObj.gltf_nowView_animMixer.clipAction(clip).play();
+			}); //
 			
 			scene.add(selectedPlayerObj.gltf_nowView.scene);
 		}
@@ -1261,10 +1271,11 @@ async function gltfload_ManAnimation(){
 		playerUIObj["boy"].gltf_run_animMixer = new THREE.AnimationMixer(playerUIObj["boy"].gltf_run.scene);
 		
 		
-		
+		/*
 		playerUIObj["boy"].gltf_run.animations.forEach((clip) => {
 			playerUIObj["boy"].gltf_run_animMixer.clipAction(clip).play();
 		}); // 애니메이션 실행시켜놓음
+		*/
 		
 		
 		
@@ -1297,11 +1308,11 @@ async function gltfload_ManAnimation(){
 		playerUIObj["boy"].gltf_idle_animMixer = new THREE.AnimationMixer(playerUIObj["boy"].gltf_idle.scene);
 		
 		
-		
+		/*
 		playerUIObj["boy"].gltf_idle.animations.forEach((clip) => {
 			playerUIObj["boy"].gltf_idle_animMixer.clipAction(clip).play();
 		}); // 애니메이션 실행시켜놓음
-		
+		*/
 		
 		
 		
@@ -1337,9 +1348,11 @@ async function gltfload_ManAnimation(){
 		
 		
 		
+		/*
 		playerUIObj["boy"].gltf_cwalk.animations.forEach((clip) => {
 			playerUIObj["boy"].gltf_cwalk_animMixer.clipAction(clip).play();
 		}); // 애니메이션 실행시켜놓음
+		*/
 		
 		
 	
@@ -1374,11 +1387,11 @@ async function gltfload_ManAnimation(){
 		playerUIObj["boy"].gltf_push_animMixer = new THREE.AnimationMixer(gltfObj.scene);
 		
 		
-		
+		/*
 		playerUIObj["boy"].gltf_push.animations.forEach((clip) => {
 			playerUIObj["boy"].gltf_push_animMixer.clipAction(clip).play();
 		}); // 애니메이션 실행시켜놓음
-		
+		*/
 		
 		//scene.add( gltfObj.scene );	
 		
@@ -1418,11 +1431,11 @@ async function gltfload_GirlAnimation(){
 		playerUIObj["girl"].gltf_run_animMixer = new THREE.AnimationMixer(playerUIObj["girl"].gltf_run.scene);
 		
 		
-		
+		/*
 		playerUIObj["girl"].gltf_run.animations.forEach((clip) => {
 			playerUIObj["girl"].gltf_run_animMixer.clipAction(clip).play();
 		}); // 애니메이션 실행시켜놓음
-		
+		*/
 		
 	
 	},
@@ -1450,11 +1463,11 @@ async function gltfload_GirlAnimation(){
 		playerUIObj["girl"].gltf_idle_animMixer = new THREE.AnimationMixer(gltfObj.scene);
 		
 		
-		
+		/*
 		playerUIObj["girl"].gltf_idle.animations.forEach((clip) => {
 			playerUIObj["girl"].gltf_idle_animMixer.clipAction(clip).play();
 		}); // 애니메이션 실행시켜놓음
-	
+		*/
 		
 	
 	},
@@ -1484,10 +1497,11 @@ async function gltfload_GirlAnimation(){
 		playerUIObj["girl"].gltf_cwalk_animMixer = new THREE.AnimationMixer(gltfObj.scene);
 		
 		
-		
+		/*
 		playerUIObj["girl"].gltf_cwalk.animations.forEach((clip) => {
 			playerUIObj["girl"].gltf_cwalk_animMixer.clipAction(clip).play();
 		}); // 애니메이션 실행시켜놓음
+		*/
 		
 		
 		
@@ -1519,10 +1533,11 @@ async function gltfload_GirlAnimation(){
 		playerUIObj["girl"].gltf_push_animMixer = new THREE.AnimationMixer(gltfObj.scene);
 		
 		
-		
+		/*
 		playerUIObj["girl"].gltf_push.animations.forEach((clip) => {
 			playerUIObj["girl"].gltf_push_animMixer.clipAction(clip).play();
 		}); // 애니메이션 실행시켜놓음
+		*/
 		
 	
 	},
