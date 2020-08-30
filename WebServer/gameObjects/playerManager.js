@@ -37,9 +37,8 @@ function playerManager(id, position){
 	this.objStatus.move_z = 0;
 	
 	this.objStatus.tryInteraction = false;
-	this.objStatus.movingDirection_x = 1;
-	this.objStatus.movingDirection_y = 1;
-	this.objStatus.movingDirection_z = 1;
+	this.objStatus.movingDirection_x = 0;
+	this.objStatus.movingDirection_z = 0;
 	
 	
     this.objStatus.seeDirection = 0;
@@ -145,7 +144,8 @@ playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joys
 			move_x = 0;
 			move_z = 0;
 
-			
+			player.objStatus.movingDirection_x = 0;
+			player.objStatus.movingDirection_z = 0;
 		
 			seeDirection = player.objStatus.seeDirection; // 마지막으로 초기화 한 값 반환
 			player.objStatus.isMoving = false;
@@ -155,6 +155,10 @@ playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joys
 			
 			move_x = 0;
 			move_z = 0;
+			
+			player.objStatus.movingDirection_x = 0;
+			player.objStatus.movingDirection_z = 0;
+			
 			player.objStatus.tryInteraction = true;
 			seeDirection = player.objStatus.seeDirection; // 마지막으로 초기화 한 값 반환
 			player.objStatus.isMoving = false;

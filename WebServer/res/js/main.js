@@ -593,17 +593,18 @@ function character_obj_init(){
 		now_position_y : 0,
 		now_position_z : 0,
 		
-		now_movingDirection_x : 1,
-		now_movingDirection_z : 1,
 		
-		pre_position_x : 0,
-		pre_position_y : 0,
-		pre_position_z : 0,
+		move_x : 0,
+		move_z : 0,
 		
+		now_movingDirection_x : 0,
+		now_movingDirection_z : 0,
+		
+
 		hitbox : undefined,
 		
 		isPoseChangedStatus : false,
-		isCanMove : true,
+		
 		
 		// 상호작용중이냐?
 		isTryInteraction : false
@@ -630,19 +631,16 @@ function character_obj_init(){
 		now_position_y : 0,
 		now_position_z : 0,
 		
+		move_x : 0,
+		move_z : 0,
+		now_movingDirection_x : 0,
+		now_movingDirection_z : 0,
 		
-		now_movingDirection_x : 1,
-		now_movingDirection_z : 1,
-		
-		pre_position_x : 0,
-		pre_position_y : 0,
-		pre_position_z : 0,
-		
-		
+
 	    hitbox : undefined,
 		
 		isPoseChangedStatus : false,
-		isCanMove : true,
+		
 		// 상호작용중이냐?
 		isTryInteraction : false
 	}
@@ -664,41 +662,44 @@ function updatePlayerStatus(updatedPlayerData){
 	
 	playerPoseChangeCheck(updatedPlayerData);
 	
-	
-	
-	
-	if(forUpdatePlayerObj.isCanMove == true){
-		// 이전 위치 값 백업
-		
-		forUpdatePlayerObj.isTryInteraction = updatedPlayerData.objStatus.tryInteraction;
-		// 현재 계단 위치에 진입을 했는지 체크
-		stair_check();
-		useInteraction();
-		
-		forUpdatePlayerObj.now_position_x += updatedPlayerData.objStatus.move_x;
-		forUpdatePlayerObj.now_position_z += updatedPlayerData.objStatus.move_z;
 
-		
-		forUpdatePlayerObj.now_movingDirection_x = updatedPlayerData.objStatus.movingDirection_x;
-		forUpdatePlayerObj.now_movingDirection_z = updatedPlayerData.objStatus.movingDirection_z;
-		// console.info(`now_movingDirection_x : ${forUpdatePlayerObj.now_movingDirection_x}, ${forUpdatePlayerObj.now_movingDirection_z}`)
-		
-		forUpdatePlayerObj.gltf_nowView.scene.position.x = forUpdatePlayerObj.now_position_x;
-		forUpdatePlayerObj.gltf_nowView.scene.position.y = forUpdatePlayerObj.now_position_y;
-		forUpdatePlayerObj.gltf_nowView.scene.position.z = forUpdatePlayerObj.now_position_z;
-		
-		forUpdatePlayerObj.hitbox.position.x = forUpdatePlayerObj.now_position_x;
-		forUpdatePlayerObj.hitbox.position.y = forUpdatePlayerObj.now_position_y + HITBOX_DEFAULT_HEIGHT;
-		forUpdatePlayerObj.hitbox.position.z = forUpdatePlayerObj.now_position_z;
+	forUpdatePlayerObj.isTryInteraction = updatedPlayerData.objStatus.tryInteraction;
+	// 현재 계단 위치에 진입을 했는지 체크
+	
+	forUpdatePlayerObj.now_position_x += updatedPlayerData.objStatus.move_x;
+	forUpdatePlayerObj.now_position_z += updatedPlayerData.objStatus.move_z;
 
+	
+	forUpdatePlayerObj.move_x = updatedPlayerData.objStatus.move_x;
+	forUpdatePlayerObj.move_z = updatedPlayerData.objStatus.move_z;
+	
+	forUpdatePlayerObj.now_movingDirection_x = updatedPlayerData.objStatus.movingDirection_x;
+	forUpdatePlayerObj.now_movingDirection_z = updatedPlayerData.objStatus.movingDirection_z;
+	// console.info(`now_movingDirection_x : ${forUpdatePlayerObj.now_movingDirection_x}, ${forUpdatePlayerObj.now_movingDirection_z}`)
+
+	forUpdatePlayerObj.gltf_nowView.scene.position.x = forUpdatePlayerObj.now_position_x;
+	forUpdatePlayerObj.gltf_nowView.scene.position.y = forUpdatePlayerObj.now_position_y;
+	forUpdatePlayerObj.gltf_nowView.scene.position.z = forUpdatePlayerObj.now_position_z;
+
+	forUpdatePlayerObj.hitbox.position.x = forUpdatePlayerObj.now_position_x;
+	forUpdatePlayerObj.hitbox.position.y = forUpdatePlayerObj.now_position_y + HITBOX_DEFAULT_HEIGHT;
+	forUpdatePlayerObj.hitbox.position.z = forUpdatePlayerObj.now_position_z;
+
+
+	forUpdatePlayerObj.gltf_nowView.scene.rotation.y = updatedPlayerData.objStatus.seeDirection;
 		
-		forUpdatePlayerObj.gltf_nowView.scene.rotation.y = updatedPlayerData.objStatus.seeDirection;
 		
-		
-	}
 	
 	// 맵 벽 충돌 체크
 	collision_check();
+	
+	// 계단에 진입했는지 확인
+	stair_check();
+	
+	// 상호작용 시도했는지 확인
+	useInteraction();
+	
+	
 	
 	
 }
@@ -915,33 +916,44 @@ async function collision_check(){
 				
 				
 				
-				playerUIObj[gltf_key].isCanMove = false;
 				
-				playerUIObj[gltf_key].now_position_x = playerUIObj[gltf_key].pre_position_x;
-				playerUIObj[gltf_key].now_position_y = playerUIObj[gltf_key].pre_position_y;
-				playerUIObj[gltf_key].now_position_z = playerUIObj[gltf_key].pre_position_z;
+				if(playerUIObj[gltf_key].now_movingDirection_x !== 0){
+					playerUIObj[gltf_key].now_position_x += (playerUIObj[gltf_key].move_x * -1);
+				}
 				
-				playerUIObj[gltf_key].gltf_nowView.scene.position.x = playerUIObj[gltf_key].pre_position_x;
-				playerUIObj[gltf_key].gltf_nowView.scene.position.y = playerUIObj[gltf_key].pre_position_y;
-				playerUIObj[gltf_key].gltf_nowView.scene.position.z = playerUIObj[gltf_key].pre_position_z;
+				//playerUIObj[gltf_key].now_position_y = playerUIObj[gltf_key].pre_position_y;
 				
-				playerUIObj[gltf_key].hitbox.position.x = playerUIObj[gltf_key].pre_position_x;
-				playerUIObj[gltf_key].hitbox.position.y = playerUIObj[gltf_key].pre_position_y + HITBOX_DEFAULT_HEIGHT;
-				playerUIObj[gltf_key].hitbox.position.z = playerUIObj[gltf_key].pre_position_z;
+				if(playerUIObj[gltf_key].now_movingDirection_z !== 0){
+					playerUIObj[gltf_key].now_position_z += (playerUIObj[gltf_key].move_z * -1);
+				}
 				
 				
-				playerUIObj[gltf_key].isCanMove = true;
+				playerUIObj[gltf_key].gltf_nowView.scene.position.x = playerUIObj[gltf_key].now_position_x;
+				//playerUIObj[gltf_key].gltf_nowView.scene.position.y = playerUIObj[gltf_key].pre_position_y;
+				playerUIObj[gltf_key].gltf_nowView.scene.position.z = playerUIObj[gltf_key].now_position_z;
+				
+				playerUIObj[gltf_key].hitbox.position.x = playerUIObj[gltf_key].now_position_x;
+				//playerUIObj[gltf_key].hitbox.position.y = playerUIObj[gltf_key].pre_position_y + HITBOX_DEFAULT_HEIGHT;
+				playerUIObj[gltf_key].hitbox.position.z = playerUIObj[gltf_key].now_position_z;
 				
 				
 				
-			}else{
+				
+				
+				
+			}
+			/*
+			else{
+				
 				
 				playerUIObj[gltf_key].pre_position_x = playerUIObj[gltf_key].gltf_nowView.scene.position.x;
-				playerUIObj[gltf_key].pre_position_y = playerUIObj[gltf_key].gltf_nowView.scene.position.y;
+				//playerUIObj[gltf_key].pre_position_y = playerUIObj[gltf_key].gltf_nowView.scene.position.y;
 				playerUIObj[gltf_key].pre_position_z = playerUIObj[gltf_key].gltf_nowView.scene.position.z;
 				
 
 			}
+			*/
+			
 		}	
 	}
 }
@@ -1155,7 +1167,10 @@ async function gltfload_Map() {
 	gltfLoader.load(map, function(gltfObj){
 		
 		
+		
+		
 		map_Elements["map"] = gltfObj;
+		
 		gltfObj.scene.scale.set( 5, 5, 5 );			   
 		gltfObj.scene.position.x = 0;				    //Position (x = right+ left-) 
         gltfObj.scene.position.y = 0;				    //Position (y = up+, down-)
