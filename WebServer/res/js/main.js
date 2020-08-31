@@ -595,8 +595,9 @@ function character_obj_init(){
 		
 		
 		pre_position_x : 0,
-		
 		pre_position_z : 0,
+		
+		seeDirection : 0,
 		
 		move_x : 0,
 		move_z : 0,
@@ -604,7 +605,7 @@ function character_obj_init(){
 		now_movingDirection_x : 0,
 		now_movingDirection_z : 0,
 		
-
+		isMoving : false,
 		hitbox : undefined,
 		
 		isPoseChangedStatus : false,
@@ -636,14 +637,16 @@ function character_obj_init(){
 		now_position_z : 0,
 		
 		pre_position_x : 0,
-		
 		pre_position_z : 0,
+		
+		seeDirection : 0,
 		
 		move_x : 0,
 		move_z : 0,
+		
 		now_movingDirection_x : 0,
 		now_movingDirection_z : 0,
-		
+		isMoving : false,
 
 	    hitbox : undefined,
 		
@@ -656,6 +659,8 @@ function character_obj_init(){
 	playerUIObj["view_status"] = false;
 }
 
+
+// 이건 바로 함수 호출하자 마자 상태값만 업데이트 시키는 함수
 function updatePlayerStatus(updatedPlayerData){
 	
 	var forUpdatePlayerObj;
@@ -672,47 +677,118 @@ function updatePlayerStatus(updatedPlayerData){
 	
 
 	forUpdatePlayerObj.isTryInteraction = updatedPlayerData.objStatus.tryInteraction;
-	// 현재 계단 위치에 진입을 했는지 체크
 	
-	forUpdatePlayerObj.now_position_x += updatedPlayerData.objStatus.move_x;
-	forUpdatePlayerObj.now_position_z += updatedPlayerData.objStatus.move_z;
-
+	
+	forUpdatePlayerObj.seeDirection = updatedPlayerData.objStatus.seeDirection;
 	
 	forUpdatePlayerObj.move_x = updatedPlayerData.objStatus.move_x;
 	forUpdatePlayerObj.move_z = updatedPlayerData.objStatus.move_z;
+	forUpdatePlayerObj.isMoving = updatedPlayerData.objStatus.isMoving;
+	
 	
 	forUpdatePlayerObj.now_movingDirection_x = updatedPlayerData.objStatus.movingDirection_x;
 	forUpdatePlayerObj.now_movingDirection_z = updatedPlayerData.objStatus.movingDirection_z;
+	
+	
 	// console.info(`now_movingDirection_x : ${forUpdatePlayerObj.now_movingDirection_x}, ${forUpdatePlayerObj.now_movingDirection_z}`)
+	
+	// 부딛히지 않았다면
+	/*
+	if(collision_check() === false){
+	
+		forUpdatePlayerObj.now_position_x += updatedPlayerData.objStatus.move_x;
+		forUpdatePlayerObj.now_position_z += updatedPlayerData.objStatus.move_z;
 
-	forUpdatePlayerObj.gltf_nowView.scene.position.x = forUpdatePlayerObj.now_position_x;
-	forUpdatePlayerObj.gltf_nowView.scene.position.y = forUpdatePlayerObj.now_position_y;
-	forUpdatePlayerObj.gltf_nowView.scene.position.z = forUpdatePlayerObj.now_position_z;
 
-	forUpdatePlayerObj.hitbox.position.x = forUpdatePlayerObj.now_position_x;
-	forUpdatePlayerObj.hitbox.position.y = forUpdatePlayerObj.now_position_y + HITBOX_DEFAULT_HEIGHT;
-	forUpdatePlayerObj.hitbox.position.z = forUpdatePlayerObj.now_position_z;
+		forUpdatePlayerObj.move_x = updatedPlayerData.objStatus.move_x;
+		forUpdatePlayerObj.move_z = updatedPlayerData.objStatus.move_z;
+
+		forUpdatePlayerObj.now_movingDirection_x = updatedPlayerData.objStatus.movingDirection_x;
+		forUpdatePlayerObj.now_movingDirection_z = updatedPlayerData.objStatus.movingDirection_z;
+		// console.info(`now_movingDirection_x : ${forUpdatePlayerObj.now_movingDirection_x}, ${forUpdatePlayerObj.now_movingDirection_z}`)
+
+		forUpdatePlayerObj.gltf_nowView.scene.position.x = forUpdatePlayerObj.now_position_x;
+		forUpdatePlayerObj.gltf_nowView.scene.position.y = forUpdatePlayerObj.now_position_y;
+		forUpdatePlayerObj.gltf_nowView.scene.position.z = forUpdatePlayerObj.now_position_z;
+
+		forUpdatePlayerObj.hitbox.position.x = forUpdatePlayerObj.now_position_x;
+		forUpdatePlayerObj.hitbox.position.y = forUpdatePlayerObj.now_position_y + HITBOX_DEFAULT_HEIGHT;
+		forUpdatePlayerObj.hitbox.position.z = forUpdatePlayerObj.now_position_z;
 
 
-	forUpdatePlayerObj.gltf_nowView.scene.rotation.y = updatedPlayerData.objStatus.seeDirection;
+		forUpdatePlayerObj.gltf_nowView.scene.rotation.y = updatedPlayerData.objStatus.seeDirection;
 		
 		
-	
-	// 맵 벽 충돌 체크
-	collision_check();
-	
-	// 계단에 진입했는지 확인
-	stair_check();
-	
-	// 상호작용 시도했는지 확인
-	useInteraction();
-	
-	
-	
-	
+		// 계단에 진입했는지 확인
+		stair_check();
+
+		// 상호작용 시도했는지 확인
+		useInteraction();
+	}
+	*/
+
+
 }
 
 
+function realtimeUpdatePlayer(){
+	
+	let gltf_key;
+	let forUpdatePlayerObj;
+	
+	for(var index in playerCollisionObjs){
+		
+		let collision_result;
+		
+		if(index == 0){
+			gltf_key = "girl";
+		}else if(index == 1){
+			gltf_key = "boy";
+		}
+		
+		forUpdatePlayerObj = playerUIObj[gltf_key];
+		
+		collision_result = collision_check(gltf_key);
+		if(collision_result === false){
+			
+			forUpdatePlayerObj.pre_position_x = forUpdatePlayerObj.now_position_x;
+			forUpdatePlayerObj.pre_position_z = forUpdatePlayerObj.now_position_z;
+			
+			if(playerUIObj[gltf_key].isMoving){
+				
+				forUpdatePlayerObj.now_position_x += forUpdatePlayerObj.move_x;
+				forUpdatePlayerObj.now_position_z += forUpdatePlayerObj.move_z;
+				
+				forUpdatePlayerObj.gltf_nowView.scene.position.x = forUpdatePlayerObj.now_position_x;
+				forUpdatePlayerObj.gltf_nowView.scene.position.y = forUpdatePlayerObj.now_position_y;
+				forUpdatePlayerObj.gltf_nowView.scene.position.z = forUpdatePlayerObj.now_position_z;
+
+				forUpdatePlayerObj.hitbox.position.x = forUpdatePlayerObj.now_position_x;
+				forUpdatePlayerObj.hitbox.position.y = forUpdatePlayerObj.now_position_y + HITBOX_DEFAULT_HEIGHT;
+				forUpdatePlayerObj.hitbox.position.z = forUpdatePlayerObj.now_position_z;
+				
+				forUpdatePlayerObj.gltf_nowView.scene.rotation.y = forUpdatePlayerObj.seeDirection;
+			}
+		}
+		
+		else if(collision_result === true){
+			
+			forUpdatePlayerObj.now_position_x = forUpdatePlayerObj.pre_position_x;
+			forUpdatePlayerObj.now_position_z = forUpdatePlayerObj.pre_position_z;
+			
+			forUpdatePlayerObj.gltf_nowView.scene.position.x = forUpdatePlayerObj.now_position_x;
+			forUpdatePlayerObj.gltf_nowView.scene.position.y = forUpdatePlayerObj.now_position_y;
+			forUpdatePlayerObj.gltf_nowView.scene.position.z = forUpdatePlayerObj.now_position_z;
+
+			forUpdatePlayerObj.hitbox.position.x = forUpdatePlayerObj.now_position_x;
+			forUpdatePlayerObj.hitbox.position.y = forUpdatePlayerObj.now_position_y + HITBOX_DEFAULT_HEIGHT;
+			forUpdatePlayerObj.hitbox.position.z = forUpdatePlayerObj.now_position_z;
+
+			forUpdatePlayerObj.gltf_nowView.scene.rotation.y = forUpdatePlayerObj.seeDirection;
+		}	
+		
+	}
+}
 
 function animate(){
 	
@@ -746,6 +822,11 @@ function update(){
 		playerUIObj["girl"].gltf_nowView_animMixer.update(clockTime);
 		playerUIObj["boy"].gltf_nowView_animMixer.update(clockTime);
 		
+		
+		realtimeUpdatePlayer();
+		stair_check();
+		// useInteraction();
+		
 	}
 	
 	
@@ -772,7 +853,7 @@ function makeCollisionVertices(){
 }
 */
 
-async function useInteraction(){
+function useInteraction(){
 	
 	// Player 1, 2 마다 반복문으로 모두 처리
 	for(var index in playerCollisionObjs){
@@ -822,7 +903,7 @@ async function useInteraction(){
 }
 	
 	
-async function stair_check(){
+function stair_check(){
 	
 	for(var index in playerCollisionObjs){
 		
@@ -889,67 +970,52 @@ async function stair_check(){
 	
 }
 
-//맵 충돌 체크 함수
+//맵 충돌 체크 함수 // 캐릭터 마다 분리할 것
 
-async function collision_check(){
+function collision_check(gltf_key){
 	
+	let index;
 	
-	for(var index in playerCollisionObjs){
-		
-		var gltf_key;
-		if(index == 0){
-			gltf_key = "girl";
-		}else if(index == 1){
-			gltf_key = "boy";
-		}
-		
-		var playerCollisionObj = playerCollisionObjs[index];
-		//console.log("playerCollisionObj : " + playerCollisionObj);
-		var originPoint = playerCollisionObj.position.clone();
-	
-
-		for (var vertexIndex = 0; vertexIndex <	playerCollisionObj.geometry.vertices.length; vertexIndex++)
-		{		
-
-
-			var localVertex =  playerCollisionObj.geometry.vertices[vertexIndex].clone();
-			var globalVertex = localVertex.applyMatrix4(   playerCollisionObj.matrix );
-			var directionVector = globalVertex.sub(   playerCollisionObj.position );
-
-			var ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
-			var collisionResults = ray.intersectObjects( collision_datas );
-			if ( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()){
-
-				console.log("hit");
-				
-			
-				playerUIObj[gltf_key].now_position_x = playerUIObj[gltf_key].pre_position_x;
-				playerUIObj[gltf_key].now_position_z = playerUIObj[gltf_key].pre_position_z;
-				
-				playerUIObj[gltf_key].gltf_nowView.scene.position.x = playerUIObj[gltf_key].now_position_x;
-				playerUIObj[gltf_key].gltf_nowView.scene.position.z = playerUIObj[gltf_key].now_position_z;
-				
-				playerUIObj[gltf_key].hitbox.position.x = playerUIObj[gltf_key].now_position_x;
-				playerUIObj[gltf_key].hitbox.position.z = playerUIObj[gltf_key].now_position_z;
-				
-				
-			
-			}else{
-				
-				// 부딛히지 않으면 바라보는 방향의 뒷 방향으로 복귀 위치를 저장
-				if(playerUIObj[gltf_key].now_movingDirection_x !== 0){
-					playerUIObj[gltf_key].pre_position_x = playerUIObj[gltf_key].now_position_x + ((playerUIObj[gltf_key].move_x * 1.5 ) * -1);
-				}if(playerUIObj[gltf_key].now_movingDirection_z !== 0){
-					playerUIObj[gltf_key].pre_position_z = playerUIObj[gltf_key].now_position_z + ((playerUIObj[gltf_key].move_z * 1.5 ) * -1);
-				}
-				
-				
-				
-			}
-		
-	
-		}	
+	if(gltf_key === "girl"){
+		index = 0;
+	}else if(gltf_key === "boy"){
+		index = 1;
 	}
+		
+	var playerCollisionObj = playerCollisionObjs[index];
+	//console.log("playerCollisionObj : " + playerCollisionObj);
+	var originPoint = playerCollisionObj.position.clone();
+
+
+	for (var vertexIndex = 0; vertexIndex <	playerCollisionObj.geometry.vertices.length; vertexIndex++)
+	{		
+
+
+		var localVertex =  playerCollisionObj.geometry.vertices[vertexIndex].clone();
+		var globalVertex = localVertex.applyMatrix4(   playerCollisionObj.matrix );
+		var directionVector = globalVertex.sub(   playerCollisionObj.position );
+
+		var ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
+
+		// 여기에 부딛히는 여러개의 메쉬들이 들어감
+		var collisionResults = ray.intersectObjects( collision_datas );
+
+
+		if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()){
+
+			console.log("hit");
+
+			return true;
+
+	
+		}
+
+
+
+	}
+	
+	return false;
+	
 }
 
 

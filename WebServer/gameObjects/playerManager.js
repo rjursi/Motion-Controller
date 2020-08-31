@@ -43,7 +43,7 @@ function playerManager(id, position){
 	
     this.objStatus.seeDirection = 0;
    
-	
+
 	// hitbox 사이즈
 	
     this.objStatus.sizeX = 5;
@@ -51,7 +51,7 @@ function playerManager(id, position){
     this.objStatus.sizeZ = 5;
 	
 	// 플레이어가 움직이는 스피드
-    this.speed = 0.3;
+    this.speed = 1;
 	
 	// 플레이어가 돌아갈 때 스피드
     this.turnSpeed = 0.03;
