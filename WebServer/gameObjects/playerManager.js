@@ -13,19 +13,22 @@ function playerManager(id, position){
 	
 	switch(position){
 		case "LEFT":
-		// x,y,z 초기 축 위치
+			
+			/*
 			this.objStatus.x = 300;
 			this.objStatus.y = 77;
 			this.objStatus.z = 72;	
-			
+			*/
 			this.color = 0xffffff;
 			
 			break;
 			
 		case "RIGHT":
+			/*
 			this.objStatus.x = 320;
 			this.objStatus.y = 77;
 			this.objStatus.z = 72;	
+			*/
 			
 			this.color = 0x825fff;
 			break;

@@ -589,13 +589,13 @@ function character_obj_init(){
 		gltf_cwalk_animMixer : undefined,
 		
 		
-		now_position_x : 0,
-		now_position_y : 0,
-		now_position_z : 0,
+		now_position_x : 300,
+		now_position_y : 77,
+		now_position_z : 72,
 		
 		
-		pre_position_x : 0,
-		pre_position_z : 0,
+		pre_position_x : 300,
+		pre_position_z : 72,
 		
 		seeDirection : 0,
 		
@@ -632,12 +632,12 @@ function character_obj_init(){
 		gltf_cwalk_animMixer : undefined,
 		
 		
-		now_position_x : 0,
-		now_position_y : 0,
-		now_position_z : 0,
+		now_position_x : 320,
+		now_position_y : 77,
+		now_position_z : 72,
 		
-		pre_position_x : 0,
-		pre_position_z : 0,
+		pre_position_x : 320,
+		pre_position_z : 72,
 		
 		seeDirection : 0,
 		
@@ -654,7 +654,7 @@ function character_obj_init(){
 		
 		// 상호작용중이냐?
 		isTryInteraction : false
-	}
+	};
 	
 	playerUIObj["view_status"] = false;
 }
@@ -733,12 +733,13 @@ function updatePlayerStatus(updatedPlayerData){
 
 function realtimeUpdatePlayer(){
 	
-	let gltf_key;
-	let forUpdatePlayerObj;
+	
+	var gltf_key;
+	var forUpdatePlayerObj;
+	var collision_result;
 	
 	for(var index in playerCollisionObjs){
-		
-		let collision_result;
+	
 		
 		if(index == 0){
 			gltf_key = "girl";
@@ -749,29 +750,11 @@ function realtimeUpdatePlayer(){
 		forUpdatePlayerObj = playerUIObj[gltf_key];
 		
 		collision_result = collision_check(gltf_key);
-		if(collision_result === false){
-			
-			forUpdatePlayerObj.pre_position_x = forUpdatePlayerObj.now_position_x;
-			forUpdatePlayerObj.pre_position_z = forUpdatePlayerObj.now_position_z;
-			
-			if(playerUIObj[gltf_key].isMoving){
-				
-				forUpdatePlayerObj.now_position_x += forUpdatePlayerObj.move_x;
-				forUpdatePlayerObj.now_position_z += forUpdatePlayerObj.move_z;
-				
-				forUpdatePlayerObj.gltf_nowView.scene.position.x = forUpdatePlayerObj.now_position_x;
-				forUpdatePlayerObj.gltf_nowView.scene.position.y = forUpdatePlayerObj.now_position_y;
-				forUpdatePlayerObj.gltf_nowView.scene.position.z = forUpdatePlayerObj.now_position_z;
-
-				forUpdatePlayerObj.hitbox.position.x = forUpdatePlayerObj.now_position_x;
-				forUpdatePlayerObj.hitbox.position.y = forUpdatePlayerObj.now_position_y + HITBOX_DEFAULT_HEIGHT;
-				forUpdatePlayerObj.hitbox.position.z = forUpdatePlayerObj.now_position_z;
-				
-				forUpdatePlayerObj.gltf_nowView.scene.rotation.y = forUpdatePlayerObj.seeDirection;
-			}
-		}
 		
-		else if(collision_result === true){
+		
+		console.info(collision_result);
+		
+		if(collision_result === true){
 			
 			forUpdatePlayerObj.now_position_x = forUpdatePlayerObj.pre_position_x;
 			forUpdatePlayerObj.now_position_z = forUpdatePlayerObj.pre_position_z;
@@ -786,6 +769,27 @@ function realtimeUpdatePlayer(){
 
 			forUpdatePlayerObj.gltf_nowView.scene.rotation.y = forUpdatePlayerObj.seeDirection;
 		}	
+		
+		else if(collision_result === false){
+			
+			forUpdatePlayerObj.pre_position_x = forUpdatePlayerObj.now_position_x;
+			forUpdatePlayerObj.pre_position_z = forUpdatePlayerObj.now_position_z;
+			
+			
+			forUpdatePlayerObj.now_position_x += forUpdatePlayerObj.move_x;
+			forUpdatePlayerObj.now_position_z += forUpdatePlayerObj.move_z;
+
+			forUpdatePlayerObj.gltf_nowView.scene.position.x = forUpdatePlayerObj.now_position_x;
+			forUpdatePlayerObj.gltf_nowView.scene.position.y = forUpdatePlayerObj.now_position_y;
+			forUpdatePlayerObj.gltf_nowView.scene.position.z = forUpdatePlayerObj.now_position_z;
+
+			forUpdatePlayerObj.hitbox.position.x = forUpdatePlayerObj.now_position_x;
+			forUpdatePlayerObj.hitbox.position.y = forUpdatePlayerObj.now_position_y + HITBOX_DEFAULT_HEIGHT;
+			forUpdatePlayerObj.hitbox.position.z = forUpdatePlayerObj.now_position_z;
+
+			forUpdatePlayerObj.gltf_nowView.scene.rotation.y = forUpdatePlayerObj.seeDirection;
+			
+		}
 		
 	}
 }
@@ -815,8 +819,11 @@ function animate(){
 }
 function update(){
 	
+	
+	
 	// 플레이어 UI 객체가 보이는 상태이면
-	if(playerUIObj["view_status"]){
+	if(playerUIObj["view_status"] === true){
+		console.info("update Running...");
 		
 		let clockTime = clock.getDelta();
 		playerUIObj["girl"].gltf_nowView_animMixer.update(clockTime);
@@ -914,6 +921,9 @@ function stair_check(){
 			gltf_key = "boy";
 		}
 		
+		
+		
+		
 		var playerCollisionObj = playerCollisionObjs[index];
 		//console.log("playerCollisionObj : " + playerCollisionObj);
 		var originPoint = playerCollisionObj.position.clone();
@@ -976,14 +986,17 @@ function collision_check(gltf_key){
 	
 	let index;
 	
-	if(gltf_key === "girl"){
+	if(gltf_key == "girl"){
 		index = 0;
-	}else if(gltf_key === "boy"){
+	}else if(gltf_key == "boy"){
 		index = 1;
 	}
 		
+	
+	console.info(`${gltf_key}, ${index}`);
+	
 	var playerCollisionObj = playerCollisionObjs[index];
-	//console.log("playerCollisionObj : " + playerCollisionObj);
+	console.info("playerCollisionObj : " + playerCollisionObj);
 	var originPoint = playerCollisionObj.position.clone();
 
 
@@ -1068,9 +1081,9 @@ var createPlayer = function(initPlayerObjArr){
 		
 		
 		// 각 플레이어의 정보를 가지고 player_obj 객체를 생성
-		player_Obj.position.x = initPlayerObjArr[i].objStatus.x;
-		player_Obj.position.y = initPlayerObjArr[i].objStatus.y + HITBOX_DEFAULT_HEIGHT;
-		player_Obj.position.z = initPlayerObjArr[i].objStatus.z;
+		player_Obj.position.x = playerUIObj[nowPlayerKey].now_position_x;
+		player_Obj.position.y = playerUIObj[nowPlayerKey].now_position_y + HITBOX_DEFAULT_HEIGHT;
+		player_Obj.position.z = playerUIObj[nowPlayerKey].now_position_z;
 		
 		
 		playerUIObj[nowPlayerKey].playerId = initPlayerObjArr[i].playerId;
@@ -1086,10 +1099,13 @@ var createPlayer = function(initPlayerObjArr){
 			
 		
 		// 현재 눈에 보이는 gltf 모델의 위치를 수정
+		/*
 		playerUIObj[nowPlayerKey].now_position_x = initPlayerObjArr[i].objStatus.x;
 		playerUIObj[nowPlayerKey].now_position_y = initPlayerObjArr[i].objStatus.y;
 		playerUIObj[nowPlayerKey].now_position_z = initPlayerObjArr[i].objStatus.z;
 
+		*/
+		
 
 		playerUIObj[nowPlayerKey].gltf_nowView.scene.position.x = playerUIObj[nowPlayerKey].now_position_x;
 		playerUIObj[nowPlayerKey].gltf_nowView.scene.position.y = playerUIObj[nowPlayerKey].now_position_y;
@@ -1103,6 +1119,9 @@ var createPlayer = function(initPlayerObjArr){
 		playerCollisionObjs.push(playerUIObj[nowPlayerKey].hitbox);
 		console.info(nowPlayerKey + " : gltfObj View");
 		scene.add(playerUIObj[nowPlayerKey].gltf_nowView.scene); // 현재 설정된 gltf view 추가
+		
+		console.info(playerUIObj[nowPlayerKey].gltf_nowView.scene.position);
+		console.info(playerUIObj[nowPlayerKey].hitbox.position);
 		
 	}
 	

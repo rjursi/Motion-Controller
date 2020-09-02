@@ -14,9 +14,11 @@ function BaseObject() {
   this.objStatus.isPushing = false;
   
   // 공통 오브젝트 위치 값
+	/*
   this.objStatus.x = 0;
   this.objStatus.y = 0;
   this.objStatus.z = 0;
+	*/
 	
 	
   // 공통 오브젝트 회전각 값
