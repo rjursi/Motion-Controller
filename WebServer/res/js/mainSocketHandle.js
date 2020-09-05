@@ -55,6 +55,10 @@ var create_QR = function(){
 	QR_code_element = document.createElement('div');
 	QR_code_element.id = "QR_code";
 	
+	QRData_element = document.createElement('h3');
+	QRData_element.innerHTML = "QR 데이터 : " + url;
+	
+	
 	download_pageElement = document.createElement('div');
 	wantApk_title = document.createElement('h1');
 	wantApk_title.innerHTML = "아직 어플리케이션을 다운받지 않으셨나요?";
@@ -69,6 +73,7 @@ var create_QR = function(){
 	document.body.appendChild(info_element);
 	document.getElementById("app_info").appendChild(title_element);
 	document.getElementById("app_info").appendChild(QR_code_element);
+	document.getElementById("app_info").appendChild(QRData_element);
 	document.getElementById("app_info").appendChild(wantApk_title);
 	document.getElementById("app_info").appendChild(downloadPageLink);
 	

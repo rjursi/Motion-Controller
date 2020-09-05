@@ -11,7 +11,7 @@ function RoomManager(io){
 	
   RmMg.rooms = {}; // rooms 딕셔너리 아래 roomid와 그에 맞는 room 객체가 들어감
   RmMg.roomIndex = {}; // 플레이어 별 초대 코드가 들어가 있는 딕셔너리
-
+  RmMg.roomSockets = {}; // 방별 소켓이 들어갈 공간
 	
   // 하나의 방을 만드는 메소드
   RmMg.create = function(playerSock, inviteCode){
@@ -27,9 +27,14 @@ function RoomManager(io){
 	  
 	// 플레이어가 생성이 될 때마다 지정한 초대 코드에 대한 플레이어의 소켓을 저장을 해 둠  
 	RmMg.inviteCodeSockDict[roomId] = playerSock;
+	
 
+	RmMg.roomIndex[playerSock.id] = roomId;  
 	// 해당 룸에 들어갔다는 신호를 보냄
-	 
+	  
+	RmMg.roomSockets[playerSock.id] = [playerSock];
+	  
+	console.info(RmMg.roomSockets[playerSock.id]);
     console.log("Room Created :", roomId);
 
   };
@@ -50,6 +55,8 @@ function RoomManager(io){
 	  players.push(player1Sock_web); 
 	  players.push(player2Sock_web);
 	  
+	  
+	  
 	  var room = new Room(joinRoomId, player1Sock_web, player2Sock_web);
 	  
 	  // room 목록중에 하나로 다음 room 객체를 넣음
@@ -59,7 +66,10 @@ function RoomManager(io){
       RmMg.roomIndex[player1Sock_web.id] = joinRoomId;
       RmMg.roomIndex[player2Sock_web.id] = joinRoomId;
 	  
+	  RmMg.roomSockets[player1Sock_web.id].push(player2Sock_web);
+	  RmMg.roomSockets[player2Sock_web.id].push(player1Sock_web);
 	  
+	  console.info(RmMg.roomSockets[player2Sock_web.id]);
 	  // UI 상에다가 플레이어를 만들어달라고 신호를 보냄
 	  var initPlayerObjArr = [];
 	  
@@ -74,35 +84,55 @@ function RoomManager(io){
   }
   
   RmMg.returnRoomSockets = function(onePlayerSock_id){
+	  
+	  /*
 	  var roomId = RmMg.roomIndex[onePlayerSock_id];
       var room = RmMg.rooms[roomId];
 	  
 	  
 	  return room.players;
+	  */
+	  
+	  var roomSockets = RmMg.roomSockets[onePlayerSock_id];
+	  console.info("roomSockets : " + roomSockets);
+	  
+	  return roomSockets;
+	  
 	  
 	  
   }
   
   
-  RmMg.destroy = function(playerSock, LbMg){
+  RmMg.destroy = function(playerSockId, LbMg){
 	 
-	var roomId = RmMg.roomIndex[playerSock.id];
+	
+	var roomId = RmMg.roomIndex[playerSockId];
+	  
+	console.info(roomId); 
+	
+	/*
     var room = RmMg.rooms[roomId];
+	*/
 	  
 	  
+	var roomSockets = RmMg.returnRoomSockets(playerSockId);  
+	console.info(RmMg.roomSockets[playerSockId]);
+	 
 	// 해당 romm 에다가 모든 UI를 지우는 역할을 함  
-	io.to(room.id).emit('Disconnected_UI');
+	io.to(roomId).emit('Disconnected_UI');
 	  
-    room.players.forEach(function(socket){
+	
+    roomSockets.forEach(function(socket){
 	
 	  LbMg.kick(socket); // 로비에서도 해당 소켓을 끊어버림
 		
       delete RmMg.roomIndex[socket.id];
+	  delete RmMg.roomSockets[socket.id];
 		
     });
 	  
     delete RmMg.rooms[roomId];
-	console.log("roomManager : 지정한 룸이 지워졌습니다.");
+	console.info("roomManager : 지정한 룸이 지워졌습니다.");
 	
   };
 	
@@ -141,29 +171,7 @@ function RoomManager(io){
 	
   }
  
-  	
-	/*
-  RmMg.update = setInterval(function(){
-    for(var roomId in RmMg.rooms){
-	// 하나의 룸을 가져옴
-      var room = RmMg.rooms[roomId];
-      
-      // 각종 오브젝트들의 상태들을 저장한 배열을 지정
-	  var objStatuses = [];
-      for(var object in room.objects){
-        var obj = room.objects[object];
-		    
-		// 각 객체들의 상태 값들이 저장되어있는 객체를 보냄  
-        objStatuses.push(obj);
-      }
-		// 해당 room (두 플레이어의 소켓이 들어있는)
-		// 에 업데이트 하라고 신호를 보냄
-      io.to(room.id).emit('updateUI',objStatuses);
-    }
-  },INTERVAL);
-  // 0.05 초 간격으로 해당 플레이어의 데이터를 업데이트
-  
-  */
+
   
 }
 
@@ -173,7 +181,7 @@ module.exports = RoomManager;
 function Room(id, socket0, socket1) {
   this.id = id;
   this.status = "waiting";
-  this.players = [socket0,socket1]; // 하나의 방 안에 들어가 있는 플레이어 두개의 소켓을 넣어둠
+  // this.players = [socket0,socket1]; // 하나의 방 안에 들어가 있는 플레이어 두개의 소켓을 넣어둠
   this.objects = {};
 
   this.objects[socket0.id] = new playerManager(socket0.id, "LEFT");

@@ -2,6 +2,10 @@
 // 서버에서 생성한 각종 초대 코드들이 계속해서 모이는 곳
 var inviteCodes = [];
 var inviteCodesPerUser = {};
+var game_sockets = {};
+var controller_sockets = {};
+
+
 
 // 클래스의 생성자
 function ioEvents(io){
@@ -50,14 +54,17 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 	var player, playerIdTemp;
 	
 	// 웹 상에서 붙을시 저장할 딕셔너리 변수와 컨트롤러 단에서 붙을시 저장할 딕셔너리 변수를 지정
-	var game_sockets = {};
-	var controller_sockets = {};
 	
+	// var game_sockets = {};
+	
+	
+
 	// 안드로이드 단 단말기를 통하여 클라이언트 안에서 연결되고 나면
 	this.io.sockets.on('connection', function (socket){
 		
 		var web_socketIdTemp = undefined;
 		var cont_socketIdTemp = undefined;
+		
 		
 		socket.on('game_connect', function(){
 			web_socketIdTemp = socket.id;
@@ -138,11 +145,17 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 		socket.on('disconnect',function() {
 			
 			// 만약에 등록된 웹 소켓이 존재할 경우
+			console.info('disconnect!!!!');
+			
 			if(game_sockets[web_socketIdTemp]){
 				
-				console.log("Game disconnected");
+				console.log("Web : Game disconnected");
 				
 				// 해당 방이 존재할 경우
+				
+				console.info(web_socketIdTemp);
+				
+				
 				if(roomMgr.roomIndex[web_socketIdTemp]){
 					console.log("websocket disconn : after room maked status");
 					// 만약 room 을 아직 생성하기 전일 경우에도 처리
@@ -154,13 +167,20 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 					// 안드로이드 컨트롤러에게 끊어졌다고 알림
 					var inRoomPlayerSockets = roomMgr.returnRoomSockets(web_socketIdTemp);
 
+					console.info(inRoomPlayerSockets);
+					
 					// 해당 룸에 속한 소켓들을 가져오는 역할을 함
-					for(var socket in inRoomPlayerSockets){
-
-						var controllerSocket = controller_sockets[game_sockets[web_socketIdTemp].controller_id].socket;
+					for(var index in inRoomPlayerSockets){
+						
+						let indexSocket = inRoomPlayerSockets[index];
+						console.info(index);
+						var controllerSocket = controller_sockets[game_sockets[indexSocket.id].controller_id].socket;
 
 						// 각 안드로이드 컨트롤러 소켓에게 서버가 끊어졌다고 알림
 						controllerSocket.emit("server_Disconnected");
+						
+						delete controller_sockets[game_sockets[indexSocket.id].controller_id];
+						delete game_sockets[indexSocket.id];
 
 					}
 
@@ -168,11 +188,12 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 					// 해당 소켓이 포함된 room 폭파
 					roomMgr.destroy(web_socketIdTemp, lobbyMgr)
 
-					const inviteCodeIndex = inviteCodes.indexOf(inviteCodesPerUser(web_socketIdTemp));
+					const inviteCodeIndex = inviteCodes.indexOf(inviteCodesPerUser[web_socketIdTemp]);
 
 					if(inviteCodeIndex != -1){
 						inviteCodes.splice(inviteCodeIndex, 1);
 					}
+					
 					console.log(inviteCodes);
 
 					delete inviteCodesPerUser[web_socketIdTemp];
@@ -180,6 +201,7 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 				}
 				
 					
+				/*
 				// 해당 웹 소켓에 해당하는 컨트롤러가 존재 할 경우
 				if(controller_sockets[game_sockets[web_socketIdTemp].controller_id]){
 					
@@ -191,19 +213,17 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 					// controller_sockets[game_sockets[web_socketIdTemp].controller_id].socket.emit("controller_connected", false);
 					// controller_sockets[game_sockets[web_socketIdTemp].controller_id].game_id = undefined;
 				}
-				
-				
-				
-				/*
-				delete controller_sockets[game_sockets[web_socketIdTemp].controller_id];
-				delete game_sockets[web_socketIdTemp];
 				*/
+				
+				
+			
 
 			}
 			
 			
 			// 만약에 사용중이던 컨트롤러 소켓이 존재 할 경우
-		
+			
+			
 			if(controller_sockets[cont_socketIdTemp]){
 				// console.log(controller_sockets[game_sockets[socket.id].controller_id]);
 				console.log("Controller disconnected");
@@ -217,9 +237,11 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 					console.log("controller socket disconn : after room maked");
 					var inRoomPlayerSockets = roomMgr.returnRoomSockets(game_socket);
 
-					for(var socket in inRoomPlayerSockets){
-
-						var controllerSocket = controller_sockets[cont_socketIdTemp].socket;
+					for(var index in inRoomPlayerSockets){
+						
+						var indexSocket = inRoomPlayerSockets[index];
+						
+						var controllerSocket = controller_sockets[indexSocket.id].socket;
 
 						// 각 안드로이드 컨트롤러 소켓에게 서버가 끊어졌다고 알림
 						controllerSocket.emit("server_Disconnected");
@@ -227,10 +249,10 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 					}
 
 					// room 폭파
-					roomMgr.destory(game_socket, lobbyMgr)
+					roomMgr.destroy(game_socket.id, lobbyMgr)
 
 
-					const inviteCodeIndex = inviteCodes.indexOf(inviteCodesPerUser(gamesocketId));
+					const inviteCodeIndex = inviteCodes.indexOf(inviteCodesPerUser[gamesocketId]);
 
 					if(inviteCodeIndex != -1){
 						inviteCodes.splice(inviteCodeIndex, 1);
@@ -241,11 +263,13 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 					console.log(inviteCodesPerUser);
 				
 				}
+				/*
 				else{
 					var controllerSocket = controller_sockets[cont_socketIdTemp].socket;
 
 					controllerSocket.emit("server_Disconnected");
 				}
+				
 				
 				
 				
@@ -258,11 +282,16 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 					// 컨트롤러 없어짐을 설정
 					game_sockets[controller_sockets[cont_socketIdTemp].game_id].controller_id = undefined;	
 				}
+				*/
 				
 				
 				delete game_sockets[controller_sockets[cont_socketIdTemp].game_id];
 				delete controller_sockets[cont_socketIdTemp];
+				
+				
 			}
+			
+			
 			
 			
 		});
