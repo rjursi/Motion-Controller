@@ -131,6 +131,7 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 					lobbyMgr.dispatch(roomMgr, inviteCode);
 
 				}
+				
 			}
 			else if(cont_socketIdTemp != undefined){
 				console.log("Controller connect denied : reconnect");
@@ -232,17 +233,20 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 				var gamesocketId = controller_sockets[cont_socketIdTemp].game_id;
 				var game_socket = game_sockets[gamesocketId].socket;
 				
-				// 룸이 존재할 경우에만 룸을 폭파를 시켜야함
+				
 				if(roomMgr.roomIndex[gamesocketId]){
 					console.log("controller socket disconn : after room maked");
-					var inRoomPlayerSockets = roomMgr.returnRoomSockets(game_socket);
-
+					var inRoomPlayerSockets = roomMgr.returnRoomSockets(gamesocketId);
+					
+					console.info(inRoomPlayerSockets);
 					for(var index in inRoomPlayerSockets){
 						
 						var indexSocket = inRoomPlayerSockets[index];
 						
-						var controllerSocket = controller_sockets[indexSocket.id].socket;
-
+						console.info("indexSocket : " + indexSocket);
+						var controllerSocket = controller_sockets[game_sockets[indexSocket.id].controller_id].socket;
+						
+						console.info(controllerSocket);
 						// 각 안드로이드 컨트롤러 소켓에게 서버가 끊어졌다고 알림
 						controllerSocket.emit("server_Disconnected");
 
