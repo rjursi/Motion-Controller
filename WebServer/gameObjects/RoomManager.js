@@ -12,6 +12,7 @@ function RoomManager(io){
   RmMg.rooms = {}; // rooms 딕셔너리 아래 roomid와 그에 맞는 room 객체가 들어감
   RmMg.roomIndex = {}; // 플레이어 별 초대 코드가 들어가 있는 딕셔너리
   RmMg.roomSockets = {}; // 방별 소켓이 들어갈 공간
+  RmMg.InRoomControlAllow = {}; // 조작이 가능한 상태인지를 저장하는 변수
 	
   // 하나의 방을 만드는 메소드
   RmMg.create = function(playerSock, inviteCode){
@@ -22,7 +23,7 @@ function RoomManager(io){
 	 // 해당 방에 대한 객체를 하나 만듬, 여기서 통신할 객체를 만듬
     
 	
-	// 해당 방에 대한 이름으로 room 을 생성
+	// 해당 방에 대한 이름으로 room 을 생성, Socket.io 작업
     playerSock.join(roomId);
 	  
 	// 플레이어가 생성이 될 때마다 지정한 초대 코드에 대한 플레이어의 소켓을 저장을 해 둠  
@@ -32,6 +33,7 @@ function RoomManager(io){
 	RmMg.roomIndex[playerSock.id] = roomId;  
 	// 해당 룸에 들어갔다는 신호를 보냄
 	  
+	RmMg.InRoomControlAllow[playerSock.id] = false;  
 	RmMg.roomSockets[playerSock.id] = [playerSock];
 	  
 	console.info(RmMg.roomSockets[playerSock.id]);
@@ -65,6 +67,10 @@ function RoomManager(io){
 	  // 플레이어별 초대 코드가 들어가있는 곳을 식별하기 위해 다음과 같이 저장
       RmMg.roomIndex[player1Sock_web.id] = joinRoomId;
       RmMg.roomIndex[player2Sock_web.id] = joinRoomId;
+	  
+	  RmMg.InRoomControlAllow[player1Sock_web.id] = true;  
+	  RmMg.InRoomControlAllow[player2Sock_web.id] = true;  
+	  // 조작이 가능하도록 설정
 	  
 	  RmMg.roomSockets[player1Sock_web.id].push(player2Sock_web);
 	  RmMg.roomSockets[player2Sock_web.id].push(player1Sock_web);
@@ -156,18 +162,20 @@ function RoomManager(io){
   }	
   
   RmMg.updatePlayerJoystickData = function(playerSock, joystickData){
-	let getRoom = RmMg.rooms[RmMg.roomIndex[playerSock.id]];
-	var getPlayer = RmMg.rooms[RmMg.roomIndex[playerSock.id]].objects[playerSock.id];
+	  
+	if(RmMg.InRoomControlAllow[playerSock.id] === true){
+		let getRoom = RmMg.rooms[RmMg.roomIndex[playerSock.id]];
+		var getPlayer = RmMg.rooms[RmMg.roomIndex[playerSock.id]].objects[playerSock.id];
 	
-	// 플레이어의 회전각 등 데이터 변경 - playerManager 객체에서 데이터 수정 -> 수정된 데이터 반환
-	var updatedPlayerDataObj = getPlayer.updatePlayerJoystickData(playerSock, joystickData);
 	  
+		// 플레이어의 회전각 등 데이터 변경 - playerManager 객체에서 데이터 수정 -> 수정된 데이터 반환
+		var updatedPlayerDataObj = getPlayer.updatePlayerJoystickData(playerSock, joystickData);
 
-	  
-	io.to(getRoom.id).emit('playerStatusUpdate', updatedPlayerDataObj);
-    // RmMg.rooms[RmMg.roomIndex[playerSock.id]].objects[playerSock.id] = updatedPlayerDataObj;  
+		io.to(getRoom.id).emit('playerStatusUpdate', updatedPlayerDataObj);
+		// RmMg.rooms[RmMg.roomIndex[playerSock.id]].objects[playerSock.id] = updatedPlayerDataObj;  
 
-	// 해당 방의 지정한 플레이어 소켓에 플레이어 데이터 값을 업데이트
+		// 해당 방의 지정한 플레이어 소켓에 플레이어 데이터 값을 업데이트
+	}
 	
   }
  
