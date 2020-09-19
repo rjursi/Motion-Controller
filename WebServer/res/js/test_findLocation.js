@@ -10,9 +10,9 @@ function onDocumentKeyDown(event) {
 	keyPressMap[keyCode] = true;
     if (keyCode === 87) {
 		if(keyPressMap[32] === true){
-			forFindMesh.position.z -= zSpeed;	
+			forFindMesh.position.y += ySpeed;	
 		}else{
-			forFindMesh.position.y += ySpeed;		
+			forFindMesh.position.z -= zSpeed;		
 		}
 		
 	
@@ -20,9 +20,9 @@ function onDocumentKeyDown(event) {
     	
 		
 		if(keyPressMap[32] === true){
-			forFindMesh.position.z += zSpeed;	
-		}else{
 			forFindMesh.position.y -= ySpeed;	
+		}else{
+			forFindMesh.position.z += zSpeed;	
 		}
 		
     } else if (keyCode == 65) {
