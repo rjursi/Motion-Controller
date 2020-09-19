@@ -151,6 +151,7 @@ playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joys
 			player.objStatus.movingDirection_z = 0;
 		
 			seeDirection = player.objStatus.seeDirection; // 마지막으로 초기화 한 값 반환
+			player.objStatus.tryInteraction = false;
 			player.objStatus.isMoving = false;
 			break;
 		case 0.5:

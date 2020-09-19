@@ -179,7 +179,13 @@ function RoomManager(io){
 	
   }
  
-
+  RmMg.sendChatMessage = function(playerSock, message){
+		let getRoom = RmMg.rooms[RmMg.roomIndex[playerSock.id]];
+		
+	  
+	  
+	  	io.to(getRoom.id).emit('sendChatMessage', playerSock.id, message);
+  }
   
 }
 

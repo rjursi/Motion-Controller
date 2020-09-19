@@ -4,6 +4,7 @@ const GIRL_MODEL_PATH = "girl/";
 const BOY_MODEL_PATH = "boy/";
 const MOVE_OBJECT_PATH = "moveobj/";
 const HITBOX_DEFAULT_HEIGHT = 8;
+const CHAT_DEFAULT_HEIGHT = 10;
 
 // object는 일단 각종 요소(예를 들어 큐브) 등의 요소들이 들어가는 부분
 
@@ -17,7 +18,7 @@ let forFindMesh;
 var collision_datas = [];
 var stairHitbox_right_mesh_array = [];
 var stairHitbox_left_mesh_array = [];
-
+var actionHitbox_mesh_array = [];
 var ambLight, directionalLight;
 // 오브젝트 로드를 위한 gltf loader 객체 변수 설정
 var gltfLoader, dracoLoader;
@@ -127,9 +128,16 @@ function init(){
 	
 	// 아래는 계단 충돌 메쉬 설정
 	setStairsHitbox();
-	
+	setInteractionMesh();
 	// 테스트용 메쉬
-
+	
+	/*
+	var test_sprite = makeTextSprite("한글 입력 테스트 하는 중인데 어떻게 보일려나 모르겠다. 테스트 해보자",{fontsize : 18, borderColor : { r: 255,  g: 0, b : 0, a: 1.0}, backgroundColor : { r: 255, g: 100, b: 100, a : 0.8}});
+	scene.add(test_sprite);
+	*/
+	
+	
+	
 	var targetGeometry = new THREE.BoxBufferGeometry( 5, 5, 50 );
 	var targetMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
 	var targetMaterial2 = new THREE.MeshBasicMaterial({ color: 0x00ff60 });
@@ -190,7 +198,85 @@ function init(){
 
 
 	
+function setInteractionMesh(){
 	
+	// 왼쪽 / 오른쪽으로 들어가는 문
+	var actionHitbox_doorHorizontal_box = new THREE.BoxGeometry(10,10,15);
+	var actionHitbox_doorHorizontal_geometry = new THREE.MeshStandardMaterial({color : 0x27B500});
+	
+	// 위 / 아래 방향으로 들어가는 문 (z축)
+	var actionHitbox_doorVertical_box = new THREE.BoxGeometry(15, 10, 10);
+	var actionHitbox_doorVertical_geometry = new THREE.MeshStandardMaterial({color : 0x27B500});
+	
+	// 작은 오브젝트용 상호작용
+	var actionHitbox_withObject_box = new THREE.BoxGeometry(10, 10, 10);
+	var actionHitbox_withObject_geometry = new THREE.MeshStandardMaterial({color : 0x27B500});
+	
+	// 큰 (장롱용) 오브젝트용 상호작용
+	
+	var actionHitbox_withBigObject_box = new THREE.BoxGeometry(30, 10, 10);
+	var actionHitbox_withBigObject_geometry = new THREE.MeshStandardMaterial({color : 0x27B500});
+	
+	// 시작방 - 왼쪽으로 나가는 문
+	var actionHitbox_doorToLeft_mesh_startRoom = new THREE.Mesh(actionHitbox_doorHorizontal_box, actionHitbox_doorHorizontal_geometry);
+	
+	actionHitbox_doorToLeft_mesh_startRoom.name = "action_door_startRoom_toLeft";
+	actionHitbox_doorToLeft_mesh_startRoom.position.set(269,81,60);
+	actionHitbox_doorToLeft_mesh_startRoom.visible = true;
+	
+	actionHitbox_mesh_array.push(actionHitbox_doorToLeft_mesh_startRoom);
+	scene.add(actionHitbox_doorToLeft_mesh_startRoom);
+	
+	// 부엌 - 왼쪽 문
+	var actionHitbox_doorToLeft_mesh_kitchen = new THREE.Mesh(actionHitbox_doorHorizontal_box, actionHitbox_doorHorizontal_geometry);
+	
+	actionHitbox_doorToLeft_mesh_kitchen.name = "action_door_kitchen_toLeft";
+	actionHitbox_doorToLeft_mesh_kitchen.position.set(-199, 5.5, -10);
+	actionHitbox_doorToLeft_mesh_kitchen.visible = true;
+	
+	actionHitbox_mesh_array.push(actionHitbox_doorToLeft_mesh_kitchen);
+	scene.add(actionHitbox_doorToLeft_mesh_kitchen);
+	
+	// 악당 방 - 들어가는 문
+	
+	var actionHitbox_doorIn_mesh_villainRoom = new THREE.Mesh(actionHitbox_doorVertical_box, actionHitbox_doorVertical_geometry);
+	
+	actionHitbox_doorIn_mesh_villainRoom.name = "action_door_villain_In";
+	actionHitbox_doorIn_mesh_villainRoom.position.set(35, 8.5, 31);
+	actionHitbox_doorIn_mesh_villainRoom.visible = true;
+	
+	actionHitbox_mesh_array.push(actionHitbox_doorIn_mesh_villainRoom);
+	scene.add(actionHitbox_doorIn_mesh_villainRoom);
+	
+
+	// 주방 믹서기
+	
+	var actionHitbox_blender_mesh = new THREE.Mesh(actionHitbox_withObject_box, actionHitbox_withObject_geometry);
+	
+	actionHitbox_blender_mesh.name = "action_blender";
+	actionHitbox_blender_mesh.position.set(-198.5, 5.5, -30.5);
+	actionHitbox_blender_mesh.visible = true;
+	
+	actionHitbox_mesh_array.push(actionHitbox_blender_mesh);
+	scene.add(actionHitbox_blender_mesh);
+
+	
+	
+	// 악당방 장롱 앞
+	var actionHitbox_drawerFront_mesh = new THREE.Mesh(actionHitbox_withBigObject_box, actionHitbox_withBigObject_geometry);
+	
+	actionHitbox_drawerFront_mesh.name = "action_drawerFront";
+	actionHitbox_drawerFront_mesh.position.set(-22.5, 5.5, -154.5);
+	actionHitbox_drawerFront_mesh.visible = true;
+	
+	actionHitbox_mesh_array.push(actionHitbox_drawerFront_mesh);
+	scene.add(actionHitbox_drawerFront_mesh);
+
+	
+
+}
+
+
 function setStairsHitbox(){
 	
 	// 오른쪽 계단
@@ -420,6 +506,134 @@ function setStairsHitbox(){
 	scene.add(stairHitbox_left_mesh_9);
 }
 
+// 둥둥 떠있는 말풍선을 만들어주는 함수
+function makeTextSprite( message, parameters )
+{
+	if ( parameters === undefined ) parameters = {};
+	
+	var fontface = parameters.hasOwnProperty("fontface") ? 
+		parameters["fontface"] : "굴림";
+	
+	var fontsize = parameters.hasOwnProperty("fontsize") ? 
+		parameters["fontsize"] : 18;
+	
+	var borderThickness = parameters.hasOwnProperty("borderThickness") ? 
+		parameters["borderThickness"] : 4;
+	
+	var borderColor = parameters.hasOwnProperty("borderColor") ?
+		parameters["borderColor"] : { r:0, g:0, b:0, a:1.0 };
+	
+	var backgroundColor = parameters.hasOwnProperty("backgroundColor") ?
+		parameters["backgroundColor"] : { r:255, g:255, b:255, a:1.0 };
+
+	// var spriteAlignment = THREE.SpriteAlignment.topLeft;
+		
+	var canvas = document.createElement('canvas');
+	var context = canvas.getContext('2d');
+	context.font = "Bold " + fontsize + "px " + fontface;
+    
+	/*
+	// get size data (height depends only on font size)
+	var metrics = context.measureText( message );
+	var textWidth = metrics.width;
+	*/
+	
+	
+	
+	// background color
+	context.fillStyle   = "rgba(" + backgroundColor.r + "," + backgroundColor.g + ","
+								  + backgroundColor.b + "," + backgroundColor.a + ")";
+	
+	// border color
+	context.strokeStyle = "rgba(" + borderColor.r + "," + borderColor.g + ","
+								  + borderColor.b + "," + borderColor.a + ")";
+
+	context.lineWidth = borderThickness;
+	
+	// 1.4 is extra height factor for text below baseline: g,j,p,q.
+	
+	
+	var line = '';
+	var words = message.split(' ');
+	var maxWidth = 200;
+	var width = (canvas.width - maxWidth) / 2;
+	var textWidth;
+	var lineHeight = fontsize;
+	var height = fontsize + borderThickness;
+	
+	
+	for(var n = 0; n < words.length; n++) {
+		var testLine = line + words[n] + ' ';
+		var metrics = context.measureText(testLine);
+		textWidth = metrics.width;
+		
+		if (textWidth > maxWidth && n > 0) {
+			line = words[n] + ' ';
+			height += lineHeight;
+		}else{
+			line = testLine;
+		}
+	
+	}
+	
+	roundRect(context, borderThickness / 2 + width - 5 , borderThickness / 2, maxWidth, height + 5, 6)
+	
+
+	line = '';
+	height = fontsize + borderThickness
+	for(var n = 0; n < words.length; n++) {
+		var testLine = line + words[n] + ' ';
+		var metrics = context.measureText(testLine);
+		textWidth = metrics.width;
+		
+		if (textWidth > maxWidth && n > 0) {
+			context.fillStyle = "rgba(0, 0, 0, 1.0)";
+			context.fillText(line, width, height);
+			
+			height += lineHeight;
+			line = words[n] + ' ';
+		}
+		else {
+			line = testLine;
+		}
+	}
+
+		
+	// text color
+
+    context.fillText(line, width, height);
+	
+	
+
+	// canvas contents will be used for a texture
+	var texture = new THREE.Texture(canvas) 
+	texture.needsUpdate = true;
+
+	var spriteMaterial = new THREE.SpriteMaterial( 
+		{ map: texture, useScreenCoordinates: false} );
+	var sprite = new THREE.Sprite( spriteMaterial );
+	sprite.scale.set(100,50,1.0);
+	
+	let returnData = [sprite, height];
+	return returnData;	
+}
+
+function roundRect(ctx, x, y, w, h, r) 
+{
+    ctx.beginPath();
+    ctx.moveTo(x+r, y);
+    ctx.lineTo(x+w-r, y);
+    ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+    ctx.lineTo(x+w, y+h-r);
+    ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+    ctx.lineTo(x+r, y+h);
+    ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+    ctx.lineTo(x, y+r);
+    ctx.quadraticCurveTo(x, y, x+r, y);
+    ctx.closePath();
+    ctx.fill();
+	ctx.stroke();   
+}
 
 function setLight() {
 
@@ -588,6 +802,8 @@ function character_obj_init(){
 		gltf_cwalk : undefined,
 		gltf_cwalk_animMixer : undefined,
 		
+		speechBubbleInfo : {fontsize : 18, borderColor : { r: 255,  g: 0, b : 0, a: 1.0}, backgroundColor : { r: 255, g: 100, b: 100, a : 0.8}},
+		speechBubbleData : undefined,
 		
 		now_position_x : 300,
 		now_position_y : 77,
@@ -631,6 +847,8 @@ function character_obj_init(){
 		gltf_cwalk : undefined,
 		gltf_cwalk_animMixer : undefined,
 		
+		speechBubbleInfo : {fontsize : 18, borderColor : { r: 0,  g: 13, b : 255, a: 1.0}, backgroundColor : { r: 91, g: 153, b: 247, a : 0.8}},
+		speechBubbleData : undefined,
 		
 		now_position_x : 320,
 		now_position_y : 77,
@@ -659,6 +877,39 @@ function character_obj_init(){
 	playerUIObj["view_status"] = false;
 }
 
+
+function sendChatMessage(chatInfo){
+	let playerSocketId = chatInfo[0];
+	let message = chatInfo[1];
+	
+	for(var index in playerUIObj){
+		
+		if(playerUIObj[index].playerId == playerSocketId){
+			
+			let chat_x = playerUIObj[index].now_position_x;
+			let chat_y = playerUIObj[index].now_position_y + CHAT_DEFAULT_HEIGHT + playerUIObj[index].speechBubbleData[1];
+			let chat_z = playerUIObj[index].now_position_z;
+			
+			playerUIObj[index].speechBubbleData = makeTextSprite(message, playerUIObj[index].speechBubbleInfo);
+			playerUIObj[index].speechBubbleData[0].position.set(chat_x, chat_y, chat_z);
+			
+			scene.add(playerUIObj[index].speechBubbleData[0])
+			
+			setTimeout(() => {
+				scene.remove(playerUIObj[index].speechBubbleData[0]);
+			}, 2000);
+			
+			break;
+		}
+	}
+	
+	
+	
+	
+	// let text_sprite = makeTextSprite(message,{fontsize : 18, borderColor : { r: 255,  g: 0, b : 0, a: 1.0}, backgroundColor : { r: 255, g: 100, b: 100, a : 0.8}});
+	
+	
+};
 
 // 이건 바로 함수 호출하자 마자 상태값만 업데이트 시키는 함수
 function updatePlayerStatus(updatedPlayerData){
@@ -729,6 +980,14 @@ function realtimeUpdatePlayer(){
 			forUpdatePlayerObj.hitbox.position.y = forUpdatePlayerObj.now_position_y + HITBOX_DEFAULT_HEIGHT;
 			forUpdatePlayerObj.hitbox.position.z = forUpdatePlayerObj.now_position_z;
 
+			
+			if(forUpdatePlayerObj.speechBubbleData != undefined){
+			
+				forUpdatePlayerObj.speechBubbleData[0].position.x = forUpdatePlayerObj.now_position_x;
+				forUpdatePlayerObj.speechBubbleData[0].position.y = forUpdatePlayerObj.now_position_y + CHAT_DEFAULT_HEIGHT + forUpdatePlayerObj.speechBubbleData[1];
+				forUpdatePlayerObj.speechBubbleData[0].position.z = forUpdatePlayerObj.now_position_z;
+			}
+			
 			forUpdatePlayerObj.gltf_nowView.scene.rotation.y = forUpdatePlayerObj.seeDirection;
 		}	
 		
@@ -749,6 +1008,12 @@ function realtimeUpdatePlayer(){
 			forUpdatePlayerObj.hitbox.position.y = forUpdatePlayerObj.now_position_y + HITBOX_DEFAULT_HEIGHT;
 			forUpdatePlayerObj.hitbox.position.z = forUpdatePlayerObj.now_position_z;
 
+			if(forUpdatePlayerObj.speechBubbleData != undefined){
+				forUpdatePlayerObj.speechBubbleData[0].position.x = forUpdatePlayerObj.now_position_x;
+				forUpdatePlayerObj.speechBubbleData[0].position.y = forUpdatePlayerObj.now_position_y + CHAT_DEFAULT_HEIGHT + forUpdatePlayerObj.speechBubbleData[1];
+				forUpdatePlayerObj.speechBubbleData[0].position.z = forUpdatePlayerObj.now_position_z;
+			}
+			
 			forUpdatePlayerObj.gltf_nowView.scene.rotation.y = forUpdatePlayerObj.seeDirection;
 			
 		}
@@ -794,33 +1059,13 @@ function update(){
 		
 		realtimeUpdatePlayer();
 		stair_check();
-		// useInteraction();
+		useInteraction();
 		
 	}
 	
 	
 }
 
-/*
-function makeCollisionVertices(){
-	let vertices_tmp;
-	const vertices = [];
-	
-	
-	for(let i = 0; 	i< collision_datas.length; i++){
-		let geometry = collision_datas[i].geometry;
-		
-		const positions = geometry.attributes.position.array;
-		
-		for(let k = 0; k < positions.length; k +=3){
-			vertices_tmp.set(positions[k], positions[k + 1], positions[k + 2]);
-			vertices.push(vertices_tmp.clone());
-		}
-	}
-	
-	return vertices;
-}
-*/
 
 function useInteraction(){
 	

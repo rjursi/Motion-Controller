@@ -114,6 +114,10 @@ io_ui.on('ui_createPlayer', function(initPlayerObjArr){
     createPlayer(initPlayerObjArr);
 });
 
+io_ui.on('sendChatMessage', function(playerSockId, message){
+	let chatInfo = [playerSockId, message];
+	sendChatMessage(chatInfo);
+});
 io_ui.on('playerStatusUpdate', function(updatedPlayerData){
 	
 	updatePlayerStatus(updatedPlayerData);
