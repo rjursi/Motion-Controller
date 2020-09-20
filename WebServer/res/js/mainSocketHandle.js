@@ -116,6 +116,8 @@ io_ui.on('ui_createPlayer', function(initPlayerObjArr){
 
 io_ui.on('sendChatMessage', function(playerSockId, message){
 	let chatInfo = [playerSockId, message];
+	
+	console.info(chatInfo);
 	sendChatMessage(chatInfo);
 });
 io_ui.on('playerStatusUpdate', function(updatedPlayerData){

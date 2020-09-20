@@ -330,12 +330,18 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 		*/
 		
 		socket.on('ad_ChatMessage', function(message){
+			
+			console.info("chat signal receive..");
 			if(controller_sockets[socket.id]){
+				
+				console.info("message : " + message);
 				var game_socket = game_sockets[controller_sockets[socket.id].game_id].socket;
 				
 				roomMgr.sendChatMessage(game_socket, message);
 			}
 		});
+		
+		
 		socket.on('ad_joystickData', function(direction_data){
 			if(controller_sockets[socket.id]){
 				// console.info(`joystick Direction : ${direction_data}`);

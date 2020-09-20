@@ -180,11 +180,11 @@ function RoomManager(io){
   }
  
   RmMg.sendChatMessage = function(playerSock, message){
+	  
+	  if(RmMg.InRoomControlAllow[playerSock.id] === true){
 		let getRoom = RmMg.rooms[RmMg.roomIndex[playerSock.id]];
-		
-	  
-	  
-	  	io.to(getRoom.id).emit('sendChatMessage', playerSock.id, message);
+		io.to(getRoom.id).emit('sendChatMessage', playerSock.id, message);
+	  }
   }
   
 }

@@ -131,11 +131,7 @@ function init(){
 	setInteractionMesh();
 	// 테스트용 메쉬
 	
-	/*
-	var test_sprite = makeTextSprite("한글 입력 테스트 하는 중인데 어떻게 보일려나 모르겠다. 테스트 해보자",{fontsize : 18, borderColor : { r: 255,  g: 0, b : 0, a: 1.0}, backgroundColor : { r: 255, g: 100, b: 100, a : 0.8}});
-	scene.add(test_sprite);
-	*/
-	
+
 	
 	
 	var targetGeometry = new THREE.BoxBufferGeometry( 5, 5, 50 );
@@ -515,7 +511,7 @@ function makeTextSprite( message, parameters )
 		parameters["fontface"] : "굴림";
 	
 	var fontsize = parameters.hasOwnProperty("fontsize") ? 
-		parameters["fontsize"] : 18;
+		parameters["fontsize"] : 10;
 	
 	var borderThickness = parameters.hasOwnProperty("borderThickness") ? 
 		parameters["borderThickness"] : 4;
@@ -529,6 +525,8 @@ function makeTextSprite( message, parameters )
 	// var spriteAlignment = THREE.SpriteAlignment.topLeft;
 		
 	var canvas = document.createElement('canvas');
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
 	var context = canvas.getContext('2d');
 	context.font = "Bold " + fontsize + "px " + fontface;
     
@@ -560,7 +558,7 @@ function makeTextSprite( message, parameters )
 	var textWidth;
 	var lineHeight = fontsize;
 	var height = fontsize + borderThickness;
-	
+	var lineCount = 0;
 	
 	for(var n = 0; n < words.length; n++) {
 		var testLine = line + words[n] + ' ';
@@ -570,6 +568,7 @@ function makeTextSprite( message, parameters )
 		if (textWidth > maxWidth && n > 0) {
 			line = words[n] + ' ';
 			height += lineHeight;
+			lineCount += 1;
 		}else{
 			line = testLine;
 		}
@@ -600,7 +599,7 @@ function makeTextSprite( message, parameters )
 
 		
 	// text color
-
+	context.fillStyle = "rgba(0, 0, 0, 1.0)";
     context.fillText(line, width, height);
 	
 	
@@ -614,8 +613,10 @@ function makeTextSprite( message, parameters )
 	var sprite = new THREE.Sprite( spriteMaterial );
 	sprite.scale.set(100,50,1.0);
 	
-	let returnData = [sprite, height];
-	return returnData;	
+	var returnResult = [sprite, lineCount];
+	return returnResult; 
+	
+	
 }
 
 function roundRect(ctx, x, y, w, h, r) 
@@ -802,7 +803,7 @@ function character_obj_init(){
 		gltf_cwalk : undefined,
 		gltf_cwalk_animMixer : undefined,
 		
-		speechBubbleInfo : {fontsize : 18, borderColor : { r: 255,  g: 0, b : 0, a: 1.0}, backgroundColor : { r: 255, g: 100, b: 100, a : 0.8}},
+		speechBubbleInfo : {fontsize : 25, borderColor : { r: 255,  g: 0, b : 0, a: 1.0}, backgroundColor : { r: 255, g: 100, b: 100, a : 0.8}},
 		speechBubbleData : undefined,
 		
 		now_position_x : 300,
@@ -847,7 +848,7 @@ function character_obj_init(){
 		gltf_cwalk : undefined,
 		gltf_cwalk_animMixer : undefined,
 		
-		speechBubbleInfo : {fontsize : 18, borderColor : { r: 0,  g: 13, b : 255, a: 1.0}, backgroundColor : { r: 91, g: 153, b: 247, a : 0.8}},
+		speechBubbleInfo : {fontsize : 25, borderColor : { r: 0,  g: 13, b : 255, a: 1.0}, backgroundColor : { r: 91, g: 153, b: 247, a : 0.8}},
 		speechBubbleData : undefined,
 		
 		now_position_x : 320,
@@ -877,27 +878,40 @@ function character_obj_init(){
 	playerUIObj["view_status"] = false;
 }
 
+var timeout = undefined;
 
 function sendChatMessage(chatInfo){
 	let playerSocketId = chatInfo[0];
 	let message = chatInfo[1];
 	
+	
 	for(var index in playerUIObj){
 		
 		if(playerUIObj[index].playerId == playerSocketId){
 			
-			let chat_x = playerUIObj[index].now_position_x;
-			let chat_y = playerUIObj[index].now_position_y + CHAT_DEFAULT_HEIGHT + playerUIObj[index].speechBubbleData[1];
-			let chat_z = playerUIObj[index].now_position_z;
+			if(playerUIObj[index].speechBubbleData != undefined){
+				scene.remove(playerUIObj[index].speechBubbleData[0]);
+				clearTimeout(timeout);
+			}
 			
 			playerUIObj[index].speechBubbleData = makeTextSprite(message, playerUIObj[index].speechBubbleInfo);
+			
+			let chat_x = playerUIObj[index].now_position_x;
+			let chat_y = playerUIObj[index].now_position_y + playerUIObj[index].speechBubbleData[1];
+			let chat_z = playerUIObj[index].now_position_z;
+			
+			
 			playerUIObj[index].speechBubbleData[0].position.set(chat_x, chat_y, chat_z);
 			
 			scene.add(playerUIObj[index].speechBubbleData[0])
 			
-			setTimeout(() => {
-				scene.remove(playerUIObj[index].speechBubbleData[0]);
-			}, 2000);
+			
+			
+			timeout = setTimeout(() => {
+					scene.remove(playerUIObj[index].speechBubbleData[0]);
+					playerUIObj[index].speechBubbleData = undefined
+			}, 3000);
+			
 			
 			break;
 		}
@@ -984,7 +998,7 @@ function realtimeUpdatePlayer(){
 			if(forUpdatePlayerObj.speechBubbleData != undefined){
 			
 				forUpdatePlayerObj.speechBubbleData[0].position.x = forUpdatePlayerObj.now_position_x;
-				forUpdatePlayerObj.speechBubbleData[0].position.y = forUpdatePlayerObj.now_position_y + CHAT_DEFAULT_HEIGHT + forUpdatePlayerObj.speechBubbleData[1];
+				forUpdatePlayerObj.speechBubbleData[0].position.y = forUpdatePlayerObj.now_position_y + forUpdatePlayerObj.speechBubbleData[1];
 				forUpdatePlayerObj.speechBubbleData[0].position.z = forUpdatePlayerObj.now_position_z;
 			}
 			
@@ -1010,7 +1024,7 @@ function realtimeUpdatePlayer(){
 
 			if(forUpdatePlayerObj.speechBubbleData != undefined){
 				forUpdatePlayerObj.speechBubbleData[0].position.x = forUpdatePlayerObj.now_position_x;
-				forUpdatePlayerObj.speechBubbleData[0].position.y = forUpdatePlayerObj.now_position_y + CHAT_DEFAULT_HEIGHT + forUpdatePlayerObj.speechBubbleData[1];
+				forUpdatePlayerObj.speechBubbleData[0].position.y = forUpdatePlayerObj.now_position_y + forUpdatePlayerObj.speechBubbleData[1];
 				forUpdatePlayerObj.speechBubbleData[0].position.z = forUpdatePlayerObj.now_position_z;
 			}
 			
