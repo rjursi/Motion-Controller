@@ -143,23 +143,19 @@ function RoomManager(io){
   };
 	
 	
-  
-  RmMg.updatePlayerGyroData = function(playerSock, gyroData){
-  	
-	  
-	  // 해당 바꾸고자 하는 플레이어의 객체를 가져옴
-	  // playerManager 객체를 가져옴
-	var getPlayer = RmMg.rooms[RmMg.roomIndex[playerSock.id]].objects[playerSock.id];
+  RmMg.positionSync = function(myPosition){
+	  let playerSockId = myPosition.playerId;
+	  if(RmMg.InRoomControlAllow[playerSockId] === true){
+		let getRoom = RmMg.rooms[RmMg.roomIndex[playerSockId]];
+		let getPlayerSockets = RmMg.rooms[RmMg.roomIndex[playerSockId]].players;
 	
-	// 플레이어의 회전각 등 데이터 변경 - playerManager 객체에서 데이터 수정 -> 수정된 데이터 반환
-	var updatedPlayerDataObj = getPlayer.updatePlayerGyroData(playerSock, gyroData);
-				
-	  
-	// 해당 방의 지정한 플레이어 소켓에 플레이어 데이터 값을 업데이트
-	RmMg.rooms[RmMg.roomIndex[playerSock.id]].objects[playerSock.id] = updatedPlayerDataObj;  
-	
-	  
-  }	
+	  	getPlayerSockets.forEach(function(socket){
+			if(socket.id != playerSockId){
+				socket.emit('anotherPlayerPositionUpdate', myPosition);
+			}
+		});
+	  }
+  }
   
   RmMg.updatePlayerJoystickData = function(playerSock, joystickData){
 	  
@@ -178,6 +174,27 @@ function RoomManager(io){
 	}
 	
   }
+  /*
+  RmMg.updatePlayerGyroData = function(playerSock, gyroData){
+  	
+	  
+	  // 해당 바꾸고자 하는 플레이어의 객체를 가져옴
+	  // playerManager 객체를 가져옴
+	var getPlayer = RmMg.rooms[RmMg.roomIndex[playerSock.id]].objects[playerSock.id];
+	
+	// 플레이어의 회전각 등 데이터 변경 - playerManager 객체에서 데이터 수정 -> 수정된 데이터 반환
+	var updatedPlayerDataObj = getPlayer.updatePlayerGyroData(playerSock, gyroData);
+				
+	  
+	// 해당 방의 지정한 플레이어 소켓에 플레이어 데이터 값을 업데이트
+	RmMg.rooms[RmMg.roomIndex[playerSock.id]].objects[playerSock.id] = updatedPlayerDataObj;  
+	
+	  
+  }	
+  */
+  
+  
+  
  
   RmMg.sendChatMessage = function(playerSock, message){
 	  
@@ -186,7 +203,7 @@ function RoomManager(io){
 		io.to(getRoom.id).emit('sendChatMessage', playerSock.id, message);
 	  }
   }
-  
+ 
 }
 
 
@@ -195,7 +212,7 @@ module.exports = RoomManager;
 function Room(id, socket0, socket1) {
   this.id = id;
   this.status = "waiting";
-  // this.players = [socket0,socket1]; // 하나의 방 안에 들어가 있는 플레이어 두개의 소켓을 넣어둠
+  this.players = [socket0,socket1]; // 하나의 방 안에 들어가 있는 플레이어 두개의 소켓을 넣어둠
   this.objects = {};
 
   this.objects[socket0.id] = new playerManager(socket0.id, "LEFT");

@@ -440,7 +440,10 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 			
 			playerMgr.holdPlayerPosition(playerId);
 		});
-
+		
+		socket.on('ui_sendMyPositionForSync', function(myPosition){
+			roomMgr.positionSync(myPosition);
+		});
       
 	});
 	

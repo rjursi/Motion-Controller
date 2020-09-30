@@ -31,7 +31,7 @@ function onDocumentKeyDown(event) {
         forFindMesh.position.x += xSpeed;
     } 
 	
-	console.info(`mesh location : ${forFindMesh.position.x}, ${forFindMesh.position.y}, ${forFindMesh.position.z}`);
+	//console.info(`mesh location : ${forFindMesh.position.x}, ${forFindMesh.position.y}, ${forFindMesh.position.z}`);
 };
 
 

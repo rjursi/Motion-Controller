@@ -82,6 +82,7 @@ var create_QR = function(){
 	
 }
 
+
 function hitboxNotification(playerId){
 	io_ui.emit('ui_holdByHit', playerId);
 }
@@ -120,6 +121,12 @@ io_ui.on('sendChatMessage', function(playerSockId, message){
 	console.info(chatInfo);
 	sendChatMessage(chatInfo);
 });
+
+
+io_ui.on('anotherPlayerPositionUpdate', function(anotherPlayerPosition){
+	syncAnotherPlayerPosition(anotherPlayerPosition);
+});
+
 io_ui.on('playerStatusUpdate', function(updatedPlayerData){
 	
 	updatePlayerStatus(updatedPlayerData);

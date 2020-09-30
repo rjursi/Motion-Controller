@@ -137,6 +137,7 @@ playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joys
 	var seeDirection;
 	var move_x, move_z;
 	var angle = Math.PI / 4;
+	
 
 
 	player.objStatus.isMoving = true;

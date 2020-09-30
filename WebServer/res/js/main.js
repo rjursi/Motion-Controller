@@ -26,7 +26,7 @@ var gltfLoader, dracoLoader;
 // 플레이어 객체가 들어가 있는 배열, 총 2개 밖에 안들어감
 var playerUIObj = {};
 //var playerCollisionObj, col_geometry, col_material; // 충돌 테스트를 위한 임시 Mesh 요소
-
+var doors = {};
 var playerCollisionObjs = [];
 
 // 맵 관련 오브젝트가 들어갈 예정
@@ -45,7 +45,8 @@ game_sockets[socket.id] = {
 			};
 */
 
-
+let syncPositionByInterval;
+let isSyncing;
 
 
 function init(){
@@ -70,12 +71,15 @@ function init(){
 
 	// camera 생	성, 일단은 PerspectiveCamera 로 설정
 	camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-	camera.position.z = 250;
+	camera.position.x = 250
+    camera.position.y = 153;
+    camera.position.z = 150
 	// 75 : 시야, 75도
 	// window.innerWidth / window.innerHeight : 종횡비
 	// 0.1, 1000 : 근거리 및 원거리 클리핑 평면
 	//   카메라에서 멀거나 가까운 값보다 가까운 거리에 있는 물체는 렌더링 되지 않음
 	//   값 비율을 조절할 것
+	// 현재 카메라 좌표 2층 복도 끝 - 한영
 	
 
 	// renderer 생성
@@ -91,16 +95,22 @@ function init(){
 	// 여기 setSize 에서 앱의 크기를 유지하면서 더 낮은 해상도로 랜더링 할 경우에는 
 	// setSize의 세번째 인수 (updateStyle)로 false를 넣고 렌더링 사이즈를 넣으면 됨
 
-	
+	//orbControls = new THREE.OrbitControls(camera);
     orbControls = new THREE.OrbitControls( camera, renderer.domElement );
-	orbControls.addEventListener('change', showCameraPosition);
+	//orbControls.addEventListener('change', showCameraPosition);
+	
+	
+	orbControls.target.x = 224;
+    orbControls.target.y = 99;
+    orbControls.target.z = -72;
+	// 카메라 첫타겟 복도 계단 쪽 좌표 //
 	
 	
 	gltfLoader = new THREE.GLTFLoader();
 	clock = new THREE.Clock();
 
 	character_obj_init(); // 캐릭터 gltf 오브젝트를 넣어놓을 공간 초기화
-	
+	door_obj_init();
 	gltf_Load(); // 모든 gltf 모델 로드
 	
 
@@ -119,7 +129,7 @@ function init(){
 	
 	forFindMesh = new THREE.Mesh(test_findLocationBox, test_findLocationGeometry);
 	
-	forFindMesh.position.x = 300;
+	forFindMesh.position.x = 243;
 	forFindMesh.position.y = 77;
 	forFindMesh.position.z = 72;	
 	
@@ -197,48 +207,39 @@ function init(){
 function setInteractionMesh(){
 	
 	// 왼쪽 / 오른쪽으로 들어가는 문
-	var actionHitbox_doorHorizontal_box = new THREE.BoxGeometry(10,10,15);
+	var actionHitbox_doorHorizontal_box = new THREE.BoxGeometry(3,10,15);
 	var actionHitbox_doorHorizontal_geometry = new THREE.MeshStandardMaterial({color : 0x27B500});
 	
 	// 위 / 아래 방향으로 들어가는 문 (z축)
-	var actionHitbox_doorVertical_box = new THREE.BoxGeometry(15, 10, 10);
+	var actionHitbox_doorVertical_box = new THREE.BoxGeometry(10, 10, 3);
 	var actionHitbox_doorVertical_geometry = new THREE.MeshStandardMaterial({color : 0x27B500});
 	
 	// 작은 오브젝트용 상호작용
-	var actionHitbox_withObject_box = new THREE.BoxGeometry(10, 10, 10);
+	var actionHitbox_withObject_box = new THREE.BoxGeometry(5, 10, 5);
 	var actionHitbox_withObject_geometry = new THREE.MeshStandardMaterial({color : 0x27B500});
 	
 	// 큰 (장롱용) 오브젝트용 상호작용
 	
-	var actionHitbox_withBigObject_box = new THREE.BoxGeometry(30, 10, 10);
+	var actionHitbox_withBigObject_box = new THREE.BoxGeometry(30, 10, 5);
 	var actionHitbox_withBigObject_geometry = new THREE.MeshStandardMaterial({color : 0x27B500});
 	
 	// 시작방 - 왼쪽으로 나가는 문
 	var actionHitbox_doorToLeft_mesh_startRoom = new THREE.Mesh(actionHitbox_doorHorizontal_box, actionHitbox_doorHorizontal_geometry);
 	
 	actionHitbox_doorToLeft_mesh_startRoom.name = "action_door_startRoom_toLeft";
-	actionHitbox_doorToLeft_mesh_startRoom.position.set(269,81,60);
+	actionHitbox_doorToLeft_mesh_startRoom.position.set(263,81,60);
 	actionHitbox_doorToLeft_mesh_startRoom.visible = true;
 	
 	actionHitbox_mesh_array.push(actionHitbox_doorToLeft_mesh_startRoom);
 	scene.add(actionHitbox_doorToLeft_mesh_startRoom);
-	
-	// 부엌 - 왼쪽 문
-	var actionHitbox_doorToLeft_mesh_kitchen = new THREE.Mesh(actionHitbox_doorHorizontal_box, actionHitbox_doorHorizontal_geometry);
-	
-	actionHitbox_doorToLeft_mesh_kitchen.name = "action_door_kitchen_toLeft";
-	actionHitbox_doorToLeft_mesh_kitchen.position.set(-199, 5.5, -10);
-	actionHitbox_doorToLeft_mesh_kitchen.visible = true;
-	
-	actionHitbox_mesh_array.push(actionHitbox_doorToLeft_mesh_kitchen);
-	scene.add(actionHitbox_doorToLeft_mesh_kitchen);
+
 	
 	// 악당 방 - 들어가는 문
 	
 	var actionHitbox_doorIn_mesh_villainRoom = new THREE.Mesh(actionHitbox_doorVertical_box, actionHitbox_doorVertical_geometry);
 	
 	actionHitbox_doorIn_mesh_villainRoom.name = "action_door_villain_In";
-	actionHitbox_doorIn_mesh_villainRoom.position.set(35, 8.5, 31);
+	actionHitbox_doorIn_mesh_villainRoom.position.set(35, 8.5, 27);
 	actionHitbox_doorIn_mesh_villainRoom.visible = true;
 	
 	actionHitbox_mesh_array.push(actionHitbox_doorIn_mesh_villainRoom);
@@ -262,7 +263,7 @@ function setInteractionMesh(){
 	var actionHitbox_drawerFront_mesh = new THREE.Mesh(actionHitbox_withBigObject_box, actionHitbox_withBigObject_geometry);
 	
 	actionHitbox_drawerFront_mesh.name = "action_drawerFront";
-	actionHitbox_drawerFront_mesh.position.set(-22.5, 5.5, -154.5);
+	actionHitbox_drawerFront_mesh.position.set(-22.5, 5.5, -160.5);
 	actionHitbox_drawerFront_mesh.visible = true;
 	
 	actionHitbox_mesh_array.push(actionHitbox_drawerFront_mesh);
@@ -331,7 +332,7 @@ function setStairsHitbox(){
 	stairHitbox_right_mesh_4.position.y = 59;
 	stairHitbox_right_mesh_4.position.z = -91;
 	stairHitbox_right_mesh_4.visible = false;
-	console.info(stairHitbox_right_mesh_4);
+	
 	stairHitbox_right_mesh_array.push(stairHitbox_right_mesh_4);
 	scene.add(stairHitbox_right_mesh_4);
 	
@@ -479,8 +480,7 @@ function setStairsHitbox(){
 	
 	var stairHitbox_left_mesh_8 = new THREE.Mesh(stairHitbox_left_box, stairHitbox_left_geometry);
 	
-	
-	
+
 	stairHitbox_left_mesh_8.name = "stair_left_8";
 	stairHitbox_left_mesh_8.position.x = 152;
 	stairHitbox_left_mesh_8.position.y = 6.5;
@@ -500,6 +500,40 @@ function setStairsHitbox(){
 	stairHitbox_left_mesh_array.push(stairHitbox_left_mesh_9);
 	
 	scene.add(stairHitbox_left_mesh_9);
+}
+
+async function syncAnotherPlayerPosition(anotherPlayerPositionData){
+	for(let index in playerUIObj){
+		if(playerUIObj[index].playerId == anotherPlayerPositionData.playerId){
+			playerUIObj[index].now_position_x = anotherPlayerPositionData.now_position_x;
+			playerUIObj[index].now_position_y = anotherPlayerPositionData.now_position_y;
+			playerUIObj[index].now_position_z = anotherPlayerPositionData.now_position_z;
+		}
+	}
+	
+	isSyncing = false;
+}
+function sendMyPositionForSync(){
+	isSyncing = true;
+	const myId = io_ui.id;
+	let myPosition = {
+		playerId : myId,
+		now_position_x : undefined,
+		now_position_y : undefined,
+		now_position_z : undefined
+	};
+	
+	
+	for(var index in playerUIObj){
+		if(playerUIObj[index].playerId == myId){
+			myPosition.now_position_x = playerUIObj[index].now_position_x;
+			myPosition.now_position_y = playerUIObj[index].now_position_y;
+			myPosition.now_position_z = playerUIObj[index].now_position_z;
+			
+			io_ui.emit("ui_sendMyPositionForSync", myPosition)
+		}
+	
+	}
 }
 
 // 둥둥 떠있는 말풍선을 만들어주는 함수
@@ -786,6 +820,28 @@ function viewMap(){
 	map_Elements["hitbox"].scene.visible = false;
 	scene.add(map_Elements["hitbox"].scene);
 }
+
+function door_obj_init(){
+	doors["roomDoor2F"] = {
+		door_animMixer : undefined,
+		doorObj : undefined,
+		doormove : undefined
+	};
+	
+	doors["villianRoom"] = {
+		door_animMixer : undefined,
+		doorObj : undefined,
+		doormove : undefined
+	}
+	
+	doors["clear_outDoor"] = {
+		door_animMixer : undefined,
+		doorObj : undefined,
+		doormove : undefined
+		
+	}
+}
+
 function character_obj_init(){
 	
 	playerUIObj["girl"] = {
@@ -918,10 +974,7 @@ function sendChatMessage(chatInfo){
 	}
 	
 	
-	
-	
-	// let text_sprite = makeTextSprite(message,{fontsize : 18, borderColor : { r: 255,  g: 0, b : 0, a: 1.0}, backgroundColor : { r: 255, g: 100, b: 100, a : 0.8}});
-	
+
 	
 };
 
@@ -976,16 +1029,19 @@ function realtimeUpdatePlayer(){
 		
 		forUpdatePlayerObj = playerUIObj[gltf_key];
 		
-		collision_result = collision_check(gltf_key);
+		if(forUpdatePlayerObj.playerId == io_ui.id){
+			collision_result = collision_check(gltf_key);
+		}else{
+			collision_result = false;
+		}
 		
-		
-		console.info(collision_result);
-		
+
+
 		if(collision_result === true){
-			
+
 			forUpdatePlayerObj.now_position_x = forUpdatePlayerObj.pre_position_x;
 			forUpdatePlayerObj.now_position_z = forUpdatePlayerObj.pre_position_z;
-			
+
 			forUpdatePlayerObj.gltf_nowView.scene.position.x = forUpdatePlayerObj.now_position_x;
 			forUpdatePlayerObj.gltf_nowView.scene.position.y = forUpdatePlayerObj.now_position_y;
 			forUpdatePlayerObj.gltf_nowView.scene.position.z = forUpdatePlayerObj.now_position_z;
@@ -994,23 +1050,23 @@ function realtimeUpdatePlayer(){
 			forUpdatePlayerObj.hitbox.position.y = forUpdatePlayerObj.now_position_y + HITBOX_DEFAULT_HEIGHT;
 			forUpdatePlayerObj.hitbox.position.z = forUpdatePlayerObj.now_position_z;
 
-			
+
 			if(forUpdatePlayerObj.speechBubbleData != undefined){
-			
+
 				forUpdatePlayerObj.speechBubbleData[0].position.x = forUpdatePlayerObj.now_position_x;
 				forUpdatePlayerObj.speechBubbleData[0].position.y = forUpdatePlayerObj.now_position_y + forUpdatePlayerObj.speechBubbleData[1];
 				forUpdatePlayerObj.speechBubbleData[0].position.z = forUpdatePlayerObj.now_position_z;
 			}
-			
+
 			forUpdatePlayerObj.gltf_nowView.scene.rotation.y = forUpdatePlayerObj.seeDirection;
 		}	
-		
+
 		else if(collision_result === false){
-			
+
 			forUpdatePlayerObj.pre_position_x = forUpdatePlayerObj.now_position_x;
 			forUpdatePlayerObj.pre_position_z = forUpdatePlayerObj.now_position_z;
-			
-			
+
+
 			forUpdatePlayerObj.now_position_x += forUpdatePlayerObj.move_x;
 			forUpdatePlayerObj.now_position_z += forUpdatePlayerObj.move_z;
 
@@ -1027,10 +1083,11 @@ function realtimeUpdatePlayer(){
 				forUpdatePlayerObj.speechBubbleData[0].position.y = forUpdatePlayerObj.now_position_y + forUpdatePlayerObj.speechBubbleData[1];
 				forUpdatePlayerObj.speechBubbleData[0].position.z = forUpdatePlayerObj.now_position_z;
 			}
-			
+
 			forUpdatePlayerObj.gltf_nowView.scene.rotation.y = forUpdatePlayerObj.seeDirection;
-			
+
 		}
+		
 		
 	}
 }
@@ -1055,6 +1112,24 @@ function animate(){
 	help_1Fhallway.update();
 	help_1Fkitchen.update();
 	help_1FkitchenBold.update();
+	orbControls.update();
+	//////////////////////////////////////////
+	/////////////////// 2층복도 카메라 무브 부분. flag설정을 해 주어야 함. /////////////////////////
+	
+	//console.log("x : " + camera.position.x + "z : " + camera.position.z);
+    //console.log("x : "+forFindMesh.position.x+"z : "+forFindMesh.position.z);
+	 /*console.log(orbControls.target);
+        console.log(camera.position);
+        console.log(camera.lookAt);*/
+	if (forFindMesh.position.z >= 0 && forFindMesh.position.z <= 72) {
+        camera.position.x = camera.position.z + 100;
+        camera.position.z = forFindMesh.position.z + 78;
+	console.log(orbControls);
+    console.log(camera);
+    }
+	//console.log(orbControls);
+     //   console.log(camera);
+	//console.log(orbControls.center);
 	//////////////////////////////////////////
 	
 }
@@ -1064,7 +1139,7 @@ function update(){
 	
 	// 플레이어 UI 객체가 보이는 상태이면
 	if(playerUIObj["view_status"] === true){
-		console.info("update Running...");
+		
 		
 		let clockTime = clock.getDelta();
 		playerUIObj["girl"].gltf_nowView_animMixer.update(clockTime);
@@ -1111,12 +1186,39 @@ function useInteraction(){
 			// arr_interactBoxList : 상호작용 처리할, 즉 부딛힐 박스의 목록
 			// 해당 배열에다가 부딛힐 Mesh 들 추가하면 됨, 전역변수로 넣어둠
 			
-			var collisionResults = ray.intersectObjects( arr_interactBoxList );
+			var collisionResults = ray.intersectObjects( actionHitbox_mesh_array );
 			
 			if ( collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()){
 			
 				// 플레이어가 상호작용을 시도했다면
 				if(playerUIObj[gltf_key].isTryInteraction === true){
+					console.info("tryInteraction : " + collisionResults[0].object.name);
+					if(collisionResults[0].object.name == "action_door_startRoom_toLeft"){
+						// 시작방 문 앞이면
+						
+						doors["roomDoor2F"].doormove.play();
+					}
+					
+					else if(collisionResults[0].object.name == "action_door_villain_In"){
+						// 악당방 들어가는 문 앞이면
+					}
+					
+					else if(collisionResults[0].object.name == "action_drawerFront"){
+						
+						// 악당방의 장롱 앞이면
+						
+					}
+					
+					else if(collisionResults[0].object.name == "action_blender"){
+						// 주방의 믹서기 앞에서 상호작용 하면
+						
+					}
+					
+					else if(collisionResults[0].object.name == "action_door_kitchen_toLeft"){
+						// 주방의 왼쪽 문 앞에서 상호작용 하면	
+					}
+					
+					
 					
 				}
 				
@@ -1214,10 +1316,10 @@ function collision_check(gltf_key){
 	}
 		
 	
-	console.info(`${gltf_key}, ${index}`);
+	
 	
 	var playerCollisionObj = playerCollisionObjs[index];
-	console.info("playerCollisionObj : " + playerCollisionObj);
+	
 	var originPoint = playerCollisionObj.position.clone();
 
 
@@ -1318,15 +1420,7 @@ var createPlayer = function(initPlayerObjArr){
 			playerUIObj[nowPlayerKey].gltf_nowView_animMixer.clipAction(clip).play();
 		}); // 멈춤
 			
-		
-		// 현재 눈에 보이는 gltf 모델의 위치를 수정
-		/*
-		playerUIObj[nowPlayerKey].now_position_x = initPlayerObjArr[i].objStatus.x;
-		playerUIObj[nowPlayerKey].now_position_y = initPlayerObjArr[i].objStatus.y;
-		playerUIObj[nowPlayerKey].now_position_z = initPlayerObjArr[i].objStatus.z;
-
-		*/
-		
+	
 
 		playerUIObj[nowPlayerKey].gltf_nowView.scene.position.x = playerUIObj[nowPlayerKey].now_position_x;
 		playerUIObj[nowPlayerKey].gltf_nowView.scene.position.y = playerUIObj[nowPlayerKey].now_position_y;
@@ -1338,15 +1432,16 @@ var createPlayer = function(initPlayerObjArr){
 		
 		scene.add(playerUIObj[nowPlayerKey].hitbox); // 충돌 hitbox 추가
 		playerCollisionObjs.push(playerUIObj[nowPlayerKey].hitbox);
-		console.info(nowPlayerKey + " : gltfObj View");
+		
 		scene.add(playerUIObj[nowPlayerKey].gltf_nowView.scene); // 현재 설정된 gltf view 추가
 		
-		console.info(playerUIObj[nowPlayerKey].gltf_nowView.scene.position);
-		console.info(playerUIObj[nowPlayerKey].hitbox.position);
+	
 		
 	}
 	
 	playerUIObj["view_status"] = true;
+	
+	syncPositionByInterval = setInterval(sendMyPositionForSync, 500)
 	
 }
 
@@ -1430,9 +1525,9 @@ function playerPoseChangeCheck(player_status){
 // 한쪽에서 Disconnect 되었을 때 처리하는 함수
 var DisconnectedUI = function(){
 	
+	clearInterval(syncPositionByInterval);
 	
 	// 화면, 즉 scene 안에 있는 모든 오브젝트 들을 모두 지워버림
-	
 	while(scene.children.length > 0){ 
     	scene.remove(scene.children[0]); 
 	}
@@ -1472,6 +1567,7 @@ function gltf_Load(){
 	gltfload_Map_Collision();
 	gltfload_ManAnimation();
 	gltfload_GirlAnimation();
+	gltfload_2F_doorAnimation();
 	
 }
 
@@ -1511,6 +1607,47 @@ async function gltfload_Map() {
 	
 }
 
+async function gltfload_2F_doorAnimation(){
+	
+	const roomDoor2F = SERVER_URL + MODELINGDATA_PATH + "2FroomDoor.glb";
+	
+	gltfLoader.load(roomDoor2F, function(doorObj){
+		
+		doorObj.scene.scale.x = 5;
+		doorObj.scene.scale.y = 5;
+		doorObj.scene.scale.z = 5;
+		
+		doorObj.scene.position.x = 260;
+        doorObj.scene.position.y = 75;
+        doorObj.scene.position.z = 60;
+		
+		doorObj.scene.rotation.y = Math.PI / 2;
+		
+		scene.add(doorObj.scene);
+		
+		doors["roomDoor2F"].door_animMixer = new THREE.AnimationMixer(doorObj.scene);
+		doors["roomDoor2F"].doormove = doors["roomDoor2F"].door_animMixer.clipAction(doorObj.animations[0]);
+		doors["roomDoor2F"].doormove.setLoop(THREE.LoopOnce);
+		doors["roomDoor2F"].doormove.clampWhenFinished = true;
+
+		doors["roomDoor2F"].doorObj = doorObj;
+		
+		
+	},
+	function ( xhr ) {
+
+		console.log( Math.floor(( xhr.loaded / xhr.total * 100 )) + '% loaded' );
+
+	},
+	// called when loading has errors
+	function ( error ) {
+
+		console.log( 'An error happened' + error );
+
+	}	
+	);
+}
+
 async function gltfload_Map_Collision(){
 	
 	const map_collision = SERVER_URL + MODELINGDATA_PATH + "collision.glb";
@@ -1528,7 +1665,7 @@ async function gltfload_Map_Collision(){
 			 	
 		});
 		
-		console.info(collision_datas);
+		
 		map_Elements["hitbox"] = gltfObj;
 		gltfObj.scene.scale.set( 5, 5, 5);			   
 		gltfObj.scene.position.x = 0;    //Position (x = right+ left-) 
@@ -1573,16 +1710,7 @@ async function gltfload_ManAnimation(){
 		
 		playerUIObj["boy"].gltf_run = gltfObj;
 		playerUIObj["boy"].gltf_run_animMixer = new THREE.AnimationMixer(playerUIObj["boy"].gltf_run.scene);
-		
-		
-		/*
-		playerUIObj["boy"].gltf_run.animations.forEach((clip) => {
-			playerUIObj["boy"].gltf_run_animMixer.clipAction(clip).play();
-		}); // 애니메이션 실행시켜놓음
-		*/
-		
-		
-		
+			
 	
 	},
 	function ( xhr ) {
@@ -1760,16 +1888,7 @@ async function gltfload_GirlAnimation(){
 		playerUIObj["girl"].gltf_cwalk = gltfObj;
 		playerUIObj["girl"].gltf_cwalk_animMixer = new THREE.AnimationMixer(gltfObj.scene);
 		
-		
-		/*
-		playerUIObj["girl"].gltf_cwalk.animations.forEach((clip) => {
-			playerUIObj["girl"].gltf_cwalk_animMixer.clipAction(clip).play();
-		}); // 애니메이션 실행시켜놓음
-		*/
-		
-		
-		
-		
+	
 	
 	},
 	function ( xhr ) {
