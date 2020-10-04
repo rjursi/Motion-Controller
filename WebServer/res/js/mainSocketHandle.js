@@ -127,6 +127,10 @@ io_ui.on('anotherPlayerPositionUpdate', function(anotherPlayerPosition){
 	syncAnotherPlayerPosition(anotherPlayerPosition);
 });
 
+
+io_ui.on('clearDatasUpdate', function(clearDatas){
+	syncClearDatas(clearDatas);
+});
 io_ui.on('playerStatusUpdate', function(updatedPlayerData){
 	
 	updatePlayerStatus(updatedPlayerData);

@@ -14,6 +14,7 @@ function RoomManager(io){
   RmMg.roomSockets = {}; // 방별 소켓이 들어갈 공간
   RmMg.InRoomControlAllow = {}; // 조작이 가능한 상태인지를 저장하는 변수
 	
+	
   // 하나의 방을 만드는 메소드
   RmMg.create = function(playerSock, inviteCode){
 	  
@@ -104,8 +105,6 @@ function RoomManager(io){
 	  
 	  return roomSockets;
 	  
-	  
-	  
   }
   
   
@@ -142,7 +141,17 @@ function RoomManager(io){
 	
   };
 	
-	
+  RmMg.clearDatasSync = function(myClearDatas){
+	  let playerSockId = myClearDatas.playerId;
+	  if(RmMg.InRoomControlAllow[playerSockId] === true){
+		  let getRoom = RmMg.rooms[RmMg.roomIndex[playerSockId]];
+		  
+		  let clearDatas = myClearDatas.myClearDatas;
+		  io.to(getRoom.id).emit('clearDatasUpdate', clearDatas);
+	  }
+  }
+  
+  
   RmMg.positionSync = function(myPosition){
 	  let playerSockId = myPosition.playerId;
 	  if(RmMg.InRoomControlAllow[playerSockId] === true){
@@ -174,6 +183,9 @@ function RoomManager(io){
 	}
 	
   }
+  
+  
+  
   /*
   RmMg.updatePlayerGyroData = function(playerSock, gyroData){
   	

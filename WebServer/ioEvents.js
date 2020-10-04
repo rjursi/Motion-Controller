@@ -445,6 +445,9 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 			roomMgr.positionSync(myPosition);
 		});
       
+		socket.on('ui_sendClearDatas', function(clearDatas){
+			roomMgr.clearDatasSync(clearDatas);
+		});
 	});
 	
 	

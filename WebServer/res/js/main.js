@@ -27,6 +27,8 @@ var gltfLoader, dracoLoader;
 var playerUIObj = {};
 //var playerCollisionObj, col_geometry, col_material; // 충돌 테스트를 위한 임시 Mesh 요소
 var doors = {};
+var clearDatas = {}; // 이미 해당 오브젝트를 사용했는지 Bool 값으로 체크하는 데이터, sync 하는데 사용
+var clearStatuses = {}; 
 var playerCollisionObjs = [];
 
 // 맵 관련 오브젝트가 들어갈 예정
@@ -34,7 +36,7 @@ var map_Elements = {};
 
 // 맵 내 움직일 수 있는 오브젝트가 들어갈 배열
 var map_objects = {};
-
+let door_collisions = [];
 var arr_interactBoxList = [];
 
 // 위 형식은 일반 배열이 아닌 딕셔너리, 아래와 같이 인덱스 문자열과 함께 삽입 하면 됨
@@ -45,8 +47,11 @@ game_sockets[socket.id] = {
 			};
 */
 
-let syncPositionByInterval;
+let syncPositionByInterval; // 싱크를 맞추기 위하여 실시간으로 sync 를 맞추는 Interval
+let syncClearDataByInterval; // 실시간으로 클리어 판정을 맞추는 Interval
+let checkClearStatusByInterval;
 let isSyncing;
+let isPositionChanging_clear = false;
 
 
 function init(){
@@ -108,9 +113,12 @@ function init(){
 	
 	gltfLoader = new THREE.GLTFLoader();
 	clock = new THREE.Clock();
-
+	door_collisions_init(); // 기본 문을 막고 있는 충돌 설정
+	
 	character_obj_init(); // 캐릭터 gltf 오브젝트를 넣어놓을 공간 초기화
-	door_obj_init();
+	door_obj_init(); // 열고 닫을 수 있는 문 상태 초기화
+	clearDatas_init(); // 클리어를 위한 모든 상태 초기화
+	clearStatuses_init(); // 로컬 오브젝트 다시 애니메이션 실행되지 않도록 하는 식별 값
 	gltf_Load(); // 모든 gltf 모델 로드
 	
 
@@ -502,17 +510,40 @@ function setStairsHitbox(){
 	scene.add(stairHitbox_left_mesh_9);
 }
 
+async function syncClearDatas(sendData_clearDatas){
+	
+	clearDatas = sendData_clearDatas;
+	
+}
+
+function sendMyClearDataForSync(){
+	const myId = io_ui.id;
+	let myClearDatas = {
+		playerId : myId,
+		myClearDatas : clearDatas
+	}
+	
+	io_ui.emit('ui_sendClearDatas', myClearDatas);	
+}
+
+
 async function syncAnotherPlayerPosition(anotherPlayerPositionData){
-	for(let index in playerUIObj){
-		if(playerUIObj[index].playerId == anotherPlayerPositionData.playerId){
-			playerUIObj[index].now_position_x = anotherPlayerPositionData.now_position_x;
-			playerUIObj[index].now_position_y = anotherPlayerPositionData.now_position_y;
-			playerUIObj[index].now_position_z = anotherPlayerPositionData.now_position_z;
+	
+	if(isPositionChanging_clear != true){
+		for(let index in playerUIObj){
+			if(playerUIObj[index].playerId == anotherPlayerPositionData.playerId){
+				playerUIObj[index].now_position_x = anotherPlayerPositionData.now_position_x;
+				playerUIObj[index].now_position_y = anotherPlayerPositionData.now_position_y;
+				playerUIObj[index].now_position_z = anotherPlayerPositionData.now_position_z;
+			}
 		}
 	}
 	
+	
 	isSyncing = false;
 }
+
+
 function sendMyPositionForSync(){
 	isSyncing = true;
 	const myId = io_ui.id;
@@ -588,6 +619,7 @@ function makeTextSprite( message, parameters )
 	var line = '';
 	var words = message.split(' ');
 	var maxWidth = 200;
+	
 	var width = (canvas.width - maxWidth) / 2;
 	var textWidth;
 	var lineHeight = fontsize;
@@ -598,7 +630,7 @@ function makeTextSprite( message, parameters )
 		var testLine = line + words[n] + ' ';
 		var metrics = context.measureText(testLine);
 		textWidth = metrics.width;
-		
+			
 		if (textWidth > maxWidth && n > 0) {
 			line = words[n] + ' ';
 			height += lineHeight;
@@ -821,6 +853,40 @@ function viewMap(){
 	scene.add(map_Elements["hitbox"].scene);
 }
 
+
+function door_collisions_init(){
+	// 왼쪽 / 오른쪽으로 들어가는 문
+	var close_doorHorizontal_box = new THREE.BoxGeometry(3,10,20);
+	var close_doorHorizontal_geometry = new THREE.MeshStandardMaterial({color : 0xFF0000});
+	
+	// 위 / 아래 방향으로 들어가는 문 (z축)
+	var close_doorVertical_box = new THREE.BoxGeometry(20, 10, 3);
+	var close_doorVertical_geometry = new THREE.MeshStandardMaterial({color : 0xFF0000});
+	
+	
+	var close_doorToLeft_mesh_startRoom = new THREE.Mesh(close_doorHorizontal_box, close_doorHorizontal_geometry);
+	
+	close_doorToLeft_mesh_startRoom.name = "close_door_startRoom";
+	close_doorToLeft_mesh_startRoom.position.set(259, 77, 58.5);
+	close_doorToLeft_mesh_startRoom.visible = true;
+	
+	door_collisions.push(close_doorToLeft_mesh_startRoom);
+	scene.add(close_doorToLeft_mesh_startRoom);
+	
+	var close_villianRoom = new THREE.Mesh(close_doorVertical_box, close_doorVertical_geometry);
+	
+	close_villianRoom.name = "close_door_villianRoom";
+	close_villianRoom.position.set(37.5, 13.5, 18.5);
+	close_villianRoom.visible = true;
+	
+	door_collisions.push(close_villianRoom);
+	scene.add(close_villianRoom);
+	
+	
+}
+
+
+
 function door_obj_init(){
 	doors["roomDoor2F"] = {
 		door_animMixer : undefined,
@@ -832,14 +898,42 @@ function door_obj_init(){
 		door_animMixer : undefined,
 		doorObj : undefined,
 		doormove : undefined
-	}
+	};
 	
 	doors["clear_outDoor"] = {
 		door_animMixer : undefined,
 		doorObj : undefined,
 		doormove : undefined
 		
-	}
+	};
+}
+function clearStatuses_init(){
+	clearStatuses['openDoors'] = {
+		roomDoor2F : false,
+		villianRoom : false,
+		clear_outDoor : false
+	};
+	
+	clearStatuses['obj'] = {
+		blender : false, // 믹서기
+		villian_drawer : false // 악당방 장롱
+	};
+}
+
+
+
+function clearDatas_init(){
+	clearDatas['openDoors'] = {
+		roomDoor2F : false,
+		villianRoom : false,
+		clear_outDoor : false
+	};
+	
+	clearDatas['obj'] = {
+		blender : false, // 믹서기
+		villian_drawer : false // 악당방 장롱
+	};
+	
 }
 
 function character_obj_init(){
@@ -936,6 +1030,25 @@ function character_obj_init(){
 
 var timeout = undefined;
 
+function viewGameProcessInfo(gameInfo){
+	let position = gameInfo[0];
+	let message = gameInfo[1];
+	let bubbleInfo = {fontsize : 25, borderColor : { r: 0,  g: 0, b : 0, a: 1.0}, backgroundColor : { r: 255, g: 255, b: 255, a : 0.8}};
+	let infoBubbleData = makeTextSprite(message, bubbleInfo)[0];
+	
+	
+	infoBubbleData.position.set(position.x, position.y, position.z);
+	
+	scene.add(infoBubbleData);
+	
+	setTimeout(() => {
+		scene.remove(infoBubbleData);
+	}, 3000)
+					   
+	
+}
+
+
 function sendChatMessage(chatInfo){
 	let playerSocketId = chatInfo[0];
 	let message = chatInfo[1];
@@ -964,8 +1077,8 @@ function sendChatMessage(chatInfo){
 			
 			
 			timeout = setTimeout(() => {
-					scene.remove(playerUIObj[index].speechBubbleData[0]);
-					playerUIObj[index].speechBubbleData = undefined
+				scene.remove(playerUIObj[index].speechBubbleData[0]);
+				playerUIObj[index].speechBubbleData = undefined
 			}, 3000);
 			
 			
@@ -977,6 +1090,34 @@ function sendChatMessage(chatInfo){
 
 	
 };
+
+function updatePlayerPositionByClear(positionData){
+	playerUIObj["girl"].now_position_x = positionData[0];
+	playerUIObj["boy"].now_position_x = positionData[1];
+	
+	playerUIObj["girl"].now_position_y = positionData[2];
+	playerUIObj["boy"].now_position_y = positionData[2];
+	
+	playerUIObj["girl"].now_position_z = positionData[3];
+	playerUIObj["boy"].now_position_z = positionData[3];
+	
+	playerUIObj["girl"].gltf_nowView.scene.position.x = playerUIObj["girl"].now_position_x;
+	playerUIObj["girl"].gltf_nowView.scene.position.y = playerUIObj["girl"].now_position_y;
+	playerUIObj["girl"].gltf_nowView.scene.position.z = playerUIObj["girl"].now_position_z;
+	
+	playerUIObj["boy"].gltf_nowView.scene.position.x = playerUIObj["boy"].now_position_x;
+	playerUIObj["boy"].gltf_nowView.scene.position.y = playerUIObj["boy"].now_position_y;
+	playerUIObj["boy"].gltf_nowView.scene.position.z = playerUIObj["boy"].now_position_z;
+	
+	playerUIObj["girl"].hitbox.position.x = playerUIObj["girl"].now_position_x;
+	playerUIObj["girl"].hitbox.position.y = playerUIObj["girl"].now_position_y;
+	playerUIObj["girl"].hitbox.position.z = playerUIObj["girl"].now_position_z;
+	
+	playerUIObj["boy"].hitbox.position.x = playerUIObj["boy"].now_position_x;
+	playerUIObj["boy"].hitbox.position.y = playerUIObj["boy"].now_position_y;
+	playerUIObj["boy"].hitbox.position.z = playerUIObj["boy"].now_position_z;
+	
+}
 
 // 이건 바로 함수 호출하자 마자 상태값만 업데이트 시키는 함수
 function updatePlayerStatus(updatedPlayerData){
@@ -1010,8 +1151,118 @@ function updatePlayerStatus(updatedPlayerData){
 
 }
 
+function checkClearStatus(){
+	if(clearDatas['openDoors'].roomDoor2F == true){
+		if(clearStatuses['openDoors'].roomDoor2F == false){
+			// 상대방이 문을 열경우(동기화로 인하여) 문 애니메이션 실행
+			
+			doors["roomDoor2F"].doormove.play();
+			clearStatuses['openDoors'].roomDoor2F = true;
+			
+			
+			let infoPosition = {
+				x : 283,
+				y : 81,
+				z : 60
+			}
+			
+			let message = "문을 열었습니다.";
+			
+			viewGameProcessInfo([infoPosition, message]);
+			
+			let doorCollisionTemp = door_collisions[0]
+			scene.remove(door_collisions[0]);
+			door_collisions.splice(0,1); // 악당 방의 충돌 요소를 지워버림
+			
+			isPositionChanging_clear = true;
+			setTimeout(() => {
+				updatePlayerPositionByClear([239, 249, 77, 61]);
+				isPositionChanging_clear = false;
+			}, 1000);
+			
+			setTimeout(() => {
+				
+				door_collisions.splice(0,0, doorCollisionTemp); // 
+				scene.add(door_collisions[0]);
+			}, 2000)
+			
+		}
+	}
+	
+	if(clearDatas['openDoors'].villianRoom == true){
+		if(clearStatuses['openDoors'].villianRoom == false){
+			
+			if(clearStatuses['obj'].blender == true){
+				doors["villianRoom"].doormove.play();
+				clearStatuses['openDoors'].villianRoom = true;
+				
+				scene.remove(door_collisions[1]);
+				door_collisions.splice(1,1); // 악당 방의 충돌 요소를 지워버림
+				
+				isPositionChanging_clear = true;
+				setTimeout(() => {
+					updatePlayerPositionByClear([35, 45, 0, 0]);
+					isPositionChanging_clear = false;
+				}, 1000);
 
-function realtimeUpdatePlayer(){
+				
+			}
+			
+			
+			
+		}
+	}
+	
+	if(clearDatas['openDoors'].clear_outDoor == true){
+		if(clearStatuses['openDoors'].clear_outDoor == false){
+			// 상대방이 문을 열경우(동기화로 인하여) 문 애니메이션 실행
+			
+			clearStatuses['openDoors'].clear_outDoor = true;
+			
+			// 여기 엔딩이 들어갈 부분
+		}
+	}
+	
+	if(clearDatas['obj'].blender == true){
+		if(clearStatuses['obj'].blender == false){
+			// 믹서기를 튼 상태를 업데이트		
+			clearStatuses['obj'].blender = true;
+			
+			
+			let infoPosition = {
+				x : -198.5,
+				y : 10,
+				z : -30.5
+			}
+			
+			let message = "믹서기를 가동했습니다. 할아버지가 올겁니다. 좌측의 방에 숨으세요.";
+			
+			viewGameProcessInfo([infoPosition, message]);
+		}
+	}
+	
+	if(clearDatas['obj'].villian_drawer == true){
+		if(clearStatuses['openDoors'].villian_drawer == false){
+			// 악당 방의 장롱을 접근하여 열쇠를 얻음
+			
+			clearStatuses['openDoors'].villian_drawer = true;
+			
+			let infoPosition = {
+				x : -22.5,
+				y : 10,
+				z : -160.5
+			}
+			
+			let message = "열쇠를 얻었습니다. 1층 우측 끝으로 집을 나가세요.";
+			
+			viewGameProcessInfo([infoPosition, message]);
+			
+		}
+	}
+	
+	
+}
+async function realtimeUpdatePlayer(){
 	
 	
 	var gltf_key;
@@ -1121,18 +1372,30 @@ function animate(){
 	 /*console.log(orbControls.target);
         console.log(camera.position);
         console.log(camera.lookAt);*/
+	
+	/*
+	
+	
 	if (forFindMesh.position.z >= 0 && forFindMesh.position.z <= 72) {
         camera.position.x = camera.position.z + 100;
         camera.position.z = forFindMesh.position.z + 78;
-	console.log(orbControls);
-    console.log(camera);
+	//console.log(orbControls);
+    //console.log(camera);
     }
+	
+	*/
+	// 테스트를 위하여 잠시 주석처리함
+	
+	
 	//console.log(orbControls);
      //   console.log(camera);
 	//console.log(orbControls.center);
 	//////////////////////////////////////////
 	
 }
+
+
+
 function update(){
 	
 	
@@ -1144,11 +1407,12 @@ function update(){
 		let clockTime = clock.getDelta();
 		playerUIObj["girl"].gltf_nowView_animMixer.update(clockTime);
 		playerUIObj["boy"].gltf_nowView_animMixer.update(clockTime);
-		
-		
+		doors["roomDoor2F"].door_animMixer.update(clockTime);
+		doors["villianRoom"].door_animMixer.update(clockTime);
 		realtimeUpdatePlayer();
 		stair_check();
 		useInteraction();
+		
 		
 	}
 	
@@ -1156,7 +1420,7 @@ function update(){
 }
 
 
-function useInteraction(){
+async function useInteraction(){
 	
 	// Player 1, 2 마다 반복문으로 모두 처리
 	for(var index in playerCollisionObjs){
@@ -1195,28 +1459,56 @@ function useInteraction(){
 					console.info("tryInteraction : " + collisionResults[0].object.name);
 					if(collisionResults[0].object.name == "action_door_startRoom_toLeft"){
 						// 시작방 문 앞이면
+						if(clearDatas['openDoors'].roomDoor2F == false){ // 이미 열려있는 게 아니면
+							
+							clearDatas['openDoors'].roomDoor2F = true;
+						}
 						
-						doors["roomDoor2F"].doormove.play();
 					}
 					
 					else if(collisionResults[0].object.name == "action_door_villain_In"){
 						// 악당방 들어가는 문 앞이면
+						if(clearDatas['openDoors'].villianRoom == false){
+							
+							if(clearDatas['obj'].blender == false){
+								let infoPosition = {
+									x : 35,
+									y : 10,
+									z : 27
+								}
+
+								let message = "왼쪽 부엌의 믹서기를 먼저 가동시켜 할아버지가 방문을 열어놓고 오도록 해야합니다.";
+
+								viewGameProcessInfo([infoPosition, message]);
+								
+							}else{
+								
+								clearDatas['openDoors'].villianRoom = true;
+							}
+							
+							
+						}
+							
 					}
 					
 					else if(collisionResults[0].object.name == "action_drawerFront"){
 						
 						// 악당방의 장롱 앞이면
-						
+						if(clearDatas['obj'].villian_drawer == false){
+							
+							clearDatas['obj'].villian_drawer = true;
+						}
 					}
 					
 					else if(collisionResults[0].object.name == "action_blender"){
 						// 주방의 믹서기 앞에서 상호작용 하면
-						
+						if(clearDatas['obj'].blender == false){
+							
+							clearDatas['obj'].blender = true;
+						}
 					}
 					
-					else if(collisionResults[0].object.name == "action_door_kitchen_toLeft"){
-						// 주방의 왼쪽 문 앞에서 상호작용 하면	
-					}
+					
 					
 					
 					
@@ -1231,9 +1523,10 @@ function useInteraction(){
 		}
 	}
 }
-	
-	
-function stair_check(){
+
+
+
+async function stair_check(){
 	
 	for(var index in playerCollisionObjs){
 		
@@ -1336,17 +1629,23 @@ function collision_check(gltf_key){
 		// 여기에 부딛히는 여러개의 메쉬들이 들어감
 		var collisionResults = ray.intersectObjects( collision_datas );
 
-
+		// 기존의 벽에 박았는지
 		if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()){
 
 			console.log("hit");
 
 			return true;
-
-	
 		}
+		
+		// 닫힌 문에 박았는지
+		var doorCloseResults = ray.intersectObjects( door_collisions );
+		
+		if (doorCloseResults.length > 0 && doorCloseResults[0].distance < directionVector.length()){
 
+			console.log("hit");
 
+			return true;
+		}
 
 	}
 	
@@ -1441,8 +1740,9 @@ var createPlayer = function(initPlayerObjArr){
 	
 	playerUIObj["view_status"] = true;
 	
-	syncPositionByInterval = setInterval(sendMyPositionForSync, 500)
-	
+	syncPositionByInterval = setInterval(sendMyPositionForSync, 100)
+	syncClearDataByInterval = setInterval(sendMyClearDataForSync, 300);
+	checkClearStatusByInterval = setInterval(checkClearStatus, 300);
 }
 
 
@@ -1526,6 +1826,8 @@ function playerPoseChangeCheck(player_status){
 var DisconnectedUI = function(){
 	
 	clearInterval(syncPositionByInterval);
+	clearInterval(syncClearDataByInterval);
+	clearInterval(checkClearStatusByInterval);
 	
 	// 화면, 즉 scene 안에 있는 모든 오브젝트 들을 모두 지워버림
 	while(scene.children.length > 0){ 
@@ -1559,7 +1861,10 @@ function onWindowResize() {
 
 
 
-//////////////////////////////////////////////// gltf 로딩 부분
+
+
+
+//////////////////////////////////////////////// gltf 로딩 부분 ///////////////////////////////////////////////////////////
 
 
 function gltf_Load(){
@@ -1568,6 +1873,8 @@ function gltf_Load(){
 	gltfload_ManAnimation();
 	gltfload_GirlAnimation();
 	gltfload_2F_doorAnimation();
+	gltfLoad_1F_villianRoomDoorAnimation();
+
 	
 }
 
@@ -1606,7 +1913,30 @@ async function gltfload_Map() {
 	);
 	
 }
+async function gltfLoad_1F_villianRoomDoorAnimation(){
+	const roomDoor_villian = SERVER_URL + MODELINGDATA_PATH + "1FVillianDoor.glb";
+	
+	gltfLoader.load(roomDoor_villian, function(doorObj){
+		doorObj.scene.scale.x = 5;
+		doorObj.scene.scale.y = 5;
+		doorObj.scene.scale.z = 5;
+		
+		doorObj.scene.position.x = 35;
+        doorObj.scene.position.y = 8.5;
+        doorObj.scene.position.z = 18;
+		
+		// doorObj.scene.rotation.y = Math.PI / 2;
+		scene.add(doorObj.scene);
+		
+		
+		doors["villianRoom"].door_animMixer = new THREE.AnimationMixer(doorObj.scene);
+		doors["villianRoom"].doormove = doors["villianRoom"].door_animMixer.clipAction(doorObj.animations[0]);
+		doors["villianRoom"].doormove.setLoop(THREE.LoopOnce);
+		doors["villianRoom"].doormove.clampWhenFinished = true;
 
+		doors["villianRoom"].doorObj = doorObj;
+	});
+}
 async function gltfload_2F_doorAnimation(){
 	
 	const roomDoor2F = SERVER_URL + MODELINGDATA_PATH + "2FroomDoor.glb";
@@ -1647,6 +1977,7 @@ async function gltfload_2F_doorAnimation(){
 	}	
 	);
 }
+
 
 async function gltfload_Map_Collision(){
 	
