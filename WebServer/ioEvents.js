@@ -201,24 +201,7 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 					console.log(inviteCodesPerUser);
 				}
 				
-					
-				/*
-				// 해당 웹 소켓에 해당하는 컨트롤러가 존재 할 경우
-				if(controller_sockets[game_sockets[web_socketIdTemp].controller_id]){
-					
-					var controllerSocket = controller_sockets[game_sockets[web_socketIdTemp].controller_id].socket;
-
-					controllerSocket.emit("server_Disconnected");
-					// 관련된 컨트롤러 소켓이 연결이 끊어졌다고 알림
-					
-					// controller_sockets[game_sockets[web_socketIdTemp].controller_id].socket.emit("controller_connected", false);
-					// controller_sockets[game_sockets[web_socketIdTemp].controller_id].game_id = undefined;
-				}
-				*/
-				
-				
-			
-
+							
 			}
 			
 			
@@ -300,6 +283,67 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 			
 		});
 		
+		socket.on('clear', function(){
+			// 만약에 등록된 웹 소켓이 존재할 경우
+			console.info('clear_disconnect!!!!');
+			
+			if(game_sockets[web_socketIdTemp]){
+				
+				console.log("Web : Game Clear disconnected");
+				
+				// 해당 방이 존재할 경우
+				
+				console.info(web_socketIdTemp);
+				
+				
+				if(roomMgr.roomIndex[web_socketIdTemp]){
+					console.log("websocket disconn : after room maked status");
+					// 만약 room 을 아직 생성하기 전일 경우에도 처리
+
+					// roomMgr 상에서 해당 방을 부셔버려야 함
+					// 여기 안에서 lobbyMgr 도 알아서 kick 함
+
+					
+					// 안드로이드 컨트롤러에게 끊어졌다고 알림
+					var inRoomPlayerSockets = roomMgr.returnRoomSockets(web_socketIdTemp);
+
+					console.info(inRoomPlayerSockets);
+					
+					// 해당 룸에 속한 소켓들을 가져오는 역할을 함
+					for(var index in inRoomPlayerSockets){
+						
+						let indexSocket = inRoomPlayerSockets[index];
+						console.info(index);
+						var controllerSocket = controller_sockets[game_sockets[indexSocket.id].controller_id].socket;
+
+						// 각 안드로이드 컨트롤러 소켓에게 서버가 끊어졌다고 알림
+						controllerSocket.emit("server_Disconnected");
+						
+						delete controller_sockets[game_sockets[indexSocket.id].controller_id];
+						delete game_sockets[indexSocket.id];
+
+					}
+
+
+					// 해당 소켓이 포함된 room 폭파
+					roomMgr.destroy_clear(web_socketIdTemp, lobbyMgr)
+
+					const inviteCodeIndex = inviteCodes.indexOf(inviteCodesPerUser[web_socketIdTemp]);
+
+					if(inviteCodeIndex != -1){
+						inviteCodes.splice(inviteCodeIndex, 1);
+					}
+					
+					console.log(inviteCodes);
+
+					delete inviteCodesPerUser[web_socketIdTemp];
+					console.log(inviteCodesPerUser);
+				}
+				
+			}
+			
+			
+		});
 		
 		/*
 		// 해당 가속도, 센서값 소켓에는 안드로이드에서 접속한 소켓 값이 들어오게 됨

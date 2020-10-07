@@ -115,55 +115,101 @@ function RoomManager(io){
 	  
 	console.info(roomId); 
 	
-	/*
-    var room = RmMg.rooms[roomId];
-	*/
-	  
-	  
-	var roomSockets = RmMg.returnRoomSockets(playerSockId);  
-	console.info(RmMg.roomSockets[playerSockId]);
-	 
-	// 해당 romm 에다가 모든 UI를 지우는 역할을 함  
-	io.to(roomId).emit('Disconnected_UI');
-	  
-	
-    roomSockets.forEach(function(socket){
-	
-	  LbMg.kick(socket); // 로비에서도 해당 소켓을 끊어버림
+	if(roomId != undefined){
 		
-      delete RmMg.roomIndex[socket.id];
-	  delete RmMg.roomSockets[socket.id];
-		
-    });
-	  
-    delete RmMg.rooms[roomId];
-	console.info("roomManager : 지정한 룸이 지워졌습니다.");
+		var room = RmMg.rooms[roomId];
+
+		var roomSockets = RmMg.returnRoomSockets(playerSockId);  
+		console.info(RmMg.roomSockets[playerSockId]);
+
+		// 해당 romm 에다가 모든 UI를 지우는 역할을 함  
+		io.to(roomId).emit('Disconnected_UI');
+
+
+		roomSockets.forEach(function(socket){
+
+		  LbMg.kick(socket); // 로비에서도 해당 소켓을 끊어버림
+
+		  delete RmMg.roomIndex[socket.id];
+		  delete RmMg.roomSockets[socket.id];
+
+		});
+
+		delete RmMg.rooms[roomId];
+		console.info("roomManager : 지정한 룸이 지워졌습니다.");
+	}
+  };
 	
+  RmMg.destroy_clear = function(playerSockId, LbMg){
+		var roomId = RmMg.roomIndex[playerSockId];
+	  
+		console.info(roomId); 
+
+		if(roomId != undefined){
+
+			var room = RmMg.rooms[roomId];
+
+			var roomSockets = RmMg.returnRoomSockets(playerSockId);  
+			console.info(RmMg.roomSockets[playerSockId]);
+
+			// 해당 romm 에다가 모든 UI를 지우는 역할을 함  
+			io.to(roomId).emit('Clear_UI');
+
+
+			roomSockets.forEach(function(socket){
+
+			  LbMg.kick(socket); // 로비에서도 해당 소켓을 끊어버림
+
+			  delete RmMg.roomIndex[socket.id];
+			  delete RmMg.roomSockets[socket.id];
+
+			});
+
+			delete RmMg.rooms[roomId];
+			console.info("roomManager : 지정한 룸이 클리어로 인해 지워졌습니다.");
+		}
   };
 	
   RmMg.clearDatasSync = function(myClearDatas){
 	  let playerSockId = myClearDatas.playerId;
 	  if(RmMg.InRoomControlAllow[playerSockId] === true){
+		  
+		var roomId = RmMg.roomIndex[playerSockId];
+
+		console.info(roomId); 
+
+		if(roomId != undefined){
 		  let getRoom = RmMg.rooms[RmMg.roomIndex[playerSockId]];
 		  
 		  let clearDatas = myClearDatas.myClearDatas;
 		  io.to(getRoom.id).emit('clearDatasUpdate', clearDatas);
+	  	}
 	  }
   }
   
   
   RmMg.positionSync = function(myPosition){
-	  let playerSockId = myPosition.playerId;
-	  if(RmMg.InRoomControlAllow[playerSockId] === true){
-		let getRoom = RmMg.rooms[RmMg.roomIndex[playerSockId]];
-		let getPlayerSockets = RmMg.rooms[RmMg.roomIndex[playerSockId]].players;
-	
-	  	getPlayerSockets.forEach(function(socket){
-			if(socket.id != playerSockId){
-				socket.emit('anotherPlayerPositionUpdate', myPosition);
+	let playerSockId = myPosition.playerId;
+		if(RmMg.InRoomControlAllow[playerSockId] === true){
+
+
+
+		var roomId = RmMg.roomIndex[playerSockId];
+
+		console.info(roomId); 
+
+		if(roomId != undefined){
+			let getPlayerSockets = RmMg.rooms[RmMg.roomIndex[playerSockId]].players;
+
+			if(getPlayerSockets != undefined){
+				getPlayerSockets.forEach(function(socket){
+					if(socket.id != playerSockId){
+						socket.emit('anotherPlayerPositionUpdate', myPosition);
+					}
+				});
 			}
-		});
-	  }
+		}
+	}
   }
   
   RmMg.updatePlayerJoystickData = function(playerSock, joystickData){
