@@ -106,7 +106,10 @@
 	io_ui.on('Clear_UI', function(){
 		ClearUI();
 	});
-
+	
+	io_ui.on('GAMEOVER_UI', function(){
+		GameOverUI();
+	});
 
 
 	// 서버로 부터 플레이어 캐릭터를 생성하라는 신호가 오면
@@ -143,7 +146,7 @@
 		updatePlayerStatus(updatedPlayerData);
 
 	});
-
+	
 
 	/////////////////////////////////////// 소켓 처리 //////////////////////////////////////  mainSocketHandle.js
 
@@ -203,6 +206,7 @@
 	const MODELINGDATA_PATH = "/res/js/modelingData/";
 	const GIRL_MODEL_PATH = "girl/";
 	const BOY_MODEL_PATH = "boy/";
+	const VILLIAN_MODEL_PATH = "villian/";
 	const MOVE_OBJECT_PATH = "moveobj/";
 	const HITBOX_DEFAULT_HEIGHT = 8;
 	const CHAT_DEFAULT_HEIGHT = 10;
@@ -226,6 +230,7 @@
 
 	// 플레이어 객체가 들어가 있는 배열, 총 2개 밖에 안들어감
 	var playerUIObj = {};
+	var villianUIObj = {};
 	//var playerCollisionObj, col_geometry, col_material; // 충돌 테스트를 위한 임시 Mesh 요소
 	var doors = {};
 	var clearDatas = {}; // 이미 해당 오브젝트를 사용했는지 Bool 값으로 체크하는 데이터, sync 하는데 사용
@@ -239,8 +244,10 @@
 	var map_objects = {};
 	let door_collisions = [];
 	var arr_interactBoxList = [];
-
-
+	let callHitbox_mesh_array = [];
+	let villianHitbox = [];
+	
+	
 	let syncPositionByInterval; // 싱크를 맞추기 위하여 실시간으로 sync 를 맞추는 Interval
 	let syncClearDataByInterval; // 실시간으로 클리어 판정을 맞추는 Interval
 	let checkClearStatusByInterval;
@@ -270,9 +277,12 @@
 
 		// camera 생	성, 일단은 PerspectiveCamera 로 설정
 		camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-		camera.position.x = 250
-		camera.position.y = 153;
-		camera.position.z = 150
+		camera.position.x = 324;
+		camera.position.y = 109;
+		camera.position.z = 126;
+		//camera.position.x = 250; // 2층복도
+		//camera.position.y = 153;
+		//camera.position.z = 150;
 		// 75 : 시야, 75도
 		// window.innerWidth / window.innerHeight : 종횡비
 		// 0.1, 1000 : 근거리 및 원거리 클리핑 평면
@@ -299,16 +309,19 @@
 		//orbControls.addEventListener('change', showCameraPosition);
 
 
-		orbControls.target.x = 224;
-		orbControls.target.y = 99;
-		orbControls.target.z = -72;
+		orbControls.target.x = 274;
+		orbControls.target.y = 94;
+		orbControls.target.z = -90;
+		//orbControls.target.x = 224; 2층 복도 카메라 타겟
+		//orbControls.target.y = 99;
+		//orbControls.target.z = -72;
 		// 카메라 첫타겟 복도 계단 쪽 좌표 //
 
 
 		gltfLoader = new THREE.GLTFLoader();
 		clock = new THREE.Clock();
 		door_collisions_init(); // 기본 문을 막고 있는 충돌 설정
-
+		villianUIObj_init(); // 악당 데이터 초기화
 		character_obj_init(); // 캐릭터 gltf 오브젝트를 넣어놓을 공간 초기화
 		door_obj_init(); // 열고 닫을 수 있는 문 상태 초기화
 		clearDatas_init(); // 클리어를 위한 모든 상태 초기화
@@ -340,8 +353,14 @@
 
 		// 아래는 계단 충돌 메쉬 설정
 		setStairsHitbox();
-		setInteractionMesh();
-		// 테스트용 메쉬
+		
+		// 상호작용 메쉬 세팅
+		setInteractionMesh(); 
+		
+		
+		// 그냥 건드렸을때 할 action 위해서 하는 메쉬 세팅
+		
+		setActionMesh();
 
 
 
@@ -402,9 +421,23 @@
 
 	}
 
-	// 비동기 상호작용 처리 함수
+	
 
-
+	function setActionMesh(){
+		var actionHitbox_kitchen_villianCall_box = new THREE.BoxGeometry(10,10,30);
+		var actionHitbox_kitchen_villianCall_geometry = new THREE.MeshStandardMaterial({color : 0x27B500});
+		
+		var actionHitbox_kitchen_villianCall_mesh = new THREE.Mesh(actionHitbox_kitchen_villianCall_box, actionHitbox_kitchen_villianCall_geometry);
+		
+		actionHitbox_kitchen_villianCall_mesh.name = "action_villian_call";
+		actionHitbox_kitchen_villianCall_mesh.position.set(-228, -1.5, -15.5);
+		actionHitbox_kitchen_villianCall_mesh.visible = true;
+		
+		callHitbox_mesh_array.push(actionHitbox_kitchen_villianCall_mesh);
+		scene.add(actionHitbox_kitchen_villianCall_mesh);
+		
+		
+	}
 
 	function setInteractionMesh(){
 
@@ -1056,7 +1089,44 @@
 		scene.add(map_Elements["hitbox"].scene);
 	}
 
+	function villianUIObj_init(){
+		
+		villianUIObj = {
+			gltf_nowView : undefined,
+			gltf_nowView_animMixer : undefined,
+			
+			gltf_idle : undefined,
+			gltf_idle_animMixer : undefined,	
+			gltf_walk : undefined,
+			gltf_walk_animMixer : undefined,	
+			gltf_sleeping : undefined,
+			gltf_sleeping_animMixer : undefined,	
+			
+			
 
+			now_position_x : 0,
+			now_position_y : 0,
+			now_position_z : 0,
+
+			seeDirection : 0,
+
+			hitbox : undefined,
+			isCalling : false
+		
+		}
+		
+		
+		var cube_geometry = new THREE.BoxGeometry(10, 20, 10);
+
+		var cube_material = new THREE.MeshBasicMaterial({color : 0xffffff, wireframe : true});
+
+		// 여기서 해당 플레이어에 대한 각종 캐릭터 값을 만듬
+		villianUIObj.hitbox = new THREE.Mesh(cube_geometry, cube_material);
+		villianUIObj.hitbox.name = "villian_hitbox";
+		
+		
+		
+	}
 	function door_collisions_init(){
 		// 왼쪽 / 오른쪽으로 들어가는 문
 		var close_doorHorizontal_box = new THREE.BoxGeometry(3,10,20);
@@ -1108,6 +1178,8 @@
 
 		};
 	}
+	
+	
 	function clearStatuses_init(){
 		clearStatuses['openDoors'] = {
 			roomDoor2F : false,
@@ -1119,6 +1191,16 @@
 			blender : false, // 믹서기
 			villian_drawer : false // 악당방 장롱
 		};
+		
+		clearStatuses['area'] = {
+			kitchen_in_boy : false, // 주방 왼쪽 공간	
+			kitchen_in_girl : false
+			
+		};
+	
+		clearStatuses['villian'] = {
+			villian_hit : false
+		}
 	}
 
 
@@ -1134,7 +1216,16 @@
 			blender : false, // 믹서기
 			villian_drawer : false // 악당방 장롱
 		};
-
+		
+		clearDatas['area'] = {
+			kitchen_in_boy : false, // 주방 왼쪽 공간	
+			kitchen_in_girl : false	
+			
+		};
+		
+		clearDatas['villian'] = {
+			villian_hit : false
+		}
 	}
 
 	function character_obj_init(){
@@ -1471,9 +1562,199 @@
 
 			}
 		}
+		
+		
+		if(villianUIObj.isCalling == false){
+			if(clearDatas['obj'].blender == true){
+				if(clearDatas['area'].kitchen_in_girl == true && clearDatas['area'].kitchen_in_boy == true){
+				// 모두 다 주방에 들어가 있으면
+
+					villianUIObj.isCalling = true;
+					callVillian();
+				}
+			}
+		}
+		
+		
+		if(clearDatas['villian'].villian_hit == true){
+			if(clearStatuses['villian'].villian_hit == false){
+				clearStatuses['villian'].villian_hit = true;
+				
+				// 악당이랑 닿아버리면 게임오버 코드 실행
+				
+				io_ui.emit('gameover');
+			}
+		}
+		
+		if(clearDatas['area'].kitchen_in_girl == true){
+			if(clearStatuses['area'].kitchen_in_girl == false){
+				clearStatuses['area'].kitchen_in_girl = true;
+			}
+		}
+		
+		if(clearDatas['area'].kitchen_in_boy == true){
+			if(clearStatuses['area'].kitchen_in_boy == false){
+				clearStatuses['area'].kitchen_in_boy = true;
+			}
+		}
 
 
 	}
+	
+	
+	async function callVillian(){
+		
+		// 초기 위치 설정
+		villianUIObj.now_position_x = 36;
+		villianUIObj.now_position_y = -1.5;
+		villianUIObj.now_position_z = 48;
+		
+		// 캐릭터 모델링 위치 선정
+		villianUIObj.gltf_nowView.scene.position.x = villianUIObj.now_position_x;
+		villianUIObj.gltf_nowView.scene.position.y = villianUIObj.now_position_y;
+		villianUIObj.gltf_nowView.scene.position.z = villianUIObj.now_position_z;
+		
+		
+		// 충돌 메쉬 위치 설정
+		villianUIObj.hitbox.position.x = villianUIObj.now_position_x;
+		villianUIObj.hitbox.position.y = villianUIObj.now_position_y;
+		villianUIObj.hitbox.position.z = villianUIObj.now_position_z;
+		
+		
+		scene.add(villianUIObj.gltf_nowView.scene);
+		scene.add(villianUIObj.hitbox);
+		
+		villianHitbox.push(villianUIObj.hitbox);
+		
+		villianUIObj.isCalling = true;
+		
+		villianUIObj.gltf_nowView.animations.forEach((clip) => {
+			villianUIObj.gltf_nowView_animMixer.clipAction(clip).play();
+		});
+		
+		
+		villianMove_x_left_start();
+		
+	
+		
+
+		
+		function villianMove_x_left_start(){
+			villianUIObj.gltf_nowView.scene.rotation.y = (Math.PI / 4) * 6
+			let villianMoveTimer = setInterval(function(){
+				if(villianUIObj.now_position_x < -177){
+					clearInterval(villianMoveTimer);
+					villianMove_z_up();
+				}else{
+					villianUIObj.now_position_x -= 0.5;
+					villianUIObj.gltf_nowView.scene.position.x = villianUIObj.now_position_x;
+					villianUIObj.hitbox.position.x = villianUIObj.now_position_x;
+				}
+			}, 50);
+		}
+
+		function villianMove_z_up(){
+			
+			villianUIObj.gltf_nowView.scene.rotation.y = Math.PI;
+			let villianMoveTimer = setInterval(function(){
+				if(villianUIObj.now_position_z < -37){
+					clearInterval(villianMoveTimer);
+					villian_idle();
+				}else{
+					villianUIObj.now_position_z -= 0.5;
+					villianUIObj.gltf_nowView.scene.position.z = villianUIObj.now_position_z;
+					villianUIObj.hitbox.position.z = villianUIObj.now_position_z;
+				}
+			}, 50);
+		}
+		
+		
+		function villian_idle(){
+			villianUIObj.gltf_nowView.scene.rotation.y = (Math.PI / 4) * 6;
+			
+			let idleCount = 0;
+			
+			villianUIObj.gltf_nowView = villianUIObj.gltf_idle;
+			villianUIObj.gltf_nowView_animMixer = villianUIObj.gltf_idle_animMixer;
+			
+			villianUIObj.gltf_nowView.animations.forEach((clip) => {
+				villianUIObj.gltf_nowView_animMixer.clipAction(clip).play();
+			});
+			
+			let villianIdleTimer = setInterval(function(){
+				if(idleCount > 4){
+					clearInterval(villianIdleTimer);
+					villianMove_z_down();
+				}else{
+					idleCount++;
+				}
+			}, 1000);
+		}
+		
+		
+		
+		function villianMove_z_down(){
+			villianUIObj.gltf_nowView = villianUIObj.gltf_walk;
+			villianUIObj.gltf_nowView_animMixer = villianUIObj.gltf_walk_animMixer;
+			
+			villianUIObj.gltf_nowView.scene.rotation.y = 0;
+			let villianMoveTimer = setInterval(function(){
+				if(villianUIObj.now_position_z > 48){
+					clearInterval(villianMoveTimer);
+					villianMove_x_right();
+				}else{
+					villianUIObj.now_position_z += 0.5;
+					villianUIObj.gltf_nowView.scene.position.z = villianUIObj.now_position_z;
+					villianUIObj.hitbox.position.z = villianUIObj.now_position_z;
+				}
+			}, 50);
+		}
+
+		function villianMove_x_right(){
+			villianUIObj.gltf_nowView.scene.rotation.y = Math.PI / 2;
+			let villianMoveTimer = setInterval(function(){
+				if(villianUIObj.now_position_x > 36){
+					clearInterval(villianMoveTimer);
+					villian_gotoSleep();
+
+				}else{
+					villianUIObj.now_position_x += 0.5;
+					villianUIObj.gltf_nowView.scene.position.x = villianUIObj.now_position_x;
+					villianUIObj.hitbox.position.x = villianUIObj.now_position_x;
+				}
+			}, 50);
+		}
+		
+		function villian_gotoSleep(){
+			scene.remove(villianUIObj.gltf_nowView.scene)
+			scene.remove(villianUIObj.hitbox);
+			villianHitbox.splice(0,1); // 충돌 목록을 지워버림
+			
+			
+			villianUIObj.now_position_x = 64.5;
+			villianUIObj.now_position_y = 23.5;
+			villianUIObj.now_position_z = -141.5;
+			
+			
+			villianUIObj.gltf_nowView = villianUIObj.gltf_sleeping;
+			villianUIObj.gltf_nowView_animMixer = villianUIObj.gltf_sleeping_animMixer;
+			
+			villianUIObj.gltf_nowView.scene.position.x = villianUIObj.now_position_x;
+			villianUIObj.gltf_nowView.scene.position.y = villianUIObj.now_position_y;
+			villianUIObj.gltf_nowView.scene.position.z = villianUIObj.now_position_z;
+			
+			
+			villianUIObj.gltf_nowView.animations.forEach((clip) => {
+				villianUIObj.gltf_nowView_animMixer.clipAction(clip).play();
+			});
+			
+			scene.add(villianUIObj.gltf_nowView.scene);
+			
+			
+		}
+	}
+	
+	
 	async function realtimeUpdatePlayer(){
 
 
@@ -1619,12 +1900,15 @@
 			let clockTime = clock.getDelta();
 			playerUIObj["girl"].gltf_nowView_animMixer.update(clockTime);
 			playerUIObj["boy"].gltf_nowView_animMixer.update(clockTime);
+			villianUIObj.gltf_nowView_animMixer.update(clockTime);
 			doors["roomDoor2F"].door_animMixer.update(clockTime);
 			doors["villianRoom"].door_animMixer.update(clockTime);
 			realtimeUpdatePlayer();
 			stair_check();
 			useInteraction();
-
+			areaAccess_check();
+			villianCollisionCheck();
+		
 
 		}
 
@@ -1832,6 +2116,84 @@
 
 	}
 
+	function villianCollisionCheck(){
+		for(let index in playerCollisionObjs){
+			var playerCollisionObj = playerCollisionObjs[index];
+
+			var originPoint = playerCollisionObj.position.clone();
+
+
+			for (var vertexIndex = 0; vertexIndex <	playerCollisionObj.geometry.vertices.length; vertexIndex++)
+			{		
+
+
+				var localVertex =  playerCollisionObj.geometry.vertices[vertexIndex].clone();
+				var globalVertex = localVertex.applyMatrix4(   playerCollisionObj.matrix );
+				var directionVector = globalVertex.sub(   playerCollisionObj.position );
+
+				var ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
+
+				// 여기에 부딛히는 여러개의 메쉬들이 들어감
+				var collisionResults = ray.intersectObjects( villianHitbox );
+
+				// 악당이랑 닿아버리면
+				if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()){
+
+					clearDatas['villian'].villian_hit = true;
+					
+				}
+
+			}
+			
+		}
+	}
+	
+	
+	function areaAccess_check(){
+
+		for(let index in playerCollisionObjs){
+			var playerCollisionObj = playerCollisionObjs[index];
+
+			var originPoint = playerCollisionObj.position.clone();
+
+
+			for (var vertexIndex = 0; vertexIndex <	playerCollisionObj.geometry.vertices.length; vertexIndex++)
+			{		
+
+
+				var localVertex =  playerCollisionObj.geometry.vertices[vertexIndex].clone();
+				var globalVertex = localVertex.applyMatrix4(   playerCollisionObj.matrix );
+				var directionVector = globalVertex.sub(   playerCollisionObj.position );
+
+				var ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
+
+				// 여기에 부딛히는 여러개의 메쉬들이 들어감
+				var collisionResults = ray.intersectObjects( callHitbox_mesh_array );
+
+				// 기존의 벽에 박았는지
+				if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()){
+
+					if(collisionResults[0].object.name == "action_villian_call"){
+						
+						if(index == 0){
+							clearDatas['area'].kitchen_in_girl = true;
+						}else if(index == 1){
+							clearDatas['area'].kitchen_in_boy = true;
+						}
+					}
+
+					
+				}
+
+			}
+			
+		}
+		
+	}
+	
+	
+	
+	
 	//맵 충돌 체크 함수 // 캐릭터 마다 분리할 것
 
 	function collision_check(gltf_key){
@@ -1963,7 +2325,12 @@
 
 
 			playerUIObj[nowPlayerKey].hitbox = player_Obj;
-
+			
+			if(i == 0){
+				playerUIObj[nowPlayerKey].hitbox.name = "girl_hitbox";
+			}else if(i == 1){
+				playerUIObj[nowPlayerKey].hitbox.name = "boy_hitbox";
+			}
 
 			scene.add(playerUIObj[nowPlayerKey].hitbox); // 충돌 hitbox 추가
 			playerCollisionObjs.push(playerUIObj[nowPlayerKey].hitbox);
@@ -2074,6 +2441,20 @@
 
 	}
 	
+	var GameOverUI = function(){
+		clearInterval(syncPositionByInterval);
+		clearInterval(syncClearDataByInterval);
+		clearInterval(checkClearStatusByInterval);
+
+		// 화면, 즉 scene 안에 있는 모든 오브젝트 들을 모두 지워버림
+		while(scene.children.length > 0){ 
+			scene.remove(scene.children[0]); 
+		}
+
+		alert("GameOver");
+	}
+	
+	
 	
 	var ClearUI = function(){
 
@@ -2124,6 +2505,7 @@
 		gltfload_Map_Collision();
 		gltfload_ManAnimation();
 		gltfload_GirlAnimation();
+		gltfLoad_VillianAnimation();
 		gltfload_2F_doorAnimation();
 		gltfLoad_1F_villianRoomDoorAnimation();
 
@@ -2400,7 +2782,95 @@
 		);
 	}
 
+	async function gltfLoad_VillianAnimation(){
 
+		const villian_walk = SERVER_URL + MODELINGDATA_PATH + VILLIAN_MODEL_PATH + "villian_gfather_walk.glb";
+		const villian_idle = SERVER_URL + MODELINGDATA_PATH + VILLIAN_MODEL_PATH + "villian_gfather_idle.glb";
+		const villian_sleeping = SERVER_URL + MODELINGDATA_PATH + VILLIAN_MODEL_PATH + "villian_gfather_sleeping.glb";
+		
+
+
+		gltfLoader.load(villian_walk, function(gltfObj){
+
+
+			gltfObj.scene.scale.set( 5, 5, 5 );			   
+
+			villianUIObj.gltf_walk = gltfObj;
+
+			villianUIObj.gltf_walk_animMixer = new THREE.AnimationMixer(villianUIObj.gltf_walk.scene);
+
+			villianUIObj.gltf_nowView = villianUIObj.gltf_walk;
+			villianUIObj.gltf_nowView_animMixer = villianUIObj.gltf_walk_animMixer;
+		},
+		function ( xhr ) {
+
+			console.log( Math.floor(( xhr.loaded / xhr.total * 100 )) + '% loaded' );
+
+		},
+		// called when loading has errors
+		function ( error ) {
+
+			console.log( 'An error happened' + error );
+
+		}			   
+		);
+
+
+		gltfLoader.load(villian_idle, function(gltfObj){
+
+
+			gltfObj.scene.scale.set( 3, 3, 3 );		   
+
+			villianUIObj.gltf_idle = gltfObj;
+
+			villianUIObj.gltf_idle_animMixer = new THREE.AnimationMixer(gltfObj.scene);
+
+
+		},
+		function ( xhr ) {
+
+			console.log( Math.floor(( xhr.loaded / xhr.total * 100 )) + '% loaded' );
+
+		},
+		// called when loading has errors
+		function ( error ) {
+
+			console.log( 'An error happened' + error );
+
+		}			   
+		);
+
+
+
+		gltfLoader.load(villian_sleeping, function(gltfObj){
+
+
+
+
+
+			gltfObj.scene.scale.set( 3, 3, 3 );	
+			villianUIObj.gltf_sleeping = gltfObj;
+			villianUIObj.gltf_sleeping_animMixer = new THREE.AnimationMixer(gltfObj.scene);
+
+
+
+		},
+		function ( xhr ) {
+
+			console.log( Math.floor(( xhr.loaded / xhr.total * 100 )) + '% loaded' );
+
+		},
+		// called when loading has errors
+		function ( error ) {
+
+			console.log( 'An error happened' + error );
+
+		}			   
+		);
+
+
+
+	}
 
 	async function gltfload_GirlAnimation(){
 

@@ -170,6 +170,38 @@ function RoomManager(io){
 		}
   };
 	
+  RmMg.destroy_gameover = function(playerSockId, LbMg){
+	var roomId = RmMg.roomIndex[playerSockId];
+	  
+		console.info(roomId); 
+
+		if(roomId != undefined){
+
+			var room = RmMg.rooms[roomId];
+
+			var roomSockets = RmMg.returnRoomSockets(playerSockId);  
+			console.info(RmMg.roomSockets[playerSockId]);
+
+			// 해당 romm 에다가 모든 UI를 지우는 역할을 함  
+			io.to(roomId).emit('GAMEOVER_UI');
+
+
+			roomSockets.forEach(function(socket){
+
+			  LbMg.kick(socket); // 로비에서도 해당 소켓을 끊어버림
+
+			  delete RmMg.roomIndex[socket.id];
+			  delete RmMg.roomSockets[socket.id];
+
+			});
+
+			delete RmMg.rooms[roomId];
+			console.info("roomManager : 지정한 룸이 게임오버로 인해 지워졌습니다.");
+		}  
+  };	
+	
+	
+	
   RmMg.clearDatasSync = function(myClearDatas){
 	  let playerSockId = myClearDatas.playerId;
 	  if(RmMg.InRoomControlAllow[playerSockId] === true){
