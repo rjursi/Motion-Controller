@@ -130,6 +130,14 @@ playerManager.prototype.updatePlayerGyroData = function(playerSock_web, gyroData
 	return player;
 }
 
+playerManager.prototype.poseChange = function(playerSockId, isCWalk){
+	var player = this.playerForId(playerSockId);
+	
+	player.objStatus.isCWalking = isCWalk;
+}
+
+
+
 playerManager.prototype.updatePlayerJoystickData = function(playerSock_web, joystickData){
 	var player = this.playerForId(playerSock_web.id);
 

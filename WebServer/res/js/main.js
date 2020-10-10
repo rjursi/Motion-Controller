@@ -246,14 +246,18 @@
 	var arr_interactBoxList = [];
 	let callHitbox_mesh_array = [];
 	let villianHitbox = [];
-	
+	let poseChangeMeshs = [];
+	let cameraChangeMeshs = [];
 	
 	let syncPositionByInterval; // 싱크를 맞추기 위하여 실시간으로 sync 를 맞추는 Interval
 	let syncClearDataByInterval; // 실시간으로 클리어 판정을 맞추는 Interval
 	let checkClearStatusByInterval;
 	let isSyncing;
 	let isPositionChanging_clear = false;
-
+	let poseCheckStart = false;
+	
+	var cameraSet = 0;
+	var cameraSetFirst = true;
 
 	function init(){
 
@@ -349,7 +353,9 @@
 		forFindMesh.position.z = 72;	
 
 		scene.add(forFindMesh);
-
+		
+		setCameraPosition();
+		//카메라 초기 설정
 
 		// 아래는 계단 충돌 메쉬 설정
 		setStairsHitbox();
@@ -357,9 +363,13 @@
 		// 상호작용 메쉬 세팅
 		setInteractionMesh(); 
 		
+		// 포즈 변경 메쉬 생성
+		setPoseChangeMesh();
 		
 		// 그냥 건드렸을때 할 action 위해서 하는 메쉬 세팅
 		
+		
+		setCameraChangeMesh();
 		setActionMesh();
 
 
@@ -420,6 +430,180 @@
 		//// 여까지
 
 	}
+	
+	
+	function setCameraChangeMesh(){
+		
+	
+		var cameraHitbox_v_geo = new THREE.BoxGeometry(3,10,20);
+		var cameraHitbox_h_geo = new THREE.BoxGeometry(20,10,3);
+		var cameraHitbox_h_long_geo = new THREE.BoxGeometry(100,10,3);
+		var cameraHitbox_v_long_geo = new THREE.BoxGeometry(3,10,50);
+		
+		var cameraHitbox_material_out = new THREE.MeshStandardMaterial({color : 0xff0000}); // 빨강
+		var cameraHitbox_material_in = new THREE.MeshStandardMaterial({color : 0x0000ff}); // 파랑
+	
+	
+
+		
+		// 시작방에서 2층복도로 나갈 때
+		var cameraHitbox_startRoom_to_2FFloor_out = new THREE.Mesh(cameraHitbox_v_geo, cameraHitbox_material_out);
+		
+		cameraHitbox_startRoom_to_2FFloor_out.name = "cameraHitbox_startRoom_to_2FFloor_out";
+		cameraHitbox_startRoom_to_2FFloor_out.position.set(254, 77, 59);
+		cameraHitbox_startRoom_to_2FFloor_out.visible = true;
+		
+		
+		var cameraHitbox_startRoom_to_2FFloor_in = new THREE.Mesh(cameraHitbox_v_geo, cameraHitbox_material_in);
+		
+		cameraHitbox_startRoom_to_2FFloor_in.name = "cameraHitbox_startRoom_to_2FFloor_in"
+		cameraHitbox_startRoom_to_2FFloor_in.position.set(264, 77, 59);
+		cameraHitbox_startRoom_to_2FFloor_in.visible = true;
+		
+		
+		scene.add(cameraHitbox_startRoom_to_2FFloor_out);
+		scene.add(cameraHitbox_startRoom_to_2FFloor_in);
+		cameraChangeMeshs.push(cameraHitbox_startRoom_to_2FFloor_out);
+		cameraChangeMeshs.push(cameraHitbox_startRoom_to_2FFloor_in);
+		
+		
+		// 2층복도에서 계단 내려갈 때
+		var cameraHitbox_2F_To_Stair_out = new THREE.Mesh(cameraHitbox_v_geo, cameraHitbox_material_out);
+		
+		cameraHitbox_2F_To_Stair_out.name = "cameraHitbox_2F_To_Stair_out";
+		cameraHitbox_2F_To_Stair_out.position.set(218, 77, -94);
+		cameraHitbox_2F_To_Stair_out.visible = true;
+		
+		
+		
+		
+		var cameraHitbox_2F_To_Stair_in = new THREE.Mesh(cameraHitbox_v_geo, cameraHitbox_material_in);
+		
+		cameraHitbox_2F_To_Stair_in.name = "cameraHitbox_2F_To_Stair_in"
+		cameraHitbox_2F_To_Stair_in.position.set(228, 77, -94);
+		cameraHitbox_2F_To_Stair_in.visible = true;
+		
+		
+		
+		scene.add(cameraHitbox_2F_To_Stair_out);
+		scene.add(cameraHitbox_2F_To_Stair_in);
+		cameraChangeMeshs.push(cameraHitbox_2F_To_Stair_out);
+		cameraChangeMeshs.push(cameraHitbox_2F_To_Stair_in);
+		
+	
+		// 계단을 다 내려오고 난 후 1층에 첫 발을 디딜 때
+		var cameraHitbox_Stair_To_1F_out = new THREE.Mesh(cameraHitbox_h_geo, cameraHitbox_material_out);
+		
+		cameraHitbox_Stair_To_1F_out.name = "cameraHitbox_Stair_To_1F_out";
+		cameraHitbox_Stair_To_1F_out.position.set(151, -2.5, 0);
+		cameraHitbox_Stair_To_1F_out.visible = true;
+		
+	
+		
+		
+		var cameraHitbox_Stair_To_1F_in = new THREE.Mesh(cameraHitbox_h_geo, cameraHitbox_material_in);
+		
+		cameraHitbox_Stair_To_1F_in.name = "cameraHitbox_Stair_To_1F_in"
+		cameraHitbox_Stair_To_1F_in.position.set(151, -2.5, -10);
+		cameraHitbox_Stair_To_1F_in.visible = true;
+		
+		
+		
+		scene.add(cameraHitbox_Stair_To_1F_out);
+		scene.add(cameraHitbox_Stair_To_1F_in);
+		cameraChangeMeshs.push(cameraHitbox_Stair_To_1F_out);
+		cameraChangeMeshs.push(cameraHitbox_Stair_To_1F_in);
+		
+		
+		// 1층 복도 시작하는 좌표 
+		var cameraHitbox_1F_Start_out = new THREE.Mesh(cameraHitbox_v_long_geo, cameraHitbox_material_out);
+		
+		cameraHitbox_1F_Start_out.name = "cameraHitbox_1F_Start_out";
+		cameraHitbox_1F_Start_out.position.set(125, -2.5, 46);
+		cameraHitbox_1F_Start_out.visible = true;
+		
+		
+		var cameraHitbox_1F_Start_in = new THREE.Mesh(cameraHitbox_v_long_geo, cameraHitbox_material_in);
+		
+		cameraHitbox_1F_Start_in.name = "cameraHitbox_1F_Start_in"
+		cameraHitbox_1F_Start_in.position.set(135, -2.5, 46);
+		cameraHitbox_1F_Start_in.visible = true;
+		
+		
+
+		scene.add(cameraHitbox_1F_Start_out);
+		scene.add(cameraHitbox_1F_Start_in);
+		cameraChangeMeshs.push(cameraHitbox_1F_Start_out);
+		cameraChangeMeshs.push(cameraHitbox_1F_Start_in);
+		
+		// 부엌 진입
+		
+		var cameraHitbox_1F_To_kitchen_out = new THREE.Mesh(cameraHitbox_h_long_geo, cameraHitbox_material_out);
+		
+		cameraHitbox_1F_To_kitchen_out.name = "cameraHitbox_1F_To_kitchen_out";
+		cameraHitbox_1F_To_kitchen_out.position.set(-142, -2.5, 13);
+		cameraHitbox_1F_To_kitchen_out.visible = true;
+		
+		
+		var cameraHitbox_1F_To_kitchen_in = new THREE.Mesh(cameraHitbox_h_long_geo, cameraHitbox_material_in);
+		
+		cameraHitbox_1F_To_kitchen_in.name = "cameraHitbox_1F_To_kitchen_in";
+		cameraHitbox_1F_To_kitchen_in.position.set(-142, -2.5, 3);
+		cameraHitbox_1F_To_kitchen_in.visible = true;
+		
+		
+		
+		scene.add(cameraHitbox_1F_To_kitchen_out);
+		scene.add(cameraHitbox_1F_To_kitchen_in);
+		cameraChangeMeshs.push(cameraHitbox_1F_To_kitchen_out);
+		cameraChangeMeshs.push(cameraHitbox_1F_To_kitchen_in);
+		
+		
+		// 부엌에서 옆에 북박이장? 같은 데로 숨는 곳 
+		
+		var cameraHitbox_kitchen_To_store_out = new THREE.Mesh(cameraHitbox_v_geo, cameraHitbox_material_out);
+		
+		cameraHitbox_kitchen_To_store_out.name = "cameraHitbox_kitchen_To_store_out";
+		cameraHitbox_kitchen_To_store_out.position.set(-220, -2.5, -13);
+		cameraHitbox_kitchen_To_store_out.visible = true;
+		
+		
+		var cameraHitbox_kitchen_To_store_in = new THREE.Mesh(cameraHitbox_v_geo, cameraHitbox_material_in);
+		
+		cameraHitbox_kitchen_To_store_in.name = "cameraHitbox_kitchen_To_store_in";
+		cameraHitbox_kitchen_To_store_in.position.set(-210, -2.5, -13);
+		cameraHitbox_kitchen_To_store_in.visible = true;
+		
+		scene.add(cameraHitbox_kitchen_To_store_out);
+		scene.add(cameraHitbox_kitchen_To_store_in);
+		cameraChangeMeshs.push(cameraHitbox_kitchen_To_store_out);
+		cameraChangeMeshs.push(cameraHitbox_kitchen_To_store_in);
+	}
+	
+	
+	function setCameraPosition(){
+		if(cameraSet == 0 && cameraSetFirst == true){	// 2층 방 카메라 시점
+				camera.position.x = 324;
+				camera.position.y = 109;
+				camera.position.z = 126;
+				
+				orbControls.target.x = 274;
+				orbControls.target.y = 94;
+				orbControls.target.z = -90;
+				
+				cameraSetFirst = false;
+		}else if(cameraSet == 1 && cameraSetFirst == true){
+				camera.position.x = 250;
+				camera.position.y = 153;
+				camera.position.z = 150;
+				
+				orbControls.target.x = 224;
+				orbControls.target.y = 99;
+				orbControls.target.z = -72;
+				
+				cameraSetFirst = false;
+		}
+	}
 
 	
 
@@ -438,7 +622,24 @@
 		
 		
 	}
-
+	function setPoseChangeMesh(){
+		var poseChangeHitbox_withBigObject_box = new THREE.BoxGeometry(100, 10, 2);
+		var poseChangeHitbox_withBigObject_geometry = new THREE.MeshStandardMaterial({color : 0x27B500});
+		
+		var poseChangeHitbox_withBigObject_mesh = new THREE.Mesh(poseChangeHitbox_withBigObject_box, poseChangeHitbox_withBigObject_geometry);
+		
+		poseChangeHitbox_withBigObject_mesh.name = "actionHitbox_poseChange_cwalk";
+		poseChangeHitbox_withBigObject_mesh.position.set(35, 8.5, 12);
+		poseChangeHitbox_withBigObject_mesh.visible = true;
+		
+		poseChangeMeshs.push(poseChangeHitbox_withBigObject_mesh);
+		scene.add(poseChangeHitbox_withBigObject_mesh);
+		
+		
+	}
+	
+	
+	
 	function setInteractionMesh(){
 
 		// 왼쪽 / 오른쪽으로 들어가는 문
@@ -478,6 +679,8 @@
 		actionHitbox_doorIn_mesh_villainRoom.visible = true;
 
 		actionHitbox_mesh_array.push(actionHitbox_doorIn_mesh_villainRoom);
+		
+		poseChangeMeshs.push(actionHitbox_doorIn_mesh_villainRoom);
 		scene.add(actionHitbox_doorIn_mesh_villainRoom);
 
 
@@ -742,7 +945,7 @@
 		stairHitbox_left_mesh_9.position.z = -9;
 		stairHitbox_left_mesh_9.visible = false;
 		stairHitbox_left_mesh_array.push(stairHitbox_left_mesh_9);
-
+		poseChangeMeshs.push(stairHitbox_left_mesh_9);
 		scene.add(stairHitbox_left_mesh_9);
 	}
 
@@ -1688,7 +1891,7 @@
 				}else{
 					idleCount++;
 				}
-			}, 1000);
+			}, 800);
 		}
 		
 		
@@ -1865,18 +2068,44 @@
 		 /*console.log(orbControls.target);
 			console.log(camera.position);
 			console.log(camera.lookAt);*/
-
 		/*
-
-
-		if (forFindMesh.position.z >= 0 && forFindMesh.position.z <= 72) {
+		for(let index in playerUIObj){
+			
+			if(playerUIObj[index].playerId == io_ui.id){
+				
+			}
+			
+		}
+		*/
+		
+		
+		
+		/// 시작방 ///////
+		if (cameraSet == 1 && forFindMesh.position.z >= 0 && forFindMesh.position.z <= 72) {
 			camera.position.x = camera.position.z + 100;
 			camera.position.z = forFindMesh.position.z + 78;
+			
+		//console.log(orbControls);
+		//console.log(camera);
+		}
+		// 2층 복도 /////////
+		if (cameraSet == 2 && forFindMesh.position.z >= 0 && forFindMesh.position.z <= 72) {
+			camera.position.x = camera.position.z + 100;
+			camera.position.z = forFindMesh.position.z + 78;
+			
+		//console.log(orbControls);
+		//console.log(camera);
+		}
+		
+		if (cameraSet == 3 && forFindMesh.position.z >= 0 && forFindMesh.position.z <= 72) {
+			camera.position.x = camera.position.z + 100;
+			camera.position.z = forFindMesh.position.z + 78;
+			
 		//console.log(orbControls);
 		//console.log(camera);
 		}
 
-		*/
+		
 		// 테스트를 위하여 잠시 주석처리함
 
 
@@ -1908,6 +2137,7 @@
 			useInteraction();
 			areaAccess_check();
 			villianCollisionCheck();
+			poseChangeHitboxCheck();
 		
 
 		}
@@ -1958,6 +2188,9 @@
 							if(clearDatas['openDoors'].roomDoor2F == false){ // 이미 열려있는 게 아니면
 
 								clearDatas['openDoors'].roomDoor2F = true;
+								cameraSet = 1; // 여기에 셋팅하고 함수실행
+								cameraSetFirst = true;
+								setCameraPosition();
 							}
 
 						}
@@ -2115,7 +2348,57 @@
 		}
 
 	}
+	
+	
+	
+	function poseChangeHitboxCheck(){
+		for(let index in playerCollisionObjs){
+			var playerCollisionObj = playerCollisionObjs[index];
 
+			var originPoint = playerCollisionObj.position.clone();
+
+
+			for (var vertexIndex = 0; vertexIndex <	playerCollisionObj.geometry.vertices.length; vertexIndex++)
+			{		
+
+
+				var localVertex =  playerCollisionObj.geometry.vertices[vertexIndex].clone();
+				var globalVertex = localVertex.applyMatrix4(   playerCollisionObj.matrix );
+				var directionVector = globalVertex.sub(   playerCollisionObj.position );
+
+				var ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
+
+				// 여기에 부딛히는 여러개의 메쉬들이 들어감
+				var collisionResults = ray.intersectObjects( poseChangeMeshs );
+
+				if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()){
+					
+					if(collisionResults[0].object.name == "stair_left_9"){
+						poseCheckStart = true;
+					}
+					if(poseCheckStart == true){
+						console.info('pose Change hit');
+						if(collisionResults[0].object.name == "action_door_villain_In"){
+							io_ui.emit('cWalkChange', false);	
+						}
+
+						if(collisionResults[0].object.name == "actionHitbox_poseChange_cwalk"){
+							io_ui.emit('cWalkChange', true);	
+						}
+					}
+						
+
+					
+				}
+
+			}
+			
+		}
+	}
+	
+	
+	
+	
 	function villianCollisionCheck(){
 		for(let index in playerCollisionObjs){
 			var playerCollisionObj = playerCollisionObjs[index];
@@ -2819,7 +3102,7 @@
 		gltfLoader.load(villian_idle, function(gltfObj){
 
 
-			gltfObj.scene.scale.set( 3, 3, 3 );		   
+			gltfObj.scene.scale.set( 5, 5, 5 );		   
 
 			villianUIObj.gltf_idle = gltfObj;
 
@@ -2848,7 +3131,7 @@
 
 
 
-			gltfObj.scene.scale.set( 3, 3, 3 );	
+			gltfObj.scene.scale.set( 5, 5, 5 );	
 			villianUIObj.gltf_sleeping = gltfObj;
 			villianUIObj.gltf_sleeping_animMixer = new THREE.AnimationMixer(gltfObj.scene);
 

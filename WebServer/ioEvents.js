@@ -143,6 +143,12 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 			}
 		});
 		
+		socket.on('cWalkChange', function(isCWalk){
+			console.info(isCWalk);
+			playerMgr.poseChange(socket.id, isCWalk);
+		});
+		
+		
 		socket.on('disconnect',function() {
 			
 			// 만약에 등록된 웹 소켓이 존재할 경우
