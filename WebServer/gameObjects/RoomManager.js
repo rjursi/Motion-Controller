@@ -113,14 +113,14 @@ function RoomManager(io){
 	
 	var roomId = RmMg.roomIndex[playerSockId];
 	  
-	console.info(roomId); 
+	//console.info(roomId); 
 	
 	if(roomId != undefined){
 		
 		var room = RmMg.rooms[roomId];
 
 		var roomSockets = RmMg.returnRoomSockets(playerSockId);  
-		console.info(RmMg.roomSockets[playerSockId]);
+		//console.info(RmMg.roomSockets[playerSockId]);
 
 		// 해당 romm 에다가 모든 UI를 지우는 역할을 함  
 		io.to(roomId).emit('Disconnected_UI');
@@ -150,7 +150,7 @@ function RoomManager(io){
 			var room = RmMg.rooms[roomId];
 
 			var roomSockets = RmMg.returnRoomSockets(playerSockId);  
-			console.info(RmMg.roomSockets[playerSockId]);
+			/// console.info(RmMg.roomSockets[playerSockId]);
 
 			// 해당 romm 에다가 모든 UI를 지우는 역할을 함  
 			io.to(roomId).emit('Clear_UI');
@@ -180,7 +180,7 @@ function RoomManager(io){
 			var room = RmMg.rooms[roomId];
 
 			var roomSockets = RmMg.returnRoomSockets(playerSockId);  
-			console.info(RmMg.roomSockets[playerSockId]);
+			// console.info(RmMg.roomSockets[playerSockId]);
 
 			// 해당 romm 에다가 모든 UI를 지우는 역할을 함  
 			io.to(roomId).emit('GAMEOVER_UI');
@@ -208,7 +208,7 @@ function RoomManager(io){
 		  
 		var roomId = RmMg.roomIndex[playerSockId];
 
-		console.info(roomId); 
+		// console.info(roomId); 
 
 		if(roomId != undefined){
 		  let getRoom = RmMg.rooms[RmMg.roomIndex[playerSockId]];
@@ -228,7 +228,7 @@ function RoomManager(io){
 
 		var roomId = RmMg.roomIndex[playerSockId];
 
-		console.info(roomId); 
+		// console.info(roomId); 
 
 		if(roomId != undefined){
 			let getPlayerSockets = RmMg.rooms[RmMg.roomIndex[playerSockId]].players;
@@ -293,7 +293,7 @@ function RoomManager(io){
 			var room = RmMg.rooms[roomId];
 
 			var roomSockets = RmMg.returnRoomSockets(playerSockId);  
-			console.info(RmMg.roomSockets[playerSockId]);
+			// console.info(RmMg.roomSockets[playerSockId]);
 
 			// 해당 romm 에다가 모든 UI를 지우는 역할을 함  
 		
@@ -301,7 +301,7 @@ function RoomManager(io){
 
 			roomSockets.forEach(function(socket){
 
-			 	if(socket.id == playerSockId){
+			 	if(socket.id === playerSockId){
 					socket.emit("ToServer_CameraChange", cameraChangeData);
 				}
 

@@ -98,7 +98,7 @@
 
 	}
 	io_ui.on('ToServer_CameraChange', function(cameraChangeData){
-		
+		console.info("camera Data " + cameraChangeData);
 		changeMyCamera(cameraChangeData);
 	});
 	io_ui.on('Disconnected_UI', function(){
@@ -261,6 +261,7 @@
 	
 	var cameraSet = 0;
 	var cameraSetFirst = true;
+	var cameraChangeStart = false;
 
 	function init(){
 
@@ -436,6 +437,7 @@
 	
 	function changeMyCamera(cameraChangeData){
 		cameraSet = cameraChangeData;
+		// console.info("camera Changed");
 	}
 	function setCameraChangeMesh(){
 		
@@ -2128,7 +2130,7 @@
 
 
 		// 플레이어 UI 객체가 보이는 상태이면
-		if(playerUIObj["view_status"] === true){
+		if(playerUIObj["view_status"] == true){
 
 
 			let clockTime = clock.getDelta();
@@ -2144,7 +2146,10 @@
 			villianCollisionCheck();
 			poseChangeHitboxCheck();
 		
-			// cameraChangeHitboxCheck();
+			if(clearDatas['openDoors'].roomDoor2F == true){
+				cameraChangeHitboxCheck();
+			}
+			
 		}
 
 
@@ -2193,9 +2198,14 @@
 							if(clearDatas['openDoors'].roomDoor2F == false){ // 이미 열려있는 게 아니면
 
 								clearDatas['openDoors'].roomDoor2F = true;
+								
+								/*
 								cameraSet = 1; // 여기에 셋팅하고 함수실행
 								cameraSetFirst = true;
 								setCameraPosition();
+								*/
+								
+								
 							}
 
 						}
@@ -2357,7 +2367,19 @@
 	function cameraChangeHitboxCheck(){
 		for(let index in playerCollisionObjs){
 			var playerCollisionObj = playerCollisionObjs[index];
-
+			var gltf_key;
+			
+			
+			
+			if(index == 0){
+				gltf_key = "girl";
+			}else if(index == 1){
+				gltf_key = "boy";
+			}
+			
+			
+			
+			var playerId = playerUIObj[gltf_key].playerId;
 			var originPoint = playerCollisionObj.position.clone();
 
 
@@ -2376,50 +2398,53 @@
 
 				if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()){
 					
-					switch(collisionResults[0].object.name){
-						case "cameraHitbox_startRoom_to_2FFloor_out":
-							
-							io_ui.emit('cameraChange', io_ui.id, 2);
-							break;
-						case "cameraHitbox_startRoom_to_2FFloor_in":
-							
-							io_ui.emit('cameraChange', io_ui.id, 1);
-							break;
-						case "cameraHitbox_2F_To_Stair_out":
-							
-							io_ui.emit('cameraChange', io_ui.id, 3);
-							break;
-						case "cameraHitbox_2F_To_Stair_in":
-							
-							io_ui.emit('cameraChange', io_ui.id, 2);
-							break;
-						case "cameraHitbox_1F_Start_out":
-							
-							io_ui.emit('cameraChange', io_ui.id, 4);
-							break;
-						case "cameraHitbox_1F_Start_out":
-							
-							io_ui.emit('cameraChange', io_ui.id, 3);
-							break;
-						case "cameraHitbox_1F_To_kitchen_out":
-							
-							io_ui.emit('cameraChange', io_ui.id, 5);
-							break;
-						case "cameraHitbox_1F_To_kitchen_in":
-							cameraSet = 4;
-							io_ui.emit('cameraChange', io_ui.id, 4);
-							break;
-						case "cameraHitbox_kitchen_To_store_out":
-						
-							io_ui.emit('cameraChange', io_ui.id, 6);
-							break;
-						case "cameraHitbox_kitchen_To_store_in":
-						
-							io_ui.emit('cameraChange', io_ui.id, 5);
-							break;
-							
+					if(playerId == io_ui.id){
+						console.info("camera Change Hitbox on");
+						switch(collisionResults[0].object.name){
+							case "cameraHitbox_startRoom_to_2FFloor_out":
+
+								io_ui.emit('cameraChange', io_ui.id, 2);
+								break;
+							case "cameraHitbox_startRoom_to_2FFloor_in":
+
+								io_ui.emit('cameraChange', io_ui.id, 1);
+								break;
+							case "cameraHitbox_2F_To_Stair_out":
+
+								io_ui.emit('cameraChange', io_ui.id, 3);
+								break;
+							case "cameraHitbox_2F_To_Stair_in":
+
+								io_ui.emit('cameraChange', io_ui.id, 2);
+								break;
+							case "cameraHitbox_1F_Start_out":
+
+								io_ui.emit('cameraChange', io_ui.id, 4);
+								break;
+							case "cameraHitbox_1F_Start_out":
+
+								io_ui.emit('cameraChange', io_ui.id, 3);
+								break;
+							case "cameraHitbox_1F_To_kitchen_out":
+
+								io_ui.emit('cameraChange', io_ui.id, 5);
+								break;
+							case "cameraHitbox_1F_To_kitchen_in":
+								cameraSet = 4;
+								io_ui.emit('cameraChange', io_ui.id, 4);
+								break;
+							case "cameraHitbox_kitchen_To_store_out":
+
+								io_ui.emit('cameraChange', io_ui.id, 6);
+								break;
+							case "cameraHitbox_kitchen_To_store_in":
+
+								io_ui.emit('cameraChange', io_ui.id, 5);
+								break;
+
+						}
 					}
-					
+						
 				}
 
 			}
