@@ -143,7 +143,7 @@ function RoomManager(io){
   RmMg.destroy_clear = function(playerSockId, LbMg){
 		var roomId = RmMg.roomIndex[playerSockId];
 	  
-		console.info(roomId); 
+		
 
 		if(roomId != undefined){
 
@@ -284,7 +284,33 @@ function RoomManager(io){
   */
   
   
-  
+  RmMg.sendCameraChangeData = function(playerSockId, cameraChangeData){
+	  
+	  var roomId = RmMg.roomIndex[playerSockId];
+	  
+	  if(roomId != undefined){
+
+			var room = RmMg.rooms[roomId];
+
+			var roomSockets = RmMg.returnRoomSockets(playerSockId);  
+			console.info(RmMg.roomSockets[playerSockId]);
+
+			// 해당 romm 에다가 모든 UI를 지우는 역할을 함  
+		
+
+
+			roomSockets.forEach(function(socket){
+
+			 	if(socket.id == playerSockId){
+					socket.emit("ToServer_CameraChange", cameraChangeData);
+				}
+
+			});
+
+	  }
+		  
+	  
+  }
  
   RmMg.sendChatMessage = function(playerSock, message){
 	  

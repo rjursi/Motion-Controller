@@ -558,6 +558,10 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 		socket.on('ui_sendClearDatas', function(clearDatas){
 			roomMgr.clearDatasSync(clearDatas);
 		});
+		
+		socket.on('cameraChange', function(playerId, cameraSetData){
+			roomMgr.sendCameraChangeData(playerId, cameraSetData);
+		});
 	});
 	
 	

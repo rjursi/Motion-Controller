@@ -97,7 +97,10 @@
 		io_ui.removeListener('game_connected', game_connected);
 
 	}
-
+	io_ui.on('ToServer_CameraChange', function(cameraChangeData){
+		
+		changeMyCamera(cameraChangeData);
+	});
 	io_ui.on('Disconnected_UI', function(){
 		// main.js 에 있는 함수
 		DisconnectedUI();	  
@@ -431,7 +434,9 @@
 
 	}
 	
-	
+	function changeMyCamera(cameraChangeData){
+		cameraSet = cameraChangeData;
+	}
 	function setCameraChangeMesh(){
 		
 	
@@ -2139,7 +2144,7 @@
 			villianCollisionCheck();
 			poseChangeHitboxCheck();
 		
-
+			// cameraChangeHitboxCheck();
 		}
 
 
@@ -2349,7 +2354,78 @@
 
 	}
 	
-	
+	function cameraChangeHitboxCheck(){
+		for(let index in playerCollisionObjs){
+			var playerCollisionObj = playerCollisionObjs[index];
+
+			var originPoint = playerCollisionObj.position.clone();
+
+
+			for (var vertexIndex = 0; vertexIndex <	playerCollisionObj.geometry.vertices.length; vertexIndex++)
+			{		
+
+
+				var localVertex =  playerCollisionObj.geometry.vertices[vertexIndex].clone();
+				var globalVertex = localVertex.applyMatrix4(   playerCollisionObj.matrix );
+				var directionVector = globalVertex.sub(   playerCollisionObj.position );
+
+				var ray = new THREE.Raycaster( originPoint, directionVector.clone().normalize() );
+
+				// 여기에 부딛히는 여러개의 메쉬들이 들어감
+				var collisionResults = ray.intersectObjects( cameraChangeMeshs );
+
+				if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()){
+					
+					switch(collisionResults[0].object.name){
+						case "cameraHitbox_startRoom_to_2FFloor_out":
+							
+							io_ui.emit('cameraChange', io_ui.id, 2);
+							break;
+						case "cameraHitbox_startRoom_to_2FFloor_in":
+							
+							io_ui.emit('cameraChange', io_ui.id, 1);
+							break;
+						case "cameraHitbox_2F_To_Stair_out":
+							
+							io_ui.emit('cameraChange', io_ui.id, 3);
+							break;
+						case "cameraHitbox_2F_To_Stair_in":
+							
+							io_ui.emit('cameraChange', io_ui.id, 2);
+							break;
+						case "cameraHitbox_1F_Start_out":
+							
+							io_ui.emit('cameraChange', io_ui.id, 4);
+							break;
+						case "cameraHitbox_1F_Start_out":
+							
+							io_ui.emit('cameraChange', io_ui.id, 3);
+							break;
+						case "cameraHitbox_1F_To_kitchen_out":
+							
+							io_ui.emit('cameraChange', io_ui.id, 5);
+							break;
+						case "cameraHitbox_1F_To_kitchen_in":
+							cameraSet = 4;
+							io_ui.emit('cameraChange', io_ui.id, 4);
+							break;
+						case "cameraHitbox_kitchen_To_store_out":
+						
+							io_ui.emit('cameraChange', io_ui.id, 6);
+							break;
+						case "cameraHitbox_kitchen_To_store_in":
+						
+							io_ui.emit('cameraChange', io_ui.id, 5);
+							break;
+							
+					}
+					
+				}
+
+			}
+			
+		}
+	}
 	
 	function poseChangeHitboxCheck(){
 		for(let index in playerCollisionObjs){
