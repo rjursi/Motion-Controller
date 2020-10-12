@@ -54,7 +54,7 @@ function playerManager(id, position){
     this.objStatus.sizeZ = 5;
 	
 	// 플레이어가 움직이는 스피드
-    this.speed = 0.5;
+    this.speed = 0.3;
 	
 	// 플레이어가 돌아갈 때 스피드
     this.turnSpeed = 0.03;

@@ -189,6 +189,8 @@
 		} 
 
 		console.info(`mesh location : ${forFindMesh.position.x}, ${forFindMesh.position.y}, ${forFindMesh.position.z}`);
+		console.info(`camera location : ${camera.position.x}, ${camera.position.y}, ${camera.position.z}`);
+		console.info(`orbit location : ${orbControls.target.x}, ${orbControls.target.y}, ${orbControls.target.z}`);
 	};
 
 
@@ -210,7 +212,9 @@
 	const GIRL_MODEL_PATH = "girl/";
 	const BOY_MODEL_PATH = "boy/";
 	const VILLIAN_MODEL_PATH = "villian/";
+	const TEXT_MODEL_PATH = "text/";
 	const MOVE_OBJECT_PATH = "moveobj/";
+	const USE_OBJECT_PATH = "useobj/";
 	const HITBOX_DEFAULT_HEIGHT = 8;
 	const CHAT_DEFAULT_HEIGHT = 10;
 
@@ -239,6 +243,7 @@
 	var clearDatas = {}; // 이미 해당 오브젝트를 사용했는지 Bool 값으로 체크하는 데이터, sync 하는데 사용
 	var clearStatuses = {}; 
 	var playerCollisionObjs = [];
+	var useObj = {};
 
 	// 맵 관련 오브젝트가 들어갈 예정
 	var map_Elements = {};
@@ -259,10 +264,13 @@
 	let isPositionChanging_clear = false;
 	let poseCheckStart = false;
 	
-	var cameraSet = 0;
+	var cameraSet = 3;
 	var cameraSetFirst = true;
 	var cameraChangeStart = false;
 
+	let intro_wait_gltf;
+	
+	let myCharacter;
 	function init(){
 
 
@@ -285,12 +293,23 @@
 
 		// camera 생	성, 일단은 PerspectiveCamera 로 설정
 		camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-		camera.position.x = 324;
+		/*camera.position.x = 324; // 시작방
 		camera.position.y = 109;
-		camera.position.z = 126;
+		camera.position.z = 126;*/
 		//camera.position.x = 250; // 2층복도
 		//camera.position.y = 153;
 		//camera.position.z = 150;
+		camera.position.x = 171; // 계단
+		camera.position.y = 88;
+		camera.position.z = 5.9;
+		
+		/*camera.position.x = 148; // 1층복도
+		camera.position.y = 67;
+		camera.position.z = 137;*/
+		
+		/*camera.position.x = 30; // 악당방
+		camera.position.y = 103;
+		camera.position.z = 15;*/
 		// 75 : 시야, 75도
 		// window.innerWidth / window.innerHeight : 종횡비
 		// 0.1, 1000 : 근거리 및 원거리 클리핑 평면
@@ -317,12 +336,23 @@
 		//orbControls.addEventListener('change', showCameraPosition);
 
 
-		orbControls.target.x = 274;
+		/*orbControls.target.x = 274; // 시작방
 		orbControls.target.y = 94;
-		orbControls.target.z = -90;
+		orbControls.target.z = -90;*/
 		//orbControls.target.x = 224; 2층 복도 카메라 타겟
 		//orbControls.target.y = 99;
 		//orbControls.target.z = -72;
+		orbControls.target.x = 159; // 계단
+		orbControls.target.y = 34;
+		orbControls.target.z = -137;
+		/*orbControls.target.x = 150; // 1층복도
+		orbControls.target.y = 24;
+		orbControls.target.z = -51;*/
+		
+		/*orbControls.target.x = 32; // 악당방
+		orbControls.target.y = 24;
+		orbControls.target.z = -50;*/
+		
 		// 카메라 첫타겟 복도 계단 쪽 좌표 //
 
 
@@ -334,9 +364,17 @@
 		door_obj_init(); // 열고 닫을 수 있는 문 상태 초기화
 		clearDatas_init(); // 클리어를 위한 모든 상태 초기화
 		clearStatuses_init(); // 로컬 오브젝트 다시 애니메이션 실행되지 않도록 하는 식별 값
+		useObj_init();
 		gltf_Load(); // 모든 gltf 모델 로드
 
 
+		
+		
+		// 인트로 문구 들어갈 예정
+		
+		//
+		
+		
 		// 이벤트 정의, 아래는 윈도우 사이즈가 바뀔 경우에 대해서 이벤트 리스너 정의
 		window.addEventListener( 'resize', onWindowResize);		
 
@@ -352,13 +390,25 @@
 
 		forFindMesh = new THREE.Mesh(test_findLocationBox, test_findLocationGeometry);
 
-		forFindMesh.position.x = 243;
+		/*forFindMesh.position.x = 307; // 시작방 테스트
 		forFindMesh.position.y = 77;
-		forFindMesh.position.z = 72;	
+		forFindMesh.position.z = 62;*/
+		
+		forFindMesh.position.x = 231; // 계단 테스트
+		forFindMesh.position.y = 77;
+		forFindMesh.position.z = -93;
+		
+		/*forFindMesh.position.x = 158; // 1층복도 테스트
+		forFindMesh.position.y = 0;
+		forFindMesh.position.z = 49;*/
+		
+		/*forFindMesh.position.x = 36; // 악당방 테스트
+		forFindMesh.position.y = 0;
+		forFindMesh.position.z = 7;*/
 
 		scene.add(forFindMesh);
 		
-		setCameraPosition();
+		//setCameraPosition();
 		//카메라 초기 설정
 
 		// 아래는 계단 충돌 메쉬 설정
@@ -376,7 +426,7 @@
 		setCameraChangeMesh();
 		setActionMesh();
 
-
+	
 
 
 		var targetGeometry = new THREE.BoxBufferGeometry( 5, 5, 50 );
@@ -432,19 +482,21 @@
 
 		setLight();
 		//// 여까지
-
+	
 	}
 	
 	function changeMyCamera(cameraChangeData){
 		cameraSet = cameraChangeData;
 		// console.info("camera Changed");
 	}
+	
+	
 	function setCameraChangeMesh(){
 		
 	
 		var cameraHitbox_v_geo = new THREE.BoxGeometry(3,10,20);
 		var cameraHitbox_h_geo = new THREE.BoxGeometry(20,10,3);
-		var cameraHitbox_h_long_geo = new THREE.BoxGeometry(100,10,3);
+		var cameraHitbox_h_long_geo = new THREE.BoxGeometry(110,10,3);
 		var cameraHitbox_v_long_geo = new THREE.BoxGeometry(3,10,50);
 		
 		var cameraHitbox_material_out = new THREE.MeshStandardMaterial({color : 0xff0000}); // 빨강
@@ -548,14 +600,14 @@
 		var cameraHitbox_1F_To_kitchen_out = new THREE.Mesh(cameraHitbox_h_long_geo, cameraHitbox_material_out);
 		
 		cameraHitbox_1F_To_kitchen_out.name = "cameraHitbox_1F_To_kitchen_out";
-		cameraHitbox_1F_To_kitchen_out.position.set(-142, -2.5, 13);
+		cameraHitbox_1F_To_kitchen_out.position.set(-142, -2.5, 3);
 		cameraHitbox_1F_To_kitchen_out.visible = true;
 		
 		
 		var cameraHitbox_1F_To_kitchen_in = new THREE.Mesh(cameraHitbox_h_long_geo, cameraHitbox_material_in);
 		
 		cameraHitbox_1F_To_kitchen_in.name = "cameraHitbox_1F_To_kitchen_in";
-		cameraHitbox_1F_To_kitchen_in.position.set(-142, -2.5, 3);
+		cameraHitbox_1F_To_kitchen_in.position.set(-142, -2.5, 13);
 		cameraHitbox_1F_To_kitchen_in.visible = true;
 		
 		
@@ -585,11 +637,33 @@
 		scene.add(cameraHitbox_kitchen_To_store_in);
 		cameraChangeMeshs.push(cameraHitbox_kitchen_To_store_out);
 		cameraChangeMeshs.push(cameraHitbox_kitchen_To_store_in);
+		
+		
+		var cameraHitbox_store_to_villianRoom_out = new THREE.Mesh(cameraHitbox_h_long_geo, cameraHitbox_material_out);
+		
+		cameraHitbox_store_to_villianRoom_out.name = "cameraHitbox_store_to_villianRoom_out";
+		cameraHitbox_store_to_villianRoom_out.position.set(36,0,11);
+		cameraHitbox_store_to_villianRoom_out.visible = true;
+		
+		
+		var cameraHitbox_store_to_villianRoom_in = new THREE.Mesh(cameraHitbox_h_long_geo, cameraHitbox_material_in);
+		
+		cameraHitbox_store_to_villianRoom_in.name = "cameraHitbox_store_to_villianRoom_in";
+		cameraHitbox_store_to_villianRoom_in.position.set(36,0,24);
+		cameraHitbox_store_to_villianRoom_in.visible = true;
+		
+		scene.add(cameraHitbox_store_to_villianRoom_out);
+		scene.add(cameraHitbox_store_to_villianRoom_in);
+		cameraChangeMeshs.push(cameraHitbox_store_to_villianRoom_out);
+		cameraChangeMeshs.push(cameraHitbox_store_to_villianRoom_in);
+		
+		
+		
 	}
 	
 	
 	function setCameraPosition(){
-		if(cameraSet == 0 && cameraSetFirst == true){	// 2층 방 카메라 시점
+		/*if(cameraSet == 1 && cameraSetFirst == true){	// 2층 방 카메라 시점
 				camera.position.x = 324;
 				camera.position.y = 109;
 				camera.position.z = 126;
@@ -599,7 +673,7 @@
 				orbControls.target.z = -90;
 				
 				cameraSetFirst = false;
-		}else if(cameraSet == 1 && cameraSetFirst == true){
+		}else if(cameraSet == 2 && cameraSetFirst == true){
 				camera.position.x = 250;
 				camera.position.y = 153;
 				camera.position.z = 150;
@@ -609,6 +683,82 @@
 				orbControls.target.z = -72;
 				
 				cameraSetFirst = false;
+		}*/
+		
+			
+		
+		
+		
+	
+		/// 시작방 ///////
+		if (cameraSet == 1 && myCharacter.now_position_x >= 280) {
+			camera.position.x = myCharacter.now_position_x + 17;
+			//camera.position.z = forFindMesh.position.z + 78;
+			
+		//console.log(orbControls);
+		//console.log(camera);
+		}
+		// 2층 복도 /////////
+		if (cameraSet == 2 && myCharacter.now_position_z >= 0 && myCharacter.now_position_z <= 72) {
+			camera.position.x = camera.position.z + 100;
+			camera.position.z = myCharacter.now_position_z + 78;
+			
+		//console.log(orbControls);
+		//console.log(camera);
+		}
+		
+		if (cameraSet == 3 && myCharacter.now_position_x >= 160) {
+			orbControls.target.x = myCharacter.now_position_x;
+			orbControls.target.z = -myCharacter.now_position_x - 12;
+			//camera.position.x = camera.position.z + 100;
+			//camera.position.z = forFindMesh.position.z + 78;
+		//console.log(orbControls);
+		//console.log(camera);
+		}
+		
+		if(cameraSet == 3 && myCharacter.now_position_z >= -80 && myCharacter.now_position_z < -35){
+				camera.position.x = 171 + (myCharacter.now_position_z + 80) * 1.1;
+				orbControls.target.x = 160 - (myCharacter.now_position_z + 80);
+				camera.position.z = 6 + (-myCharacter.now_position_z - 80) * 1.6;
+				orbControls.target.z = -172 - (-myCharacter.now_position_z - 80) * 2.2;
+		}
+		
+		if(cameraSet == 4){
+			camera.position.x = 187;
+			camera.position.y = 40;
+			camera.position.z = 104;
+			
+			orbControls.target.x = 166;
+			orbControls.target.y = 13;
+			orbControls.target.z = -52;
+		}
+		
+		if(cameraSet == 5 && myCharacter.now_position_x > -120){
+				camera.position.x = myCharacter.now_position_x + 18;
+				orbControls.target.x = myCharacter.now_position_x + 20;
+		}
+		
+		if(cameraSet == 6){
+			camera.position.x = -164;
+            camera.position.y = 88;
+            camera.position.z = 48;
+			
+			orbControls.target.x = -150;
+			orbControls.target.y = 21;
+			orbControls.target.z = -56;
+		}
+		
+		if(cameraSet == 7 && camera.position.x > -280){
+			camera.position.x -= 1;
+            orbControls.target.x -= 1;
+		}
+		if(cameraSet == 8 && myCharacter.now_position_x > -35 && myCharacter.now_position_x < 102){
+			camera.position.x = myCharacter.now_position_x - 6;
+			orbControls.target.x = myCharacter.now_position_x - 4;
+		}
+		if(cameraSet == 8 && myCharacter.now_position_z < 7 && myCharacter.now_position_z > -85){
+			camera.position.z = myCharacter.now_position_z + 8;
+            orbControls.target.z = myCharacter.now_position_z - 57;
 		}
 	}
 
@@ -696,7 +846,7 @@
 		var actionHitbox_blender_mesh = new THREE.Mesh(actionHitbox_withObject_box, actionHitbox_withObject_geometry);
 
 		actionHitbox_blender_mesh.name = "action_blender";
-		actionHitbox_blender_mesh.position.set(-198.5, 5.5, -27.5);
+		actionHitbox_blender_mesh.position.set(-198.5, 5.5, -41);
 		actionHitbox_blender_mesh.visible = true;
 
 		actionHitbox_mesh_array.push(actionHitbox_blender_mesh);
@@ -708,7 +858,7 @@
 		var actionHitbox_drawerFront_mesh = new THREE.Mesh(actionHitbox_withBigObject_box, actionHitbox_withBigObject_geometry);
 
 		actionHitbox_drawerFront_mesh.name = "action_drawerFront";
-		actionHitbox_drawerFront_mesh.position.set(-22.5, 5.5, -160.5);
+		actionHitbox_drawerFront_mesh.position.set(-22.5, 5.5, -170);
 		actionHitbox_drawerFront_mesh.visible = true;
 
 		actionHitbox_mesh_array.push(actionHitbox_drawerFront_mesh);
@@ -1367,7 +1517,11 @@
 
 
 	}
-
+	function useObj_init(){
+		useObj = {
+			key : undefined
+		} 
+	}
 	function door_obj_init(){
 		doors["roomDoor2F"] = {
 			door_animMixer : undefined,
@@ -1759,7 +1913,9 @@
 				// 악당 방의 장롱을 접근하여 열쇠를 얻음
 
 				clearStatuses['obj'].villian_drawer = true;
-
+				
+				
+				scene.remove(useObj.key.scene);
 				let infoPosition = {
 					x : -22.5,
 					y : 10,
@@ -1856,7 +2012,7 @@
 					clearInterval(villianMoveTimer);
 					villianMove_z_up();
 				}else{
-					villianUIObj.now_position_x -= 0.5;
+					villianUIObj.now_position_x -= 1.0;
 					villianUIObj.gltf_nowView.scene.position.x = villianUIObj.now_position_x;
 					villianUIObj.hitbox.position.x = villianUIObj.now_position_x;
 				}
@@ -1871,7 +2027,7 @@
 					clearInterval(villianMoveTimer);
 					villian_idle();
 				}else{
-					villianUIObj.now_position_z -= 0.5;
+					villianUIObj.now_position_z -= 1.0;
 					villianUIObj.gltf_nowView.scene.position.z = villianUIObj.now_position_z;
 					villianUIObj.hitbox.position.z = villianUIObj.now_position_z;
 				}
@@ -1913,7 +2069,7 @@
 					clearInterval(villianMoveTimer);
 					villianMove_x_right();
 				}else{
-					villianUIObj.now_position_z += 0.5;
+					villianUIObj.now_position_z += 1.0;
 					villianUIObj.gltf_nowView.scene.position.z = villianUIObj.now_position_z;
 					villianUIObj.hitbox.position.z = villianUIObj.now_position_z;
 				}
@@ -1928,7 +2084,7 @@
 					villian_gotoSleep();
 
 				}else{
-					villianUIObj.now_position_x += 0.5;
+					villianUIObj.now_position_x += 1.0;
 					villianUIObj.gltf_nowView.scene.position.x = villianUIObj.now_position_x;
 					villianUIObj.hitbox.position.x = villianUIObj.now_position_x;
 				}
@@ -1942,7 +2098,7 @@
 			
 			
 			villianUIObj.now_position_x = 64.5;
-			villianUIObj.now_position_y = 23.5;
+			villianUIObj.now_position_y = 5.5;
 			villianUIObj.now_position_z = -141.5;
 			
 			
@@ -2086,32 +2242,9 @@
 		*/
 		
 		
-		
-		/// 시작방 ///////
-		if (cameraSet == 1 && forFindMesh.position.z >= 0 && forFindMesh.position.z <= 72) {
-			camera.position.x = camera.position.z + 100;
-			camera.position.z = forFindMesh.position.z + 78;
-			
-		//console.log(orbControls);
-		//console.log(camera);
+		if(playerUIObj["view_status"] == true){
+			setCameraPosition();
 		}
-		// 2층 복도 /////////
-		if (cameraSet == 2 && forFindMesh.position.z >= 0 && forFindMesh.position.z <= 72) {
-			camera.position.x = camera.position.z + 100;
-			camera.position.z = forFindMesh.position.z + 78;
-			
-		//console.log(orbControls);
-		//console.log(camera);
-		}
-		
-		if (cameraSet == 3 && forFindMesh.position.z >= 0 && forFindMesh.position.z <= 72) {
-			camera.position.x = camera.position.z + 100;
-			camera.position.z = forFindMesh.position.z + 78;
-			
-		//console.log(orbControls);
-		//console.log(camera);
-		}
-
 		
 		// 테스트를 위하여 잠시 주석처리함
 
@@ -2417,27 +2550,49 @@
 
 								io_ui.emit('cameraChange', io_ui.id, 2);
 								break;
-							case "cameraHitbox_1F_Start_out":
-
+							case "cameraHitbox_Stair_To_1F_out":
 								io_ui.emit('cameraChange', io_ui.id, 4);
 								break;
-							case "cameraHitbox_1F_Start_out":
-
+								
+							case "cameraHitbox_Stair_To_1F_in":
 								io_ui.emit('cameraChange', io_ui.id, 3);
 								break;
-							case "cameraHitbox_1F_To_kitchen_out":
-
+								
+							case "cameraHitbox_1F_Start_out":
 								io_ui.emit('cameraChange', io_ui.id, 5);
 								break;
-							case "cameraHitbox_1F_To_kitchen_in":
-								cameraSet = 4;
+								
+							case "cameraHitbox_1F_Start_in":
+
 								io_ui.emit('cameraChange', io_ui.id, 4);
 								break;
-							case "cameraHitbox_kitchen_To_store_out":
+								
+								
+							case "cameraHitbox_1F_To_kitchen_out":
 
 								io_ui.emit('cameraChange', io_ui.id, 6);
 								break;
+								
+								
+							case "cameraHitbox_1F_To_kitchen_in":
+								
+								io_ui.emit('cameraChange', io_ui.id, 5);
+								break;
+							case "cameraHitbox_kitchen_To_store_out":
+
+								io_ui.emit('cameraChange', io_ui.id, 7);
+								break;
 							case "cameraHitbox_kitchen_To_store_in":
+
+								io_ui.emit('cameraChange', io_ui.id, 6);
+								break;
+								
+							case "cameraHitbox_store_to_villianRoom_out":
+
+								io_ui.emit('cameraChange', io_ui.id, 8);
+								break;
+								
+							case "cameraHitbox_store_to_villianRoom_in":
 
 								io_ui.emit('cameraChange', io_ui.id, 5);
 								break;
@@ -2658,7 +2813,8 @@
 	}
 	// 해당 객체 정보를 가져와서 플레이어를 테스트로 생성하는 부분
 	var createPlayer = function(initPlayerObjArr){
-
+		
+		scene.remove(intro_wait_gltf.scene);
 
 		// 플레이어 데이터 객체 목록 갯수 만큼 해당 반복문 실행
 		for(var i in initPlayerObjArr){
@@ -2722,10 +2878,14 @@
 			scene.add(playerUIObj[nowPlayerKey].gltf_nowView.scene); // 현재 설정된 gltf view 추가
 
 
-
+			if(playerUIObj[nowPlayerKey].playerId == io_ui.id){
+				myCharacter = playerUIObj[nowPlayerKey];
+			}
 		}
 
 		playerUIObj["view_status"] = true;
+		
+		
 
 		syncPositionByInterval = setInterval(sendMyPositionForSync, 100)
 		syncClearDataByInterval = setInterval(sendMyClearDataForSync, 300);
@@ -2851,7 +3011,7 @@
 			scene.remove(scene.children[0]); 
 		}
 
-		alert("성공적으로 탈출하셨습니다. 축하드려요 !");
+		alert("성공적으로 탈출하셨습니다. 축하드려요 ! 앙기모찌");
 
 	}
 
@@ -2887,11 +3047,14 @@
 	function gltf_Load(){
 		gltfload_Map();
 		gltfload_Map_Collision();
+		gltfLoad_Key();
 		gltfload_ManAnimation();
 		gltfload_GirlAnimation();
 		gltfLoad_VillianAnimation();
 		gltfload_2F_doorAnimation();
 		gltfLoad_1F_villianRoomDoorAnimation();
+		gltfLoad_intro_wait();
+		
 
 
 	}
@@ -2939,8 +3102,8 @@
 			doorObj.scene.scale.y = 5;
 			doorObj.scene.scale.z = 5;
 
-			doorObj.scene.position.x = 40;
-			doorObj.scene.position.y = 3.5;
+			doorObj.scene.position.x = 54;
+			doorObj.scene.position.y = -4.5;
 			doorObj.scene.position.z = 18;
 
 			// doorObj.scene.rotation.y = Math.PI / 2;
@@ -3254,6 +3417,63 @@
 
 
 
+	}
+	async function gltfLoad_intro_wait(){
+		const intro_wait_obj = SERVER_URL + MODELINGDATA_PATH + TEXT_MODEL_PATH + "intro_wait.glb";
+		
+		gltfLoader.load(intro_wait_obj, function(gltfObj){
+
+
+			gltfObj.scene.scale.set( 4, 4, 4 );			   
+			
+			gltfObj.scene.position.set(171, 88, 0);
+			scene.add(gltfObj.scene);
+			intro_wait_gltf = gltfObj;
+		
+		},
+		function ( xhr ) {
+
+			console.log( Math.floor(( xhr.loaded / xhr.total * 100 )) + '% loaded' );
+
+		},
+		// called when loading has errors
+		function ( error ) {
+
+			console.log( 'An error happened' + error );
+
+		}			   
+		);	
+	}
+	
+	
+	async function gltfLoad_Key(){
+		const key_obj = SERVER_URL + MODELINGDATA_PATH + USE_OBJECT_PATH + "key.glb";
+		
+		gltfLoader.load(key_obj, function(gltfObj){
+
+
+			gltfObj.scene.scale.set( 1, 1, 1 );			   
+			gltfObj.scene.rotation.y = (Math.PI / 4) * 6;
+			useObj.key = gltfObj;
+			
+			
+			useObj.key.scene.position.set(-13, 30.5, -173);
+			scene.add(useObj.key.scene);
+
+		
+		},
+		function ( xhr ) {
+
+			console.log( Math.floor(( xhr.loaded / xhr.total * 100 )) + '% loaded' );
+
+		},
+		// called when loading has errors
+		function ( error ) {
+
+			console.log( 'An error happened' + error );
+
+		}			   
+		);
 	}
 
 	async function gltfload_GirlAnimation(){
