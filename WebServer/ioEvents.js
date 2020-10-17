@@ -144,7 +144,7 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 		});
 		
 		socket.on('cWalkChange', function(isCWalk){
-			console.info(isCWalk);
+			// console.info(isCWalk);
 			playerMgr.poseChange(socket.id, isCWalk);
 		});
 		
@@ -373,13 +373,13 @@ ioEvents.prototype.ioEventHandler = function(playerMgr, lobbyMgr, roomMgr){
 					// 안드로이드 컨트롤러에게 끊어졌다고 알림
 					var inRoomPlayerSockets = roomMgr.returnRoomSockets(web_socketIdTemp);
 
-					console.info(inRoomPlayerSockets);
+					// console.info(inRoomPlayerSockets);
 					
 					// 해당 룸에 속한 소켓들을 가져오는 역할을 함
 					for(var index in inRoomPlayerSockets){
 						
 						let indexSocket = inRoomPlayerSockets[index];
-						console.info(index);
+						// console.info(index);
 						var controllerSocket = controller_sockets[game_sockets[indexSocket.id].controller_id].socket;
 
 						// 각 안드로이드 컨트롤러 소켓에게 서버가 끊어졌다고 알림

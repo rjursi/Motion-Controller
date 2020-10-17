@@ -37,7 +37,7 @@ function RoomManager(io){
 	RmMg.InRoomControlAllow[playerSock.id] = false;  
 	RmMg.roomSockets[playerSock.id] = [playerSock];
 	  
-	console.info(RmMg.roomSockets[playerSock.id]);
+	// console.info(RmMg.roomSockets[playerSock.id]);
     console.log("Room Created :", roomId);
 
   };
@@ -101,7 +101,7 @@ function RoomManager(io){
 	  */
 	  
 	  var roomSockets = RmMg.roomSockets[onePlayerSock_id];
-	  console.info("roomSockets : " + roomSockets);
+	  // console.info("roomSockets : " + roomSockets);
 	  
 	  return roomSockets;
 	  

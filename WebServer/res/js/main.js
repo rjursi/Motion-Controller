@@ -264,7 +264,7 @@
 	let isPositionChanging_clear = false;
 	let poseCheckStart = false;
 	
-	var cameraSet = 3;
+	var cameraSet = 1;
 	var cameraSetFirst = true;
 	var cameraChangeStart = false;
 
@@ -276,13 +276,13 @@
 
 		scene = new THREE.Scene(); 
 		//light = new THREE.HemisphereLight();
-		directionalLight = new THREE.DirectionalLight(0xffffff,1);
-		directionalLight.position.set(0,1,0);
-		directionalLight.castShadow = true;
+		//directionalLight = new THREE.DirectionalLight(0xffffff,1);
+		//directionalLight.position.set(0,1,0);
+		//directionalLight.castShadow = true;
 		// 하녕이 수정하는 즁
 		//scene.add(directionalLight);
 
-		ambLight = new THREE.AmbientLight(0xffffff, 0.5);
+		//ambLight = new THREE.AmbientLight(0xffffff, 0.5);
 		//scene.add(ambLight);
 
 
@@ -293,15 +293,15 @@
 
 		// camera 생	성, 일단은 PerspectiveCamera 로 설정
 		camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-		/*camera.position.x = 324; // 시작방
+		camera.position.x = 324; // 시작방
 		camera.position.y = 109;
-		camera.position.z = 126;*/
+		camera.position.z = 126;
 		//camera.position.x = 250; // 2층복도
 		//camera.position.y = 153;
 		//camera.position.z = 150;
-		camera.position.x = 171; // 계단
+		/*camera.position.x = 171; // 계단
 		camera.position.y = 88;
-		camera.position.z = 5.9;
+		camera.position.z = 5.9;*/
 		
 		/*camera.position.x = 148; // 1층복도
 		camera.position.y = 67;
@@ -336,15 +336,15 @@
 		//orbControls.addEventListener('change', showCameraPosition);
 
 
-		/*orbControls.target.x = 274; // 시작방
+		orbControls.target.x = 274; // 시작방
 		orbControls.target.y = 94;
-		orbControls.target.z = -90;*/
+		orbControls.target.z = -90;
 		//orbControls.target.x = 224; 2층 복도 카메라 타겟
 		//orbControls.target.y = 99;
 		//orbControls.target.z = -72;
-		orbControls.target.x = 159; // 계단
+		/*orbControls.target.x = 159; // 계단
 		orbControls.target.y = 34;
-		orbControls.target.z = -137;
+		orbControls.target.z = -137;*/
 		/*orbControls.target.x = 150; // 1층복도
 		orbControls.target.y = 24;
 		orbControls.target.z = -51;*/
@@ -496,7 +496,7 @@
 	
 		var cameraHitbox_v_geo = new THREE.BoxGeometry(3,10,20);
 		var cameraHitbox_h_geo = new THREE.BoxGeometry(20,10,3);
-		var cameraHitbox_h_long_geo = new THREE.BoxGeometry(110,10,3);
+		var cameraHitbox_h_long_geo = new THREE.BoxGeometry(113,10,3);
 		var cameraHitbox_v_long_geo = new THREE.BoxGeometry(3,10,50);
 		
 		var cameraHitbox_material_out = new THREE.MeshStandardMaterial({color : 0xff0000}); // 빨강
@@ -554,7 +554,7 @@
 		var cameraHitbox_Stair_To_1F_out = new THREE.Mesh(cameraHitbox_h_geo, cameraHitbox_material_out);
 		
 		cameraHitbox_Stair_To_1F_out.name = "cameraHitbox_Stair_To_1F_out";
-		cameraHitbox_Stair_To_1F_out.position.set(151, -2.5, 0);
+		cameraHitbox_Stair_To_1F_out.position.set(151, -2.5, -2);
 		cameraHitbox_Stair_To_1F_out.visible = true;
 		
 	
@@ -563,7 +563,7 @@
 		var cameraHitbox_Stair_To_1F_in = new THREE.Mesh(cameraHitbox_h_geo, cameraHitbox_material_in);
 		
 		cameraHitbox_Stair_To_1F_in.name = "cameraHitbox_Stair_To_1F_in"
-		cameraHitbox_Stair_To_1F_in.position.set(151, -2.5, -10);
+		cameraHitbox_Stair_To_1F_in.position.set(151, -2.5, -12);
 		cameraHitbox_Stair_To_1F_in.visible = true;
 		
 		
@@ -703,6 +703,10 @@
 			camera.position.x = camera.position.z + 100;
 			camera.position.z = myCharacter.now_position_z + 78;
 			
+			camera.position.y = 153;
+			orbControls.target.x = 224;
+			orbControls.target.y = 99;
+			orbControls.target.z = -72;
 		//console.log(orbControls);
 		//console.log(camera);
 		}
@@ -714,6 +718,8 @@
 			//camera.position.z = forFindMesh.position.z + 78;
 		//console.log(orbControls);
 		//console.log(camera);
+			orbControls.target.y = 34;
+			camera.position.y = 88;
 		}
 		
 		if(cameraSet == 3 && myCharacter.now_position_z >= -80 && myCharacter.now_position_z < -35){
@@ -733,9 +739,14 @@
 			orbControls.target.z = -52;
 		}
 		
-		if(cameraSet == 5 && myCharacter.now_position_x > -120){
+		if(cameraSet == 5 && myCharacter.now_position_x > -200){
 				camera.position.x = myCharacter.now_position_x + 18;
 				orbControls.target.x = myCharacter.now_position_x + 20;
+			
+				camera.position.y = 67;
+				camera.position.z = 137;
+				orbControls.target.y = 24;
+				orbControls.target.z = -51;
 		}
 		
 		if(cameraSet == 6){
@@ -754,10 +765,14 @@
 		}
 		if(cameraSet == 8 && myCharacter.now_position_x > -35 && myCharacter.now_position_x < 102){
 			camera.position.x = myCharacter.now_position_x - 6;
+			camera.position.y = 103;
+			orbControls.target.y = 24;
 			orbControls.target.x = myCharacter.now_position_x - 4;
 		}
 		if(cameraSet == 8 && myCharacter.now_position_z < 7 && myCharacter.now_position_z > -85){
 			camera.position.z = myCharacter.now_position_z + 8;
+			camera.position.y = 103;
+			orbControls.target.y = 24;
             orbControls.target.z = myCharacter.now_position_z - 57;
 		}
 	}
@@ -991,7 +1006,7 @@
 		// 왼쪽 계단
 
 
-		var stairHitbox_left_box = new THREE.BoxGeometry(28,20,5);
+		var stairHitbox_left_box = new THREE.BoxGeometry(32,20,5);
 		var stairHitbox_left_geometry = new THREE.MeshStandardMaterial({color : 0x000000});
 
 
@@ -2036,16 +2051,22 @@
 		
 		
 		function villian_idle(){
-			villianUIObj.gltf_nowView.scene.rotation.y = (Math.PI / 4) * 6;
+			
 			
 			let idleCount = 0;
 			
+			scene.remove(villianUIObj.gltf_nowView.scene);
+			
+			
 			villianUIObj.gltf_nowView = villianUIObj.gltf_idle;
 			villianUIObj.gltf_nowView_animMixer = villianUIObj.gltf_idle_animMixer;
+			villianUIObj.gltf_nowView.scene.rotation.y = (Math.PI / 4) * 6;
 			
 			villianUIObj.gltf_nowView.animations.forEach((clip) => {
 				villianUIObj.gltf_nowView_animMixer.clipAction(clip).play();
 			});
+			
+			scene.add(villianUIObj.gltf_nowView.scene);
 			
 			let villianIdleTimer = setInterval(function(){
 				if(idleCount > 4){
@@ -2060,8 +2081,13 @@
 		
 		
 		function villianMove_z_down(){
+			
+			scene.remove(villianUIObj.gltf_nowView.scene);
+			
 			villianUIObj.gltf_nowView = villianUIObj.gltf_walk;
 			villianUIObj.gltf_nowView_animMixer = villianUIObj.gltf_walk_animMixer;
+			
+			scene.add(villianUIObj.gltf_nowView.scene);
 			
 			villianUIObj.gltf_nowView.scene.rotation.y = 0;
 			let villianMoveTimer = setInterval(function(){
@@ -3372,7 +3398,7 @@
 
 			villianUIObj.gltf_idle_animMixer = new THREE.AnimationMixer(gltfObj.scene);
 
-
+		
 		},
 		function ( xhr ) {
 
@@ -3426,7 +3452,7 @@
 
 			gltfObj.scene.scale.set( 4, 4, 4 );			   
 			
-			gltfObj.scene.position.set(171, 88, 0);
+			gltfObj.scene.position.set(324, 109, 126);
 			scene.add(gltfObj.scene);
 			intro_wait_gltf = gltfObj;
 		
@@ -3457,7 +3483,7 @@
 			useObj.key = gltfObj;
 			
 			
-			useObj.key.scene.position.set(-13, 30.5, -173);
+			useObj.key.scene.position.set(-11, 30.5, -173);
 			scene.add(useObj.key.scene);
 
 		
