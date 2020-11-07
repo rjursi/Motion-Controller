@@ -23,7 +23,7 @@
 
 			}else{
 				// QRcode 그대로 보이게
-				info_element.style.display = "block"
+				info_element.style.display = "block";
 				finish_render();
 
 				controller_state = {};
@@ -48,14 +48,14 @@
 
 		info_element = document.createElement('div');
 		info_element.id = "app_info";
-
+		info_element.style.margin = "8px";
 		title_element = document.createElement('h1');
 		title_element.innerHTML = "웹 브라우저와 연결";
 
 
 		QR_code_element = document.createElement('div');
 		QR_code_element.id = "QR_code";
-
+		
 		QRData_element = document.createElement('h3');
 		QRData_element.innerHTML = "QR 데이터 : " + url;
 
@@ -217,6 +217,7 @@
 	const USE_OBJECT_PATH = "useobj/";
 	const HITBOX_DEFAULT_HEIGHT = 8;
 	const CHAT_DEFAULT_HEIGHT = 10;
+	const SOUNDDATA_PATH = "/res/sound/";
 
 	// object는 일단 각종 요소(예를 들어 큐브) 등의 요소들이 들어가는 부분
 
@@ -237,6 +238,7 @@
 
 	// 플레이어 객체가 들어가 있는 배열, 총 2개 밖에 안들어감
 	var playerUIObj = {};
+	var sounds = {};
 	var villianUIObj = {};
 	//var playerCollisionObj, col_geometry, col_material; // 충돌 테스트를 위한 임시 Mesh 요소
 	var doors = {};
@@ -326,8 +328,8 @@
 
 
 		renderer.setSize(window.innerWidth, window.innerHeight);
-		renderer.setClearColor(0xffffff);
-		renderer.outputEncoding = THREE.sRGBEncoding;
+		//renderer.setClearColor(0xffffff);
+		//renderer.outputEncoding = THREE.sRGBEncoding;
 		// 여기 setSize 에서 앱의 크기를 유지하면서 더 낮은 해상도로 랜더링 할 경우에는 
 		// setSize의 세번째 인수 (updateStyle)로 false를 넣고 렌더링 사이즈를 넣으면 됨
 
@@ -365,9 +367,10 @@
 		clearDatas_init(); // 클리어를 위한 모든 상태 초기화
 		clearStatuses_init(); // 로컬 오브젝트 다시 애니메이션 실행되지 않도록 하는 식별 값
 		useObj_init();
+		sound_init();
 		gltf_Load(); // 모든 gltf 모델 로드
 
-
+	
 		
 		
 		// 인트로 문구 들어갈 예정
@@ -440,6 +443,14 @@
 		LightTargetMesh5 = new THREE.Mesh(targetGeometry, targetMaterial);
 		LightTargetMesh6 = new THREE.Mesh(targetGeometry, targetMaterial);
 		LightTargetMesh7 = new THREE.Mesh(targetGeometry, targetMaterial);
+		
+		LightTargetMesh.visible = false;
+		LightTargetMesh2.visible = false;
+		LightTargetMesh3.visible = false;
+		LightTargetMesh4.visible = false;
+		LightTargetMesh5.visible = false;
+		LightTargetMesh6.visible = false;
+		LightTargetMesh7.visible = false;
 
 
 		scene.add(LightTargetMesh);
@@ -510,14 +521,14 @@
 		
 		cameraHitbox_startRoom_to_2FFloor_out.name = "cameraHitbox_startRoom_to_2FFloor_out";
 		cameraHitbox_startRoom_to_2FFloor_out.position.set(254, 77, 59);
-		cameraHitbox_startRoom_to_2FFloor_out.visible = true;
+		cameraHitbox_startRoom_to_2FFloor_out.visible = false;
 		
 		
 		var cameraHitbox_startRoom_to_2FFloor_in = new THREE.Mesh(cameraHitbox_v_geo, cameraHitbox_material_in);
 		
 		cameraHitbox_startRoom_to_2FFloor_in.name = "cameraHitbox_startRoom_to_2FFloor_in"
 		cameraHitbox_startRoom_to_2FFloor_in.position.set(264, 77, 59);
-		cameraHitbox_startRoom_to_2FFloor_in.visible = true;
+		cameraHitbox_startRoom_to_2FFloor_in.visible = false;
 		
 		
 		scene.add(cameraHitbox_startRoom_to_2FFloor_out);
@@ -531,7 +542,7 @@
 		
 		cameraHitbox_2F_To_Stair_out.name = "cameraHitbox_2F_To_Stair_out";
 		cameraHitbox_2F_To_Stair_out.position.set(218, 77, -94);
-		cameraHitbox_2F_To_Stair_out.visible = true;
+		cameraHitbox_2F_To_Stair_out.visible = false;
 		
 		
 		
@@ -540,7 +551,7 @@
 		
 		cameraHitbox_2F_To_Stair_in.name = "cameraHitbox_2F_To_Stair_in"
 		cameraHitbox_2F_To_Stair_in.position.set(228, 77, -94);
-		cameraHitbox_2F_To_Stair_in.visible = true;
+		cameraHitbox_2F_To_Stair_in.visible = false;
 		
 		
 		
@@ -555,7 +566,7 @@
 		
 		cameraHitbox_Stair_To_1F_out.name = "cameraHitbox_Stair_To_1F_out";
 		cameraHitbox_Stair_To_1F_out.position.set(151, -2.5, -2);
-		cameraHitbox_Stair_To_1F_out.visible = true;
+		cameraHitbox_Stair_To_1F_out.visible = false;
 		
 	
 		
@@ -564,7 +575,7 @@
 		
 		cameraHitbox_Stair_To_1F_in.name = "cameraHitbox_Stair_To_1F_in"
 		cameraHitbox_Stair_To_1F_in.position.set(151, -2.5, -12);
-		cameraHitbox_Stair_To_1F_in.visible = true;
+		cameraHitbox_Stair_To_1F_in.visible = false;
 		
 		
 		
@@ -579,14 +590,14 @@
 		
 		cameraHitbox_1F_Start_out.name = "cameraHitbox_1F_Start_out";
 		cameraHitbox_1F_Start_out.position.set(125, -2.5, 46);
-		cameraHitbox_1F_Start_out.visible = true;
+		cameraHitbox_1F_Start_out.visible = false;
 		
 		
 		var cameraHitbox_1F_Start_in = new THREE.Mesh(cameraHitbox_v_long_geo, cameraHitbox_material_in);
 		
 		cameraHitbox_1F_Start_in.name = "cameraHitbox_1F_Start_in"
 		cameraHitbox_1F_Start_in.position.set(135, -2.5, 46);
-		cameraHitbox_1F_Start_in.visible = true;
+		cameraHitbox_1F_Start_in.visible = false;
 		
 		
 
@@ -601,14 +612,14 @@
 		
 		cameraHitbox_1F_To_kitchen_out.name = "cameraHitbox_1F_To_kitchen_out";
 		cameraHitbox_1F_To_kitchen_out.position.set(-142, -2.5, 3);
-		cameraHitbox_1F_To_kitchen_out.visible = true;
+		cameraHitbox_1F_To_kitchen_out.visible = false;
 		
 		
 		var cameraHitbox_1F_To_kitchen_in = new THREE.Mesh(cameraHitbox_h_long_geo, cameraHitbox_material_in);
 		
 		cameraHitbox_1F_To_kitchen_in.name = "cameraHitbox_1F_To_kitchen_in";
 		cameraHitbox_1F_To_kitchen_in.position.set(-142, -2.5, 13);
-		cameraHitbox_1F_To_kitchen_in.visible = true;
+		cameraHitbox_1F_To_kitchen_in.visible = false;
 		
 		
 		
@@ -624,14 +635,14 @@
 		
 		cameraHitbox_kitchen_To_store_out.name = "cameraHitbox_kitchen_To_store_out";
 		cameraHitbox_kitchen_To_store_out.position.set(-220, -2.5, -13);
-		cameraHitbox_kitchen_To_store_out.visible = true;
+		cameraHitbox_kitchen_To_store_out.visible = false;
 		
 		
 		var cameraHitbox_kitchen_To_store_in = new THREE.Mesh(cameraHitbox_v_geo, cameraHitbox_material_in);
 		
 		cameraHitbox_kitchen_To_store_in.name = "cameraHitbox_kitchen_To_store_in";
 		cameraHitbox_kitchen_To_store_in.position.set(-210, -2.5, -13);
-		cameraHitbox_kitchen_To_store_in.visible = true;
+		cameraHitbox_kitchen_To_store_in.visible = false;
 		
 		scene.add(cameraHitbox_kitchen_To_store_out);
 		scene.add(cameraHitbox_kitchen_To_store_in);
@@ -643,14 +654,14 @@
 		
 		cameraHitbox_store_to_villianRoom_out.name = "cameraHitbox_store_to_villianRoom_out";
 		cameraHitbox_store_to_villianRoom_out.position.set(36,0,11);
-		cameraHitbox_store_to_villianRoom_out.visible = true;
+		cameraHitbox_store_to_villianRoom_out.visible = false;
 		
 		
 		var cameraHitbox_store_to_villianRoom_in = new THREE.Mesh(cameraHitbox_h_long_geo, cameraHitbox_material_in);
 		
 		cameraHitbox_store_to_villianRoom_in.name = "cameraHitbox_store_to_villianRoom_in";
 		cameraHitbox_store_to_villianRoom_in.position.set(36,0,24);
-		cameraHitbox_store_to_villianRoom_in.visible = true;
+		cameraHitbox_store_to_villianRoom_in.visible = false;
 		
 		scene.add(cameraHitbox_store_to_villianRoom_out);
 		scene.add(cameraHitbox_store_to_villianRoom_in);
@@ -787,7 +798,7 @@
 		
 		actionHitbox_kitchen_villianCall_mesh.name = "action_villian_call";
 		actionHitbox_kitchen_villianCall_mesh.position.set(-228, -1.5, -15.5);
-		actionHitbox_kitchen_villianCall_mesh.visible = true;
+		actionHitbox_kitchen_villianCall_mesh.visible = false;
 		
 		callHitbox_mesh_array.push(actionHitbox_kitchen_villianCall_mesh);
 		scene.add(actionHitbox_kitchen_villianCall_mesh);
@@ -802,7 +813,7 @@
 		
 		poseChangeHitbox_withBigObject_mesh.name = "actionHitbox_poseChange_cwalk";
 		poseChangeHitbox_withBigObject_mesh.position.set(35, 8.5, 12);
-		poseChangeHitbox_withBigObject_mesh.visible = true;
+		poseChangeHitbox_withBigObject_mesh.visible = false;
 		
 		poseChangeMeshs.push(poseChangeHitbox_withBigObject_mesh);
 		scene.add(poseChangeHitbox_withBigObject_mesh);
@@ -823,7 +834,7 @@
 		var actionHitbox_doorVertical_geometry = new THREE.MeshStandardMaterial({color : 0x27B500});
 
 		// 작은 오브젝트용 상호작용
-		var actionHitbox_withObject_box = new THREE.BoxGeometry(5, 10, 5);
+		var actionHitbox_withObject_box = new THREE.BoxGeometry(10, 10, 5);
 		var actionHitbox_withObject_geometry = new THREE.MeshStandardMaterial({color : 0x27B500});
 
 		// 큰 (장롱용) 오브젝트용 상호작용
@@ -836,7 +847,7 @@
 
 		actionHitbox_doorToLeft_mesh_startRoom.name = "action_door_startRoom_toLeft";
 		actionHitbox_doorToLeft_mesh_startRoom.position.set(260,81,60);
-		actionHitbox_doorToLeft_mesh_startRoom.visible = true;
+		actionHitbox_doorToLeft_mesh_startRoom.visible = false;
 
 		actionHitbox_mesh_array.push(actionHitbox_doorToLeft_mesh_startRoom);
 		scene.add(actionHitbox_doorToLeft_mesh_startRoom);
@@ -848,7 +859,7 @@
 
 		actionHitbox_doorIn_mesh_villainRoom.name = "action_door_villain_In";
 		actionHitbox_doorIn_mesh_villainRoom.position.set(35, 8.5, 19);
-		actionHitbox_doorIn_mesh_villainRoom.visible = true;
+		actionHitbox_doorIn_mesh_villainRoom.visible = false;
 
 		actionHitbox_mesh_array.push(actionHitbox_doorIn_mesh_villainRoom);
 		
@@ -862,7 +873,7 @@
 
 		actionHitbox_blender_mesh.name = "action_blender";
 		actionHitbox_blender_mesh.position.set(-198.5, 5.5, -41);
-		actionHitbox_blender_mesh.visible = true;
+		actionHitbox_blender_mesh.visible = false;
 
 		actionHitbox_mesh_array.push(actionHitbox_blender_mesh);
 		scene.add(actionHitbox_blender_mesh);
@@ -874,7 +885,7 @@
 
 		actionHitbox_drawerFront_mesh.name = "action_drawerFront";
 		actionHitbox_drawerFront_mesh.position.set(-22.5, 5.5, -170);
-		actionHitbox_drawerFront_mesh.visible = true;
+		actionHitbox_drawerFront_mesh.visible = false;
 
 		actionHitbox_mesh_array.push(actionHitbox_drawerFront_mesh);
 		scene.add(actionHitbox_drawerFront_mesh);
@@ -885,7 +896,7 @@
 		
 		actionHitbox_clear_mesh.name = "action_clear";
 		actionHitbox_clear_mesh.position.set(171.5, 13.5, 73);
-		actionHitbox_clear_mesh.visible = true;
+		actionHitbox_clear_mesh.visible = false;
 
 		actionHitbox_mesh_array.push(actionHitbox_clear_mesh);
 		scene.add(actionHitbox_clear_mesh);
@@ -1320,59 +1331,59 @@
 		/////////////////////////////////////
 		//////////////// 2층 ////////////////
 		/////////////////////////////////////
-		var light_2Froom = new THREE.PointLight(0xffffff, 1, 150);
+		var light_2Froom = new THREE.PointLight(0xffffff, 1, 75);	// 밝기 : 1, 거리 : 150
 		light_2Froom.position.set(305, 110, 30);
 		//light_2Froom.castShadow = true;
 		scene.add(light_2Froom);    // 2층 방 조명
 
 
-		var light_2FroomBold = new THREE.SpotLight( 0xfff36c, 1, 100, 0.5, 0.4, 0.4 );
+		var light_2FroomBold = new THREE.SpotLight( 0xfff36c, 1, 50, 0.5, 0.4, 0.4 ); // 밝기 : 1, 거리 : 100, : 시작소실점 : 0.5, 소멸 소실점 : 0.4, 번짐 : 0.4
 		light_2FroomBold.position.set( 305, 150, 55 );
 		//light_2FroomBold.castShadow = true;
 		light_2FroomBold.target = LightTargetMesh;
 		scene.add(light_2FroomBold);    // 2층 방 강조 조명
 
 
-		var light_2Fhallway = new THREE.SpotLight(0xffffff, 0.6, 400, 0.2, 0.3, 0.4);
+		var light_2Fhallway = new THREE.SpotLight(0xffffff, 0.6, 200, 0.2, 0.3, 0.4); // 밝기 : 0.6, 거리 : 400, 시작소실점 : 0.2, 소멸 소실점 : 0.3, 번짐 : 0.4
 		light_2Fhallway.position.set(245, 175, -250);
 		light_2Fhallway.target = LightTargetMesh2;
 		//light_2Fhallway.castShadow = true;
 		scene.add(light_2Fhallway); // 2층 복도 조명
 
 
-		var light_2Fsquarelamp = new THREE.PointLight(0xffffff, 0.7, 150);
+		var light_2Fsquarelamp = new THREE.PointLight(0xffffff, 0.7, 75); // 밝기 : 0.7, 거리 : 150
 		light_2Fsquarelamp.position.set(245, 150, -150);
 		//light_2Fsquarelamp.castShadow = true;
 		scene.add(light_2Fsquarelamp);  // 2층 복도끝 조명
 
 
-		var light_2FsquarelampBold = new THREE.SpotLight(0xffff9c, 1, 250, 0.4, 0.1, 0.8);
+		var light_2FsquarelampBold = new THREE.SpotLight(0xffff9c, 1, 125, 0.4, 0.1, 0.8); // 밝기 : 1, 거리 : 250, 시작소실점 : 0.4, 소멸 소실점 : 0.1, 번짐 : 0.8
 		light_2FsquarelampBold.position.set(245, 150, -150);
 		light_2FsquarelampBold.target = LightTargetMesh3;
 		//light_2FsquarelampBold.castShadow = true;
 		scene.add(light_2FsquarelampBold);  // 2층 복도끝 강조 조명
 
 
-		var light_2Fstairs01 = new THREE.PointLight(0xffffff, 0.7, 200);
+		var light_2Fstairs01 = new THREE.PointLight(0xffffff, 0.7, 200); // 밝기 : 0.7, 거리 : 200
 		light_2Fstairs01.position.set(145, 150, -5);
 		//light_2Fstairs01.castShadow = true;
 		scene.add(light_2Fstairs01); // 2층 계단 조명 오른쪽
 
 
-		var light_2Fstairs01Bold = new THREE.SpotLight(0xffffff, 0.6, 250, 2, 0.1, 1.2);
+		var light_2Fstairs01Bold = new THREE.SpotLight(0xffffff, 0.6, 125, 2, 0.1, 1.2); // 밝기 : 0.6, 거리 : 250, 시작소실점 : 2, 소멸 소실점 : 0.1, 번짐 : 1.2
 		light_2Fstairs01Bold.position.set(140, 150, -5);
 		light_2Fstairs01Bold.target = LightTargetMesh5;
 		//light_2Fstairs01Bold.castShadow = true;
 		scene.add(light_2Fstairs01Bold);    // 2층 계단 강조 조명 오른쪽
 
 
-		var light_2Fstairs02 = new THREE.PointLight(0xffffff, 0.7, 200);
+		var light_2Fstairs02 = new THREE.PointLight(0xffffff, 0.7, 50); // 밝기 : 0.7, 거리 : 200
 		light_2Fstairs02.position.set(145, 150, -75);
 		//light_2Fstairs02.castShadow = true;
 		scene.add(light_2Fstairs02);    // 2층 계단 조명 왼쪽
 
 
-		var light_2Fstairs02Bold = new THREE.SpotLight(0xffffff, 0.6, 250, 2, 0.1, 1.2);
+		var light_2Fstairs02Bold = new THREE.SpotLight(0xffffff, 0.6, 125, 2, 0.1, 1.2); // 밝기 : 0.6, 거리 : 250, 시작소실점 : 2, 소멸 소실점 : 0.1, 번짐 : 1.2
 		light_2Fstairs02Bold.position.set(140, 150, -75);
 		light_2Fstairs02Bold.target = LightTargetMesh4;
 		//light_2Fstairs02Bold.castShadow = true;
@@ -1380,7 +1391,7 @@
 
 
 
-		var light_2Fstairs1F = new THREE.PointLight(0xffffff, 0.7, 200);
+		var light_2Fstairs1F = new THREE.PointLight(0xffffff, 0.7, 50); // 밝기 : 0.7, 거리 : 200
 		light_2Fstairs1F.position.set(190, 50, -15);
 		//light_2Fstairs1F.castShadow = true;
 		scene.add(light_2Fstairs1F);    // 2층 계단 1층 조명
@@ -1389,20 +1400,20 @@
 		//////////////// 1층 ////////////////
 		/////////////////////////////////////
 
-		var light_1Fhallway = new THREE.SpotLight(0xffffff, 1.3, 400, 1, 0.5, 0.4);
+		var light_1Fhallway = new THREE.SpotLight(0xffffff, 1.3, 200, 1, 0.5, 0.4); // 밝기 : 1.3, 거리 : 400, 시작소실점 : 1, 소멸 소실점 : 0.5, 번짐 : 0.4
 		light_1Fhallway.position.set(145, 60, 50);
 		light_1Fhallway.target = LightTargetMesh7;
 		light_1Fhallway.castShadow = true;
 		scene.add(light_1Fhallway);     // 1층 복도 강조 조명
 
 
-		var light_1Fkitchen = new THREE.PointLight(0xffffff, 1, 200);
+		var light_1Fkitchen = new THREE.PointLight(0xffffff, 1, 100); // 밝기 : 1, 거리 : 200
 		light_1Fkitchen.position.set(-140, 50, -105);
 		light_1Fkitchen.castShadow = true;
 		scene.add(light_1Fkitchen);     // 1층 부엌 조명
 
 
-		var light_1FkitchenBold = new THREE.SpotLight( 0xffffff, 1, 150, 0.6, 0.4, 0.4 );
+		var light_1FkitchenBold = new THREE.SpotLight( 0xffffff, 1, 75, 0.6, 0.4, 0.4 ); // 밝기 : 1, 거리 : 150, 시작소실점 : 0.6, 소멸 소실점 : 0.4, 번짐 : 0.4
 		light_1FkitchenBold.position.set(-140, 100, -60);
 		light_1FkitchenBold.target = LightTargetMesh6;
 		light_1FkitchenBold.castShadow = true;
@@ -1412,7 +1423,7 @@
 		/////////////////////////////////////
 		/////////////////////////////////////
 
-		help_2Froom = new THREE.PointLightHelper(light_2Froom, 5);
+		/*help_2Froom = new THREE.PointLightHelper(light_2Froom, 5);
 		scene.add(help_2Froom);
 
 		help_2FroomBold = new THREE.SpotLightHelper( light_2FroomBold );
@@ -1449,7 +1460,7 @@
 		scene.add(help_1Fkitchen);
 
 		help_1FkitchenBold = new THREE.SpotLightHelper( light_1FkitchenBold );
-		scene.add(help_1FkitchenBold);
+		scene.add(help_1FkitchenBold);*/
 
 
 	}
@@ -1491,13 +1502,14 @@
 		}
 		
 		
-		var cube_geometry = new THREE.BoxGeometry(10, 20, 10);
+		var cube_geometry = new THREE.BoxGeometry(20, 20, 20);
 
 		var cube_material = new THREE.MeshBasicMaterial({color : 0xffffff, wireframe : true});
 
 		// 여기서 해당 플레이어에 대한 각종 캐릭터 값을 만듬
 		villianUIObj.hitbox = new THREE.Mesh(cube_geometry, cube_material);
 		villianUIObj.hitbox.name = "villian_hitbox";
+		villianUIObj.hitbox.visible = false;
 		
 		
 		
@@ -1516,7 +1528,7 @@
 
 		close_doorToLeft_mesh_startRoom.name = "close_door_startRoom";
 		close_doorToLeft_mesh_startRoom.position.set(259, 77, 58.5);
-		close_doorToLeft_mesh_startRoom.visible = true;
+		close_doorToLeft_mesh_startRoom.visible = false;
 
 		door_collisions.push(close_doorToLeft_mesh_startRoom);
 		scene.add(close_doorToLeft_mesh_startRoom);
@@ -1525,7 +1537,7 @@
 
 		close_villianRoom.name = "close_door_villianRoom";
 		close_villianRoom.position.set(37.5, 13.5, 18.5);
-		close_villianRoom.visible = true;
+		close_villianRoom.visible = false;
 
 		door_collisions.push(close_villianRoom);
 		scene.add(close_villianRoom);
@@ -1606,7 +1618,40 @@
 			villian_hit : false
 		}
 	}
-
+	function sound_init(){
+		sounds = {
+			bgm : undefined,
+			villian_walk : undefined,
+			boy_walk : undefined,
+			blender : undefined,
+			door_open : undefined,
+			get_key : undefined
+		}
+		
+		
+		sounds.bgm = new Audio(SERVER_URL + SOUNDDATA_PATH + "bgm.mp3");
+		sounds.bgm.volume = 0.02;
+		sounds.villian_walk = new Audio(SERVER_URL + SOUNDDATA_PATH + "villian_walk.mp3");
+		sounds.boy_walk = new Audio(SERVER_URL + SOUNDDATA_PATH + "boy_walk.mp3");
+		sounds.boy_walk.volume = 1;
+		sounds.blender = new Audio(SERVER_URL + SOUNDDATA_PATH + "blender.mp3");
+		sounds.blender.volume = 0.3;
+		sounds.door_open = new Audio(SERVER_URL + SOUNDDATA_PATH + "door_open.mp3");
+		sounds.blender.volume = 0.5;
+		sounds.get_key = new Audio(SERVER_URL + SOUNDDATA_PATH + "get_key.mp3");
+		sounds.door_locked = new Audio(SERVER_URL + SOUNDDATA_PATH + "door_locked.mp3");
+		
+		sounds.bgm.play();
+		sounds.bgm.addEventListener('ended', function(){
+			this.currentTime = 0;
+			this.play();
+		}, false)
+		
+		sounds.blender.addEventListener('ended', function(){
+			this.currentTime = 0;
+			this.play();
+		}, false);
+	}
 	function character_obj_init(){
 
 		playerUIObj["girl"] = {
@@ -1624,7 +1669,7 @@
 			gltf_cwalk : undefined,
 			gltf_cwalk_animMixer : undefined,
 
-			speechBubbleInfo : {fontsize : 25, borderColor : { r: 255,  g: 0, b : 0, a: 1.0}, backgroundColor : { r: 255, g: 100, b: 100, a : 0.8}},
+			speechBubbleInfo : {fontsize : 35, borderColor : { r: 255,  g: 0, b : 0, a: 1.0}, backgroundColor : { r: 255, g: 100, b: 100, a : 0.8}},
 			speechBubbleData : undefined,
 
 			now_position_x : 300,
@@ -1669,7 +1714,7 @@
 			gltf_cwalk : undefined,
 			gltf_cwalk_animMixer : undefined,
 
-			speechBubbleInfo : {fontsize : 25, borderColor : { r: 0,  g: 13, b : 255, a: 1.0}, backgroundColor : { r: 91, g: 153, b: 247, a : 0.8}},
+			speechBubbleInfo : {fontsize : 35, borderColor : { r: 0,  g: 13, b : 255, a: 1.0}, backgroundColor : { r: 91, g: 153, b: 247, a : 0.8}},
 			speechBubbleData : undefined,
 
 			now_position_x : 320,
@@ -1704,7 +1749,7 @@
 	function viewGameProcessInfo(gameInfo){
 		let position = gameInfo[0];
 		let message = gameInfo[1];
-		let bubbleInfo = {fontsize : 25, borderColor : { r: 0,  g: 0, b : 0, a: 1.0}, backgroundColor : { r: 255, g: 255, b: 255, a : 0.8}};
+		let bubbleInfo = {fontsize : 35, borderColor : { r: 0,  g: 0, b : 0, a: 1.0}, backgroundColor : { r: 255, g: 255, b: 255, a : 0.8}};
 		let infoBubbleData = makeTextSprite(message, bubbleInfo)[0];
 
 
@@ -1828,6 +1873,9 @@
 				// 상대방이 문을 열경우(동기화로 인하여) 문 애니메이션 실행
 
 				doors["roomDoor2F"].doormove.play();
+				if(sounds.door_open.ended || sounds.door_open.currentTime == 0){
+					sounds.door_open.play();
+				}
 				clearStatuses['openDoors'].roomDoor2F = true;
 
 
@@ -1870,6 +1918,9 @@
 					
 					clearStatuses['openDoors'].villianRoom = true;
 					doors["villianRoom"].doormove.play();
+					if(sounds.door_open.ended || sounds.door_open.currentTime == 0){
+						sounds.door_open.play();
+					}
 				
 					scene.remove(door_collisions[0]);
 					door_collisions.splice(0,1); // 악당 방의 충돌 요소를 지워버림
@@ -1884,6 +1935,10 @@
 					*/
 					
 
+				}else{
+					if(sounds.door_locked.ended || sounds.door_locked.currentTime == 0){
+						sounds.door_locked.play();
+					}
 				}
 
 
@@ -1894,7 +1949,9 @@
 		if(clearDatas['openDoors'].clear_outDoor == true){
 			if(clearStatuses['openDoors'].clear_outDoor == false){
 				// 상대방이 문을 열경우(동기화로 인하여) 문 애니메이션 실행
-
+				if(sounds.door_open.ended || sounds.door_open.currentTime == 0){
+					sounds.door_open.play();
+				}
 				clearStatuses['openDoors'].clear_outDoor = true;
 
 				// 여기 엔딩이 들어갈 부분
@@ -1909,7 +1966,10 @@
 			if(clearStatuses['obj'].blender == false){
 				// 믹서기를 튼 상태를 업데이트		
 				clearStatuses['obj'].blender = true;
-
+				
+				if(sounds.blender.ended || sounds.blender.currentTime == 0){
+					sounds.blender.play();
+				}
 
 				let infoPosition = {
 					x : -198.5,
@@ -1928,8 +1988,10 @@
 				// 악당 방의 장롱을 접근하여 열쇠를 얻음
 
 				clearStatuses['obj'].villian_drawer = true;
-				
-				
+				if(sounds.get_key.ended || sounds.get_key.currentTime == 0){
+					sounds.get_key.play();
+				}
+			
 				scene.remove(useObj.key.scene);
 				let infoPosition = {
 					x : -22.5,
@@ -2022,36 +2084,45 @@
 		
 		function villianMove_x_left_start(){
 			villianUIObj.gltf_nowView.scene.rotation.y = (Math.PI / 4) * 6
+			if(sounds.villian_walk.ended || sounds.villian_walk.currentTime == 0){
+				sounds.villian_walk.play();
+			}
+			
 			let villianMoveTimer = setInterval(function(){
 				if(villianUIObj.now_position_x < -177){
 					clearInterval(villianMoveTimer);
 					villianMove_z_up();
 				}else{
-					villianUIObj.now_position_x -= 1.0;
+					villianUIObj.now_position_x -= 0.5;
 					villianUIObj.gltf_nowView.scene.position.x = villianUIObj.now_position_x;
 					villianUIObj.hitbox.position.x = villianUIObj.now_position_x;
 				}
-			}, 50);
+			}, 30);
 		}
 
 		function villianMove_z_up(){
 			
 			villianUIObj.gltf_nowView.scene.rotation.y = Math.PI;
+			if(sounds.villian_walk.ended || sounds.villian_walk.currentTime == 0){
+				sounds.villian_walk.play();
+			}
 			let villianMoveTimer = setInterval(function(){
 				if(villianUIObj.now_position_z < -37){
 					clearInterval(villianMoveTimer);
 					villian_idle();
 				}else{
-					villianUIObj.now_position_z -= 1.0;
+					villianUIObj.now_position_z -= 0.8;
 					villianUIObj.gltf_nowView.scene.position.z = villianUIObj.now_position_z;
 					villianUIObj.hitbox.position.z = villianUIObj.now_position_z;
 				}
-			}, 50);
+			}, 30);
 		}
 		
 		
 		function villian_idle(){
 			
+			sounds.villian_walk.pause();
+			sounds.villian_walk.currentTime = 0;
 			
 			let idleCount = 0;
 			
@@ -2062,6 +2133,11 @@
 			villianUIObj.gltf_nowView_animMixer = villianUIObj.gltf_idle_animMixer;
 			villianUIObj.gltf_nowView.scene.rotation.y = (Math.PI / 4) * 6;
 			
+			villianUIObj.gltf_nowView.scene.position.x = villianUIObj.now_position_x;
+			villianUIObj.gltf_nowView.scene.position.y = villianUIObj.now_position_y;
+			villianUIObj.gltf_nowView.scene.position.z = villianUIObj.now_position_z;
+			
+			
 			villianUIObj.gltf_nowView.animations.forEach((clip) => {
 				villianUIObj.gltf_nowView_animMixer.clipAction(clip).play();
 			});
@@ -2070,6 +2146,7 @@
 			
 			let villianIdleTimer = setInterval(function(){
 				if(idleCount > 4){
+					sounds.blender.pause(); // 믹서기 돌아가는거 멈춤
 					clearInterval(villianIdleTimer);
 					villianMove_z_down();
 				}else{
@@ -2083,26 +2160,33 @@
 		function villianMove_z_down(){
 			
 			scene.remove(villianUIObj.gltf_nowView.scene);
-			
+			if(sounds.villian_walk.ended || sounds.villian_walk.currentTime == 0){
+				sounds.villian_walk.play();
+			}
 			villianUIObj.gltf_nowView = villianUIObj.gltf_walk;
 			villianUIObj.gltf_nowView_animMixer = villianUIObj.gltf_walk_animMixer;
 			
 			scene.add(villianUIObj.gltf_nowView.scene);
 			
 			villianUIObj.gltf_nowView.scene.rotation.y = 0;
+			
+			
 			let villianMoveTimer = setInterval(function(){
 				if(villianUIObj.now_position_z > 48){
 					clearInterval(villianMoveTimer);
 					villianMove_x_right();
 				}else{
-					villianUIObj.now_position_z += 1.0;
+					villianUIObj.now_position_z += 0.8;
 					villianUIObj.gltf_nowView.scene.position.z = villianUIObj.now_position_z;
 					villianUIObj.hitbox.position.z = villianUIObj.now_position_z;
 				}
-			}, 50);
+			}, 30);
 		}
 
 		function villianMove_x_right(){
+			if(sounds.villian_walk.ended || sounds.villian_walk.currentTime == 0){
+				sounds.villian_walk.play();
+			}
 			villianUIObj.gltf_nowView.scene.rotation.y = Math.PI / 2;
 			let villianMoveTimer = setInterval(function(){
 				if(villianUIObj.now_position_x > 36){
@@ -2110,11 +2194,11 @@
 					villian_gotoSleep();
 
 				}else{
-					villianUIObj.now_position_x += 1.0;
+					villianUIObj.now_position_x += 0.8;
 					villianUIObj.gltf_nowView.scene.position.x = villianUIObj.now_position_x;
 					villianUIObj.hitbox.position.x = villianUIObj.now_position_x;
 				}
-			}, 50);
+			}, 30);
 		}
 		
 		function villian_gotoSleep(){
@@ -2235,7 +2319,7 @@
 		requestAnimationFrame(animate);
 
 		///////// 테스트용 나중에 지워도 됌 /////////
-		help_2Froom.update();
+		/*help_2Froom.update();
 		help_2FroomBold.update();
 		help_2Fhallway.update();
 		help_2Fsquarelamp.update();
@@ -2247,7 +2331,7 @@
 		help_2Fstairs1F.update();
 		help_1Fhallway.update();
 		help_1Fkitchen.update();
-		help_1FkitchenBold.update();
+		help_1FkitchenBold.update();*/
 		orbControls.update();
 		//////////////////////////////////////////
 		/////////////////// 2층복도 카메라 무브 부분. flag설정을 해 주어야 함. /////////////////////////
@@ -2379,9 +2463,10 @@
 										y : 10,
 										z : 27
 									}
-
+									
+									
 									let message = "왼쪽 부엌의 믹서기를 먼저 가동시켜 할아버지가 방문을 열어놓고 오도록 해야합니다.";
-
+									
 									viewGameProcessInfo([infoPosition, message]);
 
 								}else{
@@ -2854,10 +2939,10 @@
 			var cube_geometry = new THREE.BoxGeometry(initPlayerObjArr[i].objStatus.sizeX, initPlayerObjArr[i].objStatus.sizeY, initPlayerObjArr[i].objStatus.sizeZ);
 
 			var cube_material = new THREE.MeshBasicMaterial({color :initPlayerObjArr[i].color, wireframe : true});
-
+			
 			// 여기서 해당 플레이어에 대한 각종 캐릭터 값을 만듬
 			var player_Obj = new THREE.Mesh(cube_geometry, cube_material);
-
+			player_Obj.visible = false;
 
 
 			console.log("createPlayer : playerInfo : ");
@@ -2934,10 +3019,13 @@
 
 
 		if(player_status.objStatus.isMoving == true){
-
-
+			console.log("player_1_isMoving....");
+			if(sounds.boy_walk.ended || sounds.boy_walk.currentTime == 0){
+				sounds.boy_walk.play();
+			}
+			
 			if(selectedPlayerObj.isPoseChangedStatus == false){
-				console.log("player_1_isMoving....");
+				
 
 
 				scene.remove(selectedPlayerObj.gltf_nowView.scene); 
@@ -2969,7 +3057,8 @@
 			if(selectedPlayerObj.isPoseChangedStatus == true){
 
 				console.log("player_1_isStop....");
-
+				sounds.boy_walk.pause();
+				sounds.boy_walk.currentTime = 0;
 
 				selectedPlayerObj.isPoseChangedStatus = false;
 
@@ -3085,6 +3174,8 @@
 
 	}
 
+	
+	
 	async function gltfload_Map() {
 
 		const map = SERVER_URL + MODELINGDATA_PATH + "map_texture.glb";
@@ -3396,7 +3487,7 @@
 
 			villianUIObj.gltf_idle = gltfObj;
 
-			villianUIObj.gltf_idle_animMixer = new THREE.AnimationMixer(gltfObj.scene);
+			villianUIObj.gltf_idle_animMixer = new THREE.AnimationMixer(villianUIObj.gltf_idle.scene);
 
 		
 		},
@@ -3416,9 +3507,6 @@
 
 
 		gltfLoader.load(villian_sleeping, function(gltfObj){
-
-
-
 
 
 			gltfObj.scene.scale.set( 5, 5, 5 );	
@@ -3452,7 +3540,7 @@
 
 			gltfObj.scene.scale.set( 4, 4, 4 );			   
 			
-			gltfObj.scene.position.set(324, 109, 126);
+			gltfObj.scene.position.set(253, 100, 90);
 			scene.add(gltfObj.scene);
 			intro_wait_gltf = gltfObj;
 		
@@ -3483,7 +3571,7 @@
 			useObj.key = gltfObj;
 			
 			
-			useObj.key.scene.position.set(-11, 30.5, -173);
+			useObj.key.scene.position.set(-15, 30.5, -173);
 			scene.add(useObj.key.scene);
 
 		

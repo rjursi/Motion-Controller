@@ -5,6 +5,10 @@ module.exports = function(app)
 		 res.sendFile(__dirname + req.path);
 	 });
 	
+	 app.get('/res/sound/*', function(req, res){
+		 
+		 res.sendFile(__dirname + req.path);
+	 });
 	
 	
 	 app.get('/node_modules/three/examples/js/libs/draco/*', function(req, res){
@@ -44,6 +48,9 @@ module.exports = function(app)
         res.sendFile(__dirname + '/res/js/main.js');
      });
 	
+	 app.get('/res/css/style.css', function(req, res){
+		res.sendFile(__dirname + '/res/css/style.css'); 
+	 });
 	
 	 app.get('/res/js/mainSocketHandle.js',function(req,res){
         res.sendFile(__dirname + '/res/js/mainSocketHandle.js');
