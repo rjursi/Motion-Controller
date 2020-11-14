@@ -1,4 +1,4 @@
-(() => {
+	(() => {
 	
 	const io_ui = io();
 	io_ui.connect();
@@ -40,12 +40,30 @@
 
 	});
 
+	var pressFullScreenInfo = function(){
+		
+		
+		fullScreen_element = document.createElement('div');
+		fullScreen_element.id = "fullScreen_div";
+		
+		fullInfo_element = document.createElement('h1');
+		fullInfo_element.innerHTML = "전체화면 실행을 위해 F11을 눌러주세요!";
+		
+		document.body.appendChild(fullScreen_element);
+		document.getElementById("fullScreen_div").appendChild(fullInfo_element);
+		
+		
+	}
+	
+	
 	var create_QR = function(){
 		var QR_code;
 		var url = "https://jswebgame.run.goorm.io?id=" + io_ui.id;
 
 		console.log(io_ui.id);
-
+		
+		
+		
 		info_element = document.createElement('div');
 		info_element.id = "app_info";
 		info_element.style.margin = "8px";
@@ -72,6 +90,7 @@
 
 		// body 안에 추가함
 		document.body.appendChild(info_element);
+		
 		document.getElementById("app_info").appendChild(title_element);
 		document.getElementById("app_info").appendChild(QR_code_element);
 		document.getElementById("app_info").appendChild(QRData_element);
@@ -91,7 +110,8 @@
 	var game_connected = function(){
 
 		// main.js 에 있는 함수
-		create_QR();
+		// create_QR();
+		pressFullScreenInfo();
 
 		// 더 이상 사용을 안하므로 해당 리스너를 지움
 		io_ui.removeListener('game_connected', game_connected);
@@ -120,7 +140,7 @@
 		console.log(initPlayerObjArr);
 
 		// 맵을 및 맵 충돌을 보이게 하도록 설정
-		viewMap();
+		// viewMap();
 
 		// UI 단에서 플레이어를 생성하는 함수를 실행, 해당 객체 값은 플레이어의 각종 위치, 크기 등 정보가 들어있는 값임
 		createPlayer(initPlayerObjArr);
@@ -186,7 +206,13 @@
 			forFindMesh.position.x -= xSpeed;
 		} else if (keyCode == 68) {
 			forFindMesh.position.x += xSpeed;
-		} 
+		} else if (keyCode == 122){
+			
+			document.body.removeChild(fullScreen_element);
+			create_QR();
+			
+			
+		}
 
 		console.info(`mesh location : ${forFindMesh.position.x}, ${forFindMesh.position.y}, ${forFindMesh.position.z}`);
 		console.info(`camera location : ${camera.position.x}, ${camera.position.y}, ${camera.position.z}`);
@@ -273,6 +299,8 @@
 	let intro_wait_gltf;
 	
 	let myCharacter;
+	
+	var map_loaded = false;
 	function init(){
 
 
@@ -297,13 +325,16 @@
 		camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 		camera.position.x = 324; // 시작방
 		camera.position.y = 109;
-		camera.position.z = 126;
-		//camera.position.x = 250; // 2층복도
-		//camera.position.y = 153;
-		//camera.position.z = 150;
+		camera.position.z = 110; //126
+		/*camera.position.x = 250; // 2층복도
+		camera.position.y = 153;
+		camera.position.z = 150;*/
 		/*camera.position.x = 171; // 계단
 		camera.position.y = 88;
 		camera.position.z = 5.9;*/
+		/*camera.position.x = 245; // 계단2
+		camera.position.y = 131;
+		camera.position.z = -2;*/
 		
 		/*camera.position.x = 148; // 1층복도
 		camera.position.y = 67;
@@ -337,13 +368,12 @@
 		orbControls = new THREE.OrbitControls( camera, renderer.domElement );
 		//orbControls.addEventListener('change', showCameraPosition);
 
-
-		orbControls.target.x = 274; // 시작방
-		orbControls.target.y = 94;
-		orbControls.target.z = -90;
-		//orbControls.target.x = 224; 2층 복도 카메라 타겟
-		//orbControls.target.y = 99;
-		//orbControls.target.z = -72;
+		orbControls.target.x = 304; // 시작방
+		orbControls.target.y = 77;
+		orbControls.target.z = 18;
+		/*orbControls.target.x = 224; //2층 복도 카메라 타겟
+		orbControls.target.y = 99;
+		orbControls.target.z = -72;*/
 		/*orbControls.target.x = 159; // 계단
 		orbControls.target.y = 34;
 		orbControls.target.z = -137;*/
@@ -397,17 +427,21 @@
 		forFindMesh.position.y = 77;
 		forFindMesh.position.z = 62;*/
 		
-		forFindMesh.position.x = 231; // 계단 테스트
+		/*forFindMesh.position.x = 231; // 계단 테스트
 		forFindMesh.position.y = 77;
-		forFindMesh.position.z = -93;
+		forFindMesh.position.z = -93;*/
+		
+		/*forFindMesh.position.x = 244; // 2층복도 테스트
+		forFindMesh.position.y = 77;
+		forFindMesh.position.z = 32;*/
 		
 		/*forFindMesh.position.x = 158; // 1층복도 테스트
 		forFindMesh.position.y = 0;
 		forFindMesh.position.z = 49;*/
 		
-		/*forFindMesh.position.x = 36; // 악당방 테스트
+		forFindMesh.position.x = 36; // 악당방 테스트
 		forFindMesh.position.y = 0;
-		forFindMesh.position.z = 7;*/
+		forFindMesh.position.z = 7;
 
 		scene.add(forFindMesh);
 		
@@ -702,6 +736,13 @@
 		
 	
 		/// 시작방 ///////
+		/*if (cameraSet == 1 && myCharacter.now_position_x >= 280) {
+			camera.position.x = myCharacter.now_position_x + 17;
+			//camera.position.z = forFindMesh.position.z + 78;
+			
+		//console.log(orbControls);
+		//console.log(camera);
+		}*/
 		if (cameraSet == 1 && myCharacter.now_position_x >= 280) {
 			camera.position.x = myCharacter.now_position_x + 17;
 			//camera.position.z = forFindMesh.position.z + 78;
@@ -709,12 +750,35 @@
 		//console.log(orbControls);
 		//console.log(camera);
 		}
+		
+		if (cameraSet == 1 && myCharacter.now_position_z > 30 && myCharacter.now_position_z < 62) {
+			camera.position.z = myCharacter.now_position_z + 48;
+			//camera.position.z = forFindMesh.position.z + 78;
+			
+		//console.log(orbControls);
+		//console.log(camera);
+		}
+		
 		// 2층 복도 /////////
+		
 		if (cameraSet == 2 && myCharacter.now_position_z >= 0 && myCharacter.now_position_z <= 72) {
 			camera.position.x = camera.position.z + 100;
 			camera.position.z = myCharacter.now_position_z + 78;
 			
 			camera.position.y = 153;
+			orbControls.target.x = 224;
+			orbControls.target.y = 99;
+			orbControls.target.z = -72;
+		//console.log(orbControls);
+		//console.log(camera);
+		}
+		
+		if (cameraSet == 2 && myCharacter.now_position_z < 0 && myCharacter.now_position_z > -45) {
+			camera.position.x = 178 - myCharacter.now_position_z * 1.5;
+			camera.position.y = 153 + (myCharacter.now_position_z/2);
+			camera.position.z = 78 + (myCharacter.now_position_z*1.8);
+			
+			//camera.position.y = 153;
 			orbControls.target.x = 224;
 			orbControls.target.y = 99;
 			orbControls.target.z = -72;
@@ -730,7 +794,9 @@
 		//console.log(orbControls);
 		//console.log(camera);
 			orbControls.target.y = 34;
+			camera.position.x = 171;
 			camera.position.y = 88;
+			camera.position.z = 6;
 		}
 		
 		if(cameraSet == 3 && myCharacter.now_position_z >= -80 && myCharacter.now_position_z < -35){
@@ -740,17 +806,42 @@
 				orbControls.target.z = -172 - (-myCharacter.now_position_z - 80) * 2.2;
 		}
 		
+		
 		if(cameraSet == 4){
-			camera.position.x = 187;
+			//camera.position.x = 187;
 			camera.position.y = 40;
-			camera.position.z = 104;
+			//camera.position.z = 104;
 			
 			orbControls.target.x = 166;
 			orbControls.target.y = 13;
 			orbControls.target.z = -52;
 		}
+		if(cameraSet == 4 && myCharacter.now_position_x > 160 && myCharacter.now_position_x < 200){
+			camera.position.x = myCharacter.now_position_x;
+		}
+		
+		if(cameraSet == 4 && myCharacter.now_position_z > -45 && myCharacter.now_position_z < 40){
+			camera.position.z = 64 + myCharacter.now_position_z;
+		}
 		
 		if(cameraSet == 5 && myCharacter.now_position_x > -200){
+				camera.position.x = myCharacter.now_position_x + 18;
+				orbControls.target.x = myCharacter.now_position_x + 18;
+			
+				camera.position.y = 44;
+				orbControls.target.y = 24;
+				orbControls.target.z = 50;
+		}
+		
+		if(cameraSet == 5 && myCharacter.now_position_z < 40 && myCharacter.now_position_z > 30){
+				camera.position.z = 60 + myCharacter.now_position_z;
+		}else if(cameraSet == 5 && myCharacter.now_position_z < 30){
+			camera.position.z = 90;
+		}else if(cameraSet == 5 && myCharacter.now_position_z >= 40){
+			camera.position.z = 100;
+		}
+		
+		/*if(cameraSet == 5 && myCharacter.now_position_x > -200){
 				camera.position.x = myCharacter.now_position_x + 18;
 				orbControls.target.x = myCharacter.now_position_x + 20;
 			
@@ -758,7 +849,7 @@
 				camera.position.z = 137;
 				orbControls.target.y = 24;
 				orbControls.target.z = -51;
-		}
+		}*/
 		
 		if(cameraSet == 6){
 			camera.position.x = -164;
@@ -786,6 +877,18 @@
 			orbControls.target.y = 24;
             orbControls.target.z = myCharacter.now_position_z - 57;
 		}
+		/*if(cameraSet == 8 && forFindMesh.position.x > -35 && forFindMesh.position.x < 102){
+			camera.position.x = forFindMesh.position.x - 6;
+			//camera.position.y = 103;
+			orbControls.target.y = 24;
+			orbControls.target.x = forFindMesh.position.x - 4;
+		}
+		if(cameraSet == 8 && forFindMesh.position.z < 7 && forFindMesh.position.z > -85){
+			camera.position.z = forFindMesh.position.z + 8;
+			//camera.position.y = 103;
+			orbControls.target.y = 24;
+            orbControls.target.z = forFindMesh.position.z - 57;
+		}*/
 	}
 
 	
@@ -892,10 +995,10 @@
 
 		
 		// 클리어 위치
-		let actionHitbox_clear_mesh = new THREE.Mesh(actionHitbox_withBigObject_box, actionHitbox_withBigObject_geometry);
+		let actionHitbox_clear_mesh = new THREE.Mesh(actionHitbox_doorHorizontal_box, actionHitbox_doorHorizontal_geometry);
 		
 		actionHitbox_clear_mesh.name = "action_clear";
-		actionHitbox_clear_mesh.position.set(171.5, 13.5, 73);
+		actionHitbox_clear_mesh.position.set(460, 0, 47.5);
 		actionHitbox_clear_mesh.visible = false;
 
 		actionHitbox_mesh_array.push(actionHitbox_clear_mesh);
@@ -1017,7 +1120,7 @@
 		// 왼쪽 계단
 
 
-		var stairHitbox_left_box = new THREE.BoxGeometry(32,20,5);
+		var stairHitbox_left_box = new THREE.BoxGeometry(28,20,5);
 		var stairHitbox_left_geometry = new THREE.MeshStandardMaterial({color : 0x000000});
 
 
@@ -1325,8 +1428,11 @@
 	}
 
 	function setLight() {
+		
+		var light_boy = new THREE.PointLight(0xffffff, 1, 75);
+		var light_girl = new THREE.PointLight(0xffffff, 1, 75);
 
-		var light = new THREE.AmbientLight(0xaccde0, 0.1);
+		var light = new THREE.AmbientLight(0xaccde0, 1); // 0.1
 		scene.add(light);
 		/////////////////////////////////////
 		//////////////// 2층 ////////////////
@@ -1466,14 +1572,13 @@
 	}
 
 
-
-	function viewMap(){
-		map_Elements["map"].scene.visible = true;
-
-		// 충돌판정을 안보이게 하고 해당 판정을 맵에 추가
-		map_Elements["hitbox"].scene.visible = false;
+	/*
+	function AddMapCollision(){
+		
 		scene.add(map_Elements["hitbox"].scene);
 	}
+	*/
+	
 
 	function villianUIObj_init(){
 		
@@ -1631,6 +1736,7 @@
 		
 		sounds.bgm = new Audio(SERVER_URL + SOUNDDATA_PATH + "bgm.mp3");
 		sounds.bgm.volume = 0.02;
+		
 		sounds.villian_walk = new Audio(SERVER_URL + SOUNDDATA_PATH + "villian_walk.mp3");
 		sounds.boy_walk = new Audio(SERVER_URL + SOUNDDATA_PATH + "boy_walk.mp3");
 		sounds.boy_walk.volume = 1;
@@ -1641,6 +1747,7 @@
 		sounds.get_key = new Audio(SERVER_URL + SOUNDDATA_PATH + "get_key.mp3");
 		sounds.door_locked = new Audio(SERVER_URL + SOUNDDATA_PATH + "door_locked.mp3");
 		
+	
 		sounds.bgm.play();
 		sounds.bgm.addEventListener('ended', function(){
 			this.currentTime = 0;
@@ -2351,9 +2458,9 @@
 		}
 		*/
 		
-		
+		//setCameraPosition();
 		if(playerUIObj["view_status"] == true){
-			setCameraPosition();
+			setCameraPosition(); 
 		}
 		
 		// 테스트를 위하여 잠시 주석처리함
@@ -2388,6 +2495,9 @@
 			areaAccess_check();
 			villianCollisionCheck();
 			poseChangeHitboxCheck();
+			
+			light_boy.position.set(myCharacter.now_position_x, myCharacter.now_position_y, myCharacter.now_position_z);
+			light_girl.position.set(myCharacter.now_position_x, myCharacter.now_position_y, myCharacter.now_position_z);
 		
 			if(clearDatas['openDoors'].roomDoor2F == true){
 				cameraChangeHitboxCheck();
@@ -3178,7 +3288,7 @@
 	
 	async function gltfload_Map() {
 
-		const map = SERVER_URL + MODELINGDATA_PATH + "map_texture.glb";
+		const map = SERVER_URL + MODELINGDATA_PATH + "map_texture_new.glb";
 
 
 		gltfLoader.load(map, function(gltfObj){
@@ -3190,7 +3300,7 @@
 			gltfObj.scene.position.x = 0;				    //Position (x = right+ left-) 
 			gltfObj.scene.position.y = 0;				    //Position (y = up+, down-)
 			gltfObj.scene.position.z = 0;				    //Position (z = front +, back-)
-
+ 	
 			console.log("gltfLoader : Map Loaded.");
 
 			// 아래는 좌표 테스트 용으로 띄워 놓음. 
@@ -3215,11 +3325,11 @@
 		const roomDoor_villian = SERVER_URL + MODELINGDATA_PATH + "1FVillianDoor.glb";
 
 		gltfLoader.load(roomDoor_villian, function(doorObj){
-			doorObj.scene.scale.x = 5;
-			doorObj.scene.scale.y = 5;
-			doorObj.scene.scale.z = 5;
+			doorObj.scene.scale.x = 5.2;
+			doorObj.scene.scale.y = 5.2;
+			doorObj.scene.scale.z = 5.2;
 
-			doorObj.scene.position.x = 54;
+			doorObj.scene.position.x = 56;
 			doorObj.scene.position.y = -4.5;
 			doorObj.scene.position.z = 18;
 
@@ -3237,7 +3347,7 @@
 	}
 	async function gltfload_2F_doorAnimation(){
 
-		const roomDoor2F = SERVER_URL + MODELINGDATA_PATH + "2FroomDoor.glb";
+		const roomDoor2F = SERVER_URL + MODELINGDATA_PATH + "2fdoor-animation.glb";
 
 		gltfLoader.load(roomDoor2F, function(doorObj){
 
@@ -3279,7 +3389,7 @@
 
 	async function gltfload_Map_Collision(){
 
-		const map_collision = SERVER_URL + MODELINGDATA_PATH + "collision.glb";
+		const map_collision = SERVER_URL + MODELINGDATA_PATH + "collision_new.glb";
 
 		gltfLoader.load(map_collision, function(gltfObj){
 
@@ -3294,15 +3404,16 @@
 
 			});
 
-
+			
 			map_Elements["hitbox"] = gltfObj;
+			map_Elements["hitbox"].scene.visible = false;
 			gltfObj.scene.scale.set( 5, 5, 5);			   
 			gltfObj.scene.position.x = 0;    //Position (x = right+ left-) 
 			gltfObj.scene.position.y = 0;    //Position (y = up+, down-)
 			gltfObj.scene.position.z = 0;				    //Position (z = front +, back-)
-
-
-
+			
+			scene.add(map_Elements["hitbox"].scene);	
+			
 			console.log("gltfLoader : Map Collision Loaded.");
 
 			},
@@ -3540,7 +3651,7 @@
 
 			gltfObj.scene.scale.set( 4, 4, 4 );			   
 			
-			gltfObj.scene.position.set(253, 100, 90);
+			gltfObj.scene.position.set(253, 100, 75);
 			scene.add(gltfObj.scene);
 			intro_wait_gltf = gltfObj;
 		
