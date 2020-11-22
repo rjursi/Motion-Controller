@@ -51,7 +51,7 @@ Team. 포켓몬고는 다음에 개발할게요.
     Android Application Source : https://github.com/rjursi/JSWebGame_Controller
     
     ####
-    
+
     - Android 조이스틱 컨트롤러 디자인
     - Android Studio 응용 Application Activity UI 디자인
     - Android 단 Socket.io 적용 데이터 통신 구현
@@ -79,9 +79,10 @@ Team. 포켓몬고는 다음에 개발할게요.
 ## 사용한 오픈소스 3D 모델링
 #### Thanks To!
 
-여자 캐릭터 : https://blendswap.com/blend/22735  
-남자 캐릭터 : https://blendswap.com/blend/15500  
-주방 식탁 : https://blendswap.com/blend/22549  
+여자 캐릭터 : <em>KresnanditoRK260</em> - https://blendswap.com/blend/22735  
+남자 캐릭터 : <em>RodrigoXP</em> - https://blendswap.com/blend/15500
+악당 할아버지 캐릭터 : <em>VMComix</em> - https://blendswap.com/blend/3115  
+주방 식탁 : <em>cisco336</em> - https://blendswap.com/blend/22549  
 
 ---
 ## 추가로 개발에 도움 주신 분들 : 
