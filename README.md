@@ -74,12 +74,12 @@ Team. 포켓몬고는 다음에 개발할게요.
 ## 사용한 오픈소스 3D 모델링
 #### Thanks To!
 
-여자 캐릭터 : https://blendswap.com/blend/22735
-남자 캐릭터 : https://blendswap.com/blend/15500
-주방 식탁 : https://blendswap.com/blend/22549
+여자 캐릭터 : https://blendswap.com/blend/22735  
+남자 캐릭터 : https://blendswap.com/blend/15500  
+주방 식탁 : https://blendswap.com/blend/22549  
 
 ---
 ## 추가로 개발에 도움 주신 분들 : 
 #### Thanks To !
-아이디어 지원 : 김태우 - https://github.com/Taewoo-Git
-Javascript 응용 지원 : 홍성준 - https://github.com/platina78
+아이디어 지원 : 김태우 - https://github.com/Taewoo-Git  
+Javascript 응용 지원 : 홍성준 - https://github.com/platina78  
