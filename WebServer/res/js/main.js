@@ -540,7 +540,7 @@
 		
 	
 		var cameraHitbox_v_geo = new THREE.BoxGeometry(3,10,20);
-		var cameraHitbox_h_geo = new THREE.BoxGeometry(20,10,3);
+		var cameraHitbox_h_geo = new THREE.BoxGeometry(25,10,3);
 		var cameraHitbox_h_long_geo = new THREE.BoxGeometry(113,10,3);
 		var cameraHitbox_v_long_geo = new THREE.BoxGeometry(3,10,50);
 		
@@ -599,7 +599,7 @@
 		var cameraHitbox_Stair_To_1F_out = new THREE.Mesh(cameraHitbox_h_geo, cameraHitbox_material_out);
 		
 		cameraHitbox_Stair_To_1F_out.name = "cameraHitbox_Stair_To_1F_out";
-		cameraHitbox_Stair_To_1F_out.position.set(151, -2.5, -2);
+		cameraHitbox_Stair_To_1F_out.position.set(151, 3, -10);
 		cameraHitbox_Stair_To_1F_out.visible = false;
 		
 	
@@ -608,7 +608,7 @@
 		var cameraHitbox_Stair_To_1F_in = new THREE.Mesh(cameraHitbox_h_geo, cameraHitbox_material_in);
 		
 		cameraHitbox_Stair_To_1F_in.name = "cameraHitbox_Stair_To_1F_in"
-		cameraHitbox_Stair_To_1F_in.position.set(151, -2.5, -12);
+		cameraHitbox_Stair_To_1F_in.position.set(151, 10, -25);
 		cameraHitbox_Stair_To_1F_in.visible = false;
 		
 		
@@ -623,14 +623,14 @@
 		var cameraHitbox_1F_Start_out = new THREE.Mesh(cameraHitbox_v_long_geo, cameraHitbox_material_out);
 		
 		cameraHitbox_1F_Start_out.name = "cameraHitbox_1F_Start_out";
-		cameraHitbox_1F_Start_out.position.set(125, -2.5, 46);
+		cameraHitbox_1F_Start_out.position.set(125, 0, 46);
 		cameraHitbox_1F_Start_out.visible = false;
 		
 		
 		var cameraHitbox_1F_Start_in = new THREE.Mesh(cameraHitbox_v_long_geo, cameraHitbox_material_in);
 		
 		cameraHitbox_1F_Start_in.name = "cameraHitbox_1F_Start_in"
-		cameraHitbox_1F_Start_in.position.set(135, -2.5, 46);
+		cameraHitbox_1F_Start_in.position.set(135, 0, 46);
 		cameraHitbox_1F_Start_in.visible = false;
 		
 		
@@ -703,6 +703,23 @@
 		cameraChangeMeshs.push(cameraHitbox_store_to_villianRoom_in);
 		
 		
+		var cameraHitbox_to_clearRoom_out = new THREE.Mesh(cameraHitbox_v_long_geo, cameraHitbox_material_out);
+		
+		cameraHitbox_to_clearRoom_out.name = "cameraHitbox_to_clearRoom_out";
+		cameraHitbox_to_clearRoom_out.position.set(218.5, 0, 35.5);
+		cameraHitbox_to_clearRoom_out.visible = false;
+		
+		var cameraHitbox_to_clearRoom_in = new THREE.Mesh(cameraHitbox_v_long_geo, cameraHitbox_material_in);
+		
+		cameraHitbox_to_clearRoom_in.name = "cameraHitbox_to_clearRoom_in";
+		cameraHitbox_to_clearRoom_in.position.set(228, 0, 35.5);
+		cameraHitbox_to_clearRoom_in.visible = false;
+		
+		
+		scene.add(cameraHitbox_to_clearRoom_out);
+		scene.add(cameraHitbox_to_clearRoom_in);
+		cameraChangeMeshs.push(cameraHitbox_to_clearRoom_out);
+		cameraChangeMeshs.push(cameraHitbox_to_clearRoom_in);
 		
 	}
 	
@@ -743,10 +760,13 @@
 		//console.log(orbControls);
 		//console.log(camera);
 		}*/
-		if (cameraSet == 1 && myCharacter.now_position_x >= 280) {
+		if (cameraSet == 1 && myCharacter.now_position_x >= 260) {
 			camera.position.x = myCharacter.now_position_x + 17;
+			camera.position.y = 109;
 			//camera.position.z = forFindMesh.position.z + 78;
-			
+			orbControls.target.x = 304;
+			orbControls.target.y = 77;
+			orbControls.target.z = 18;
 		//console.log(orbControls);
 		//console.log(camera);
 		}
@@ -786,7 +806,7 @@
 		//console.log(camera);
 		}
 		
-		if (cameraSet == 3 && myCharacter.now_position_x >= 160) {
+		if (cameraSet == 3 && myCharacter.now_position_x >= 163) {
 			orbControls.target.x = myCharacter.now_position_x;
 			orbControls.target.z = -myCharacter.now_position_x - 12;
 			//camera.position.x = camera.position.z + 100;
@@ -816,7 +836,7 @@
 			orbControls.target.y = 13;
 			orbControls.target.z = -52;
 		}
-		if(cameraSet == 4 && myCharacter.now_position_x > 160 && myCharacter.now_position_x < 200){
+		if(cameraSet == 4 && myCharacter.now_position_x > 132 && myCharacter.now_position_x < 200){
 			camera.position.x = myCharacter.now_position_x;
 		}
 		
@@ -867,28 +887,45 @@
 		}
 		if(cameraSet == 8 && myCharacter.now_position_x > -35 && myCharacter.now_position_x < 102){
 			camera.position.x = myCharacter.now_position_x - 6;
-			camera.position.y = 103;
-			orbControls.target.y = 24;
 			orbControls.target.x = myCharacter.now_position_x - 4;
 		}
-		if(cameraSet == 8 && myCharacter.now_position_z < 7 && myCharacter.now_position_z > -85){
-			camera.position.z = myCharacter.now_position_z + 8;
-			camera.position.y = 103;
+		if(cameraSet == 8 && myCharacter.now_position_z < 10 && myCharacter.now_position_z > -140){
+			camera.position.y = 100 + myCharacter.now_position_z*0.15;
+			camera.position.z = myCharacter.now_position_z*0.6 - 4;
 			orbControls.target.y = 24;
-            orbControls.target.z = myCharacter.now_position_z - 57;
+            orbControls.target.z = myCharacter.now_position_z - 30;
 		}
-		/*if(cameraSet == 8 && forFindMesh.position.x > -35 && forFindMesh.position.x < 102){
-			camera.position.x = forFindMesh.position.x - 6;
-			//camera.position.y = 103;
-			orbControls.target.y = 24;
-			orbControls.target.x = forFindMesh.position.x - 4;
-		}
-		if(cameraSet == 8 && forFindMesh.position.z < 7 && forFindMesh.position.z > -85){
-			camera.position.z = forFindMesh.position.z + 8;
-			//camera.position.y = 103;
-			orbControls.target.y = 24;
-            orbControls.target.z = forFindMesh.position.z - 57;
+		
+		/*if(cameraSet == 9 && myCharacter.now_position_x > 230 && myCharacter.now_position_x < 400){
+			camera.position.x = myCharacter.now_position_x + 40;
+			camera.position.y = 32;
+			camera.position.z = 134;
+			orbControls.target.x = myCharacter.now_position_x + 45;
+			orbControls.target.y = 77;
+			orbControls.target.z = -433;
 		}*/
+		/*if(cameraSet == 9 && forFindMesh.position.x > 225 && forFindMesh.position.x < 400){
+			camera.position.x = forFindMesh.position.x + 20;
+			camera.position.y = 32;
+
+			orbControls.target.x = forFindMesh.position.x + 45;
+			orbControls.target.y = 77;
+			orbControls.target.z = -433;
+		}
+		if(cameraSet == 9 && forFindMesh.position.z > 20 && forFindMesh.position.z < 55){
+			camera.position.z = forFindMesh.position.z + 79 ;
+		}*/
+		if(cameraSet == 9 && myCharacter.now_position_x > 225 && myCharacter.now_position_x < 400){
+			camera.position.x = myCharacter.now_position_x + 20;
+			camera.position.y = 32;
+
+			orbControls.target.x = myCharacter.now_position_x + 45;
+			orbControls.target.y = 77;
+			orbControls.target.z = -433;
+		}
+		if(cameraSet == 9 && myCharacter.now_position_z > 20 && myCharacter.now_position_z < 55){
+			camera.position.z = myCharacter.now_position_z + 79 ;
+		}
 	}
 
 	
@@ -993,6 +1030,15 @@
 		actionHitbox_mesh_array.push(actionHitbox_drawerFront_mesh);
 		scene.add(actionHitbox_drawerFront_mesh);
 
+		let actionHitbox_clearRoomDoorOpen_mesh = new THREE.Mesh(actionHitbox_doorHorizontal_box, actionHitbox_doorHorizontal_geometry);
+		
+		actionHitbox_clearRoomDoorOpen_mesh.name = "action_ClearRoomDoor";
+		actionHitbox_clearRoomDoorOpen_mesh.position.set(217.5, 0, 35.5);
+		actionHitbox_clearRoomDoorOpen_mesh.visible = false;
+		
+		actionHitbox_mesh_array.push(actionHitbox_clearRoomDoorOpen_mesh);
+		scene.add(actionHitbox_clearRoomDoorOpen_mesh);
+		
 		
 		// 클리어 위치
 		let actionHitbox_clear_mesh = new THREE.Mesh(actionHitbox_doorHorizontal_box, actionHitbox_doorHorizontal_geometry);
@@ -1298,7 +1344,7 @@
 		if ( parameters === undefined ) parameters = {};
 
 		var fontface = parameters.hasOwnProperty("fontface") ? 
-			parameters["fontface"] : "굴림";
+			parameters["fontface"] : "돋움";
 
 		var fontsize = parameters.hasOwnProperty("fontsize") ? 
 			parameters["fontsize"] : 10;
@@ -1429,10 +1475,10 @@
 
 	function setLight() {
 		
-		var light_boy = new THREE.PointLight(0xffffff, 1, 75);
-		var light_girl = new THREE.PointLight(0xffffff, 1, 75);
+		//var light_boy = new THREE.PointLight(0xffffff, 1, 75);
+		//var light_girl = new THREE.PointLight(0xffffff, 1, 75);
 
-		var light = new THREE.AmbientLight(0xaccde0, 1); // 0.1
+		var light = new THREE.AmbientLight(0xaccde0, 0.1); // 0.1
 		scene.add(light);
 		/////////////////////////////////////
 		//////////////// 2층 ////////////////
@@ -1607,6 +1653,8 @@
 		}
 		
 		
+		
+		
 		var cube_geometry = new THREE.BoxGeometry(20, 20, 20);
 
 		var cube_material = new THREE.MeshBasicMaterial({color : 0xffffff, wireframe : true});
@@ -1646,6 +1694,15 @@
 
 		door_collisions.push(close_villianRoom);
 		scene.add(close_villianRoom);
+		
+		var close_ClearRoom = new THREE.Mesh(close_doorHorizontal_box, close_doorHorizontal_geometry);
+		
+		close_ClearRoom.name = "close_door_ClearRoom";
+		close_ClearRoom.position.set(220.5, 0, 35.5);
+		close_ClearRoom.visible = false;
+		
+		door_collisions.push(close_ClearRoom);
+		scene.add(close_ClearRoom);
 
 
 	}
@@ -1673,6 +1730,13 @@
 			doormove : undefined
 
 		};
+		
+		doors["ClearRoomDoor"] = {
+			door_animMixer : undefined,
+			doorObj : undefined,
+			doormove : undefined
+		};
+
 	}
 	
 	
@@ -1680,7 +1744,8 @@
 		clearStatuses['openDoors'] = {
 			roomDoor2F : false,
 			villianRoom : false,
-			clear_outDoor : false
+			clear_outDoor : false,
+			clearDoor_in : false
 		};
 
 		clearStatuses['obj'] = {
@@ -1705,7 +1770,8 @@
 		clearDatas['openDoors'] = {
 			roomDoor2F : false,
 			villianRoom : false,
-			clear_outDoor : false
+			clear_outDoor : false,
+			clearDoor_in : false
 		};
 
 		clearDatas['obj'] = {
@@ -1735,13 +1801,13 @@
 		
 		
 		sounds.bgm = new Audio(SERVER_URL + SOUNDDATA_PATH + "bgm.mp3");
-		sounds.bgm.volume = 0.02;
+		sounds.bgm.volume = 0.05;
 		
 		sounds.villian_walk = new Audio(SERVER_URL + SOUNDDATA_PATH + "villian_walk.mp3");
 		sounds.boy_walk = new Audio(SERVER_URL + SOUNDDATA_PATH + "boy_walk.mp3");
 		sounds.boy_walk.volume = 1;
 		sounds.blender = new Audio(SERVER_URL + SOUNDDATA_PATH + "blender.mp3");
-		sounds.blender.volume = 0.3;
+		sounds.blender.volume = 0.15;
 		sounds.door_open = new Audio(SERVER_URL + SOUNDDATA_PATH + "door_open.mp3");
 		sounds.blender.volume = 0.5;
 		sounds.get_key = new Audio(SERVER_URL + SOUNDDATA_PATH + "get_key.mp3");
@@ -2042,10 +2108,6 @@
 					*/
 					
 
-				}else{
-					if(sounds.door_locked.ended || sounds.door_locked.currentTime == 0){
-						sounds.door_locked.play();
-					}
 				}
 
 
@@ -2068,6 +2130,28 @@
 				
 			}
 		}
+		
+		if(clearDatas['openDoors'].clearDoor_in == true){
+			if(clearStatuses['openDoors'].clearDoor_in == false){
+				// 상대방이 문을 열경우(동기화로 인하여) 문 애니메이션 실행
+				
+				if(clearStatuses['obj'].villian_drawer == true){
+					clearStatuses['openDoors'].clearDoor_in = true;
+					doors["ClearRoomDoor"].doormove.play();
+				
+					if(sounds.door_open.ended || sounds.door_open.currentTime == 0){
+						sounds.door_open.play();
+					}
+					
+
+					let doorCollisionTemp = door_collisions[0]
+					scene.remove(door_collisions[0]);
+					door_collisions.splice(0,1); // 클리어 방의 충돌 메쉬를 없애버림
+				}
+				
+		
+			}
+		}
 
 		if(clearDatas['obj'].blender == true){
 			if(clearStatuses['obj'].blender == false){
@@ -2084,9 +2168,11 @@
 					z : -25.5
 				}
 
-				let message = "믹서기를 가동했습니다. 할아버지가 올겁니다. 좌측의 방에 숨으세요.";
+				let message = "믹서기를 가동했습니다. 맹인의 할아버지가 잡으러 올겁니다. 잡히지 않게 숨으세요.";
 
 				viewGameProcessInfo([infoPosition, message]);
+				
+				
 			}
 		}
 
@@ -2116,12 +2202,17 @@
 		
 		if(villianUIObj.isCalling == false){
 			if(clearDatas['obj'].blender == true){
+				/*
 				if(clearDatas['area'].kitchen_in_girl == true && clearDatas['area'].kitchen_in_boy == true){
 				// 모두 다 주방에 들어가 있으면
 
-					villianUIObj.isCalling = true;
-					callVillian();
+					
 				}
+				*/
+				
+				villianUIObj.isCalling = true;
+				callVillian();
+				
 			}
 		}
 		
@@ -2489,6 +2580,7 @@
 			villianUIObj.gltf_nowView_animMixer.update(clockTime);
 			doors["roomDoor2F"].door_animMixer.update(clockTime);
 			doors["villianRoom"].door_animMixer.update(clockTime);
+			doors["ClearRoomDoor"].door_animMixer.update(clockTime);
 			realtimeUpdatePlayer();
 			stair_check();
 			useInteraction();
@@ -2496,8 +2588,8 @@
 			villianCollisionCheck();
 			poseChangeHitboxCheck();
 			
-			light_boy.position.set(myCharacter.now_position_x, myCharacter.now_position_y, myCharacter.now_position_z);
-			light_girl.position.set(myCharacter.now_position_x, myCharacter.now_position_y, myCharacter.now_position_z);
+			//light_boy.position.set(myCharacter.now_position_x, myCharacter.now_position_y, myCharacter.now_position_z);
+			//light_girl.position.set(myCharacter.now_position_x, myCharacter.now_position_y, myCharacter.now_position_z);
 		
 			if(clearDatas['openDoors'].roomDoor2F == true){
 				cameraChangeHitboxCheck();
@@ -2562,6 +2654,32 @@
 							}
 
 						}
+						
+						else if(collisionResults[0].object.name == "action_ClearRoomDoor"){
+							// 시작방 문 앞이면
+							if(clearDatas['openDoors'].clearDoor_in == false){ // 이미 열려있는 게 아니면
+								
+								if(clearDatas['obj'].villian_drawer == false){
+									let infoPosition = {
+										x : 210,
+										y : 0,
+										z : 40
+									}
+
+
+									let message = "잠겨 있습니다. 열쇠를 먼저 가지고 와야 합니다.";
+
+									viewGameProcessInfo([infoPosition, message]);
+									if(sounds.door_locked.ended || sounds.door_locked.currentTime == 0){
+										sounds.door_locked.play();
+									}
+								}else{
+									clearDatas['openDoors'].clearDoor_in = true;
+								}
+								
+							}
+
+						}
 
 						else if(collisionResults[0].object.name == "action_door_villain_In"){
 							// 악당방 들어가는 문 앞이면
@@ -2571,14 +2689,16 @@
 									let infoPosition = {
 										x : 35,
 										y : 10,
-										z : 27
+										z : 45
 									}
 									
 									
-									let message = "왼쪽 부엌의 믹서기를 먼저 가동시켜 할아버지가 방문을 열어놓고 오도록 해야합니다.";
+									let message = "믹서기를 켜서 할아버지가 방문을 열도록 해야합니다.";
 									
 									viewGameProcessInfo([infoPosition, message]);
-
+									if(sounds.door_locked.ended || sounds.door_locked.currentTime == 0){
+										sounds.door_locked.play();
+									}
 								}else{
 
 									clearDatas['openDoors'].villianRoom = true;
@@ -2816,6 +2936,14 @@
 							case "cameraHitbox_store_to_villianRoom_in":
 
 								io_ui.emit('cameraChange', io_ui.id, 5);
+								break;
+								
+							case "cameraHitbox_to_clearRoom_out":
+								io_ui.emit('cameraChange', io_ui.id, 4);
+								break;
+								
+							case "cameraHitbox_to_clearRoom_in":
+								io_ui.emit('cameraChange', io_ui.id, 9);
 								break;
 
 						}
@@ -3236,7 +3364,7 @@
 			scene.remove(scene.children[0]); 
 		}
 
-		alert("성공적으로 탈출하셨습니다. 축하드려요 ! 앙기모찌");
+		alert("성공적으로 탈출하셨습니다. 축하드려요 !");
 
 	}
 
@@ -3278,9 +3406,10 @@
 		gltfLoad_VillianAnimation();
 		gltfload_2F_doorAnimation();
 		gltfLoad_1F_villianRoomDoorAnimation();
+		gltfload_Clear_doorAnimation();
 		gltfLoad_intro_wait();
 		
-
+	
 
 	}
 
@@ -3288,7 +3417,7 @@
 	
 	async function gltfload_Map() {
 
-		const map = SERVER_URL + MODELINGDATA_PATH + "map_texture_new.glb";
+		const map = SERVER_URL + MODELINGDATA_PATH + "map_texture_new2.glb";
 
 
 		gltfLoader.load(map, function(gltfObj){
@@ -3385,7 +3514,48 @@
 		}	
 		);
 	}
+	
+		
+	async function gltfload_Clear_doorAnimation(){
 
+		const roomDoor2F = SERVER_URL + MODELINGDATA_PATH + "2fdoor-animation.glb";
+
+		gltfLoader.load(roomDoor2F, function(doorObj){
+
+			doorObj.scene.scale.x = 5;
+			doorObj.scene.scale.y = 5;
+			doorObj.scene.scale.z = 5;
+			
+			doorObj.scene.position.x = 223.5;
+			doorObj.scene.position.y = -2;
+			doorObj.scene.position.z = 37;
+
+			doorObj.scene.rotation.y = Math.PI / 4 * 6;
+
+			scene.add(doorObj.scene);
+
+			doors["ClearRoomDoor"].door_animMixer = new THREE.AnimationMixer(doorObj.scene);
+			doors["ClearRoomDoor"].doormove = doors["ClearRoomDoor"].door_animMixer.clipAction(doorObj.animations[0]);
+			doors["ClearRoomDoor"].doormove.setLoop(THREE.LoopOnce);
+			doors["ClearRoomDoor"].doormove.clampWhenFinished = true;
+
+			doors["ClearRoomDoor"].doorObj = doorObj;
+
+
+		},
+		function ( xhr ) {
+
+			console.log( Math.floor(( xhr.loaded / xhr.total * 100 )) + '% loaded' );
+
+		},
+		// called when loading has errors
+		function ( error ) {
+
+			console.log( 'An error happened' + error );
+
+		}	
+		);
+	}
 
 	async function gltfload_Map_Collision(){
 
