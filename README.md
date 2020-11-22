@@ -47,10 +47,15 @@ Team. 포켓몬고는 다음에 개발할게요.
 ##
 ### Mobile Application 개발 Team.
 * <em>Android Application Developer. </em> <b>이시헌</b>
+    #### 
+    Android Application Source : https://github.com/rjursi/JSWebGame_Controller
+    
     ####
+    
     - Android 조이스틱 컨트롤러 디자인
     - Android Studio 응용 Application Activity UI 디자인
     - Android 단 Socket.io 적용 데이터 통신 구현
+  
 
 ##
 * <em>IOS Application Developer. </em> <b>조현수</b>
