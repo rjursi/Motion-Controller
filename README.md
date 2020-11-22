@@ -80,7 +80,7 @@ Team. 포켓몬고는 다음에 개발할게요.
 #### Thanks To!
 
 여자 캐릭터 : <em>KresnanditoRK260</em> - https://blendswap.com/blend/22735  
-남자 캐릭터 : <em>RodrigoXP</em> - https://blendswap.com/blend/15500
+남자 캐릭터 : <em>RodrigoXP</em> - https://blendswap.com/blend/15500  
 악당 할아버지 캐릭터 : <em>VMComix</em> - https://blendswap.com/blend/3115  
 주방 식탁 : <em>cisco336</em> - https://blendswap.com/blend/22549  
 
