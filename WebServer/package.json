@@ -10,7 +10,7 @@
     "https": "^1.0.0",
     "socket.io": "^2.3.0",
     "socket.io-redis": "^5.2.0",
-    "three": "^0.115.0",
+    "three": ">=0.125.0",
     "three.js": "^0.77.1"
   },
   "devDependencies": {},
